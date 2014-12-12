@@ -1,0 +1,60 @@
+#!/bin/bash
+
+SCALA_VERSION=2.11
+ILDL_VERSION=0.1-SNAPSHOT
+
+if [ "$ILDL_PATH" == "" ] 
+then 
+  ILDL_PATH="`dirname \"$0\"`"              # relative
+  ILDL_PATH="`( cd \"$ILDL_PATH\" && pwd )`"  # absolutized and normalized
+fi
+if [ "$SCALA_PATH" == "" ] 
+then
+  SCALA_PATH="`dirname $(which scalac)`"
+  SCALA_PATH="`( cd \"$SCALA_PATH\" && pwd )`"
+fi
+
+if [ "$ILDL_PATH" == "" -o "$SCALA_PATH" == "" -o ! -f $SCALA_PATH/scalac -o ! -d $ILDL_PATH/components ]
+then
+  echo To use this script please set the ILDL_PATH and SCALA_PATH environment variables such that:
+  echo " -" '$SCALA_PATH/scalac' "(currently $SCALA_PATH/scalac)"
+  echo " -" '$ILDL_PATH/components' "(currently $ILDL_PATH/components)"
+  echo are accessible
+  exit 1
+fi
+
+PLUGIN_JAR=$ILDL_PATH/components/plugin/target/scala-$SCALA_VERSION/ildl-plugin_$SCALA_VERSION-$ILDL_VERSION.jar
+RUNTIME_JAR=$ILDL_PATH/components/runtime/target/scala-$SCALA_VERSION/ildl-runtime_$SCALA_VERSION-$ILDL_VERSION.jar
+
+me=`basename $0`
+if [ "$me" == "ildl-scalac" ]; then
+  target=scalac
+elif [ "$me" == "ildl-scala" ]; then
+  target=scala
+else
+  echo Unrecognized script name: $0
+  exit 1
+fi
+
+function checkjar {
+  if [ ! -f "$1" ]
+  then
+    echo "The script is going to build the required jar file $1 by running \"sbt $2\" [5s until build]"
+    sleep 5
+    cd $ILDL_PATH
+    sbt $2
+    cd -
+    if [ ! -f "$1" ]
+    then
+      echo "The required jar file has not been built by sbt. Please run \"sbt $2\""
+      exit 1
+    else
+      echo "The required jar file was built."
+    fi
+  fi
+}
+
+checkjar $PLUGIN_JAR ildl-plugin/package
+checkjar $RUNTIME_JAR ildl-runtime/package
+
+$SCALA_PATH/$target -bootclasspath $RUNTIME_JAR:$PLUGIN_JAR -Xplugin:$PLUGIN_JAR $@
