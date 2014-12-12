@@ -1,4 +1,4 @@
-mport sbt._
+import sbt._
 import Keys._
 import Process._
 
@@ -11,7 +11,7 @@ object ILDLBuild extends Build {
     println("Full classpath is: "+cp.map(_.data).mkString(":"))
   }
 
-  val defaults = Defaults.defaultSettings ++ assemblySettings ++ Seq(
+  val defaults = Defaults.defaultSettings ++ Seq(
     scalaSource in Compile := baseDirectory.value / "src",
     javaSource in Compile := baseDirectory.value / "src",
     scalaSource in Test := baseDirectory.value / "test",

@@ -11,7 +11,7 @@ organizationName in Global := "LAMP/EPFL"
 
 organizationHomepage in Global := Some(url("http://lamp.epfl.ch"))
 
-licenses in Global := Seq("BSD-style" -> file("LICENSE"))
+licenses in Global := Seq("BSD-style" -> url("http://www.scala-lang.org/license.html"))
 
 homepage in Global := Some(url("http://lamp.epfl.ch"))
 
