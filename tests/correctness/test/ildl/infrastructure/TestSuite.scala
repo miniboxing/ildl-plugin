@@ -6,7 +6,6 @@ import scala.tools.nsc.io._
 import java.io.FileNotFoundException
 import difflib._
 import java.io.PrintWriter
-import miniboxing.plugin.ScalacVersion
 import difflib.myers._
 
 /* Taken from: [[https://github.com/nicolasstucki/specialized/commit/f7ee90610d0052cb3607cef138051575db3c2eb9]] */
