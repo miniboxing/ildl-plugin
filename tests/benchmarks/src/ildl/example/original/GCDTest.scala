@@ -11,36 +11,44 @@ object GCDTest extends App {
     def +(n2: (Int, Int)): (Int, Int) = (n1.re + n2.re, n1.im + n2.im)
     def -(n2: (Int, Int)): (Int, Int) = (n1.re - n2.re, n1.im - n2.im)
     def *(n2: (Int, Int)): (Int, Int) = (n1.re * n2.re - n1.im * n2.im, n1.re * n2.im + n1.im * n2.re)
-    def approx_/(n2: (Int, Int)): (Int, Int) = {
+    def *(n2: Int): (Int, Int) = (n1.re * n2, n1.re * n2)
+    def /(n2: (Int, Int)): (Int, Int) = {
       val denom = n2 * n2.c
       val numer = n1 * n2.c
       assert(denom.im == 0)
       (math.round(numer.re.toFloat / denom.re), math.round(numer.im.toFloat / denom.re))
     }
+    def %(n2: (Int, Int)): (Int, Int) =
+      (n1 - (n1 / n2 * n2)).pos
+    def pos: (Int, Int) =
+      if (n1.re < 0) (-n1.re, -n1.im) else n1
   }
 
-  def gcd(n1: (Int, Int), n2: (Int, Int)): (Int, Int) = {
+  def gcd_reorder(n1: (Int, Int), n2: (Int, Int)): (Int, Int) = {
     if (n1.norm >= n2.norm)
-      gcd_in(n1, n2)
+      gcd(n1, n2)
     else
-      gcd_in(n2, n1)
+      gcd(n2, n1)
   }
 
   @annotation.tailrec
-  private def gcd_in(n1: (Int, Int), n2: (Int, Int)): (Int, Int) = {
-    val quotient  = n1 approx_/ n2
-    val remainder = n1 - (quotient * n2)
-
-    if (remainder == (0, 0)) n2 else gcd_in(n2, remainder)
+  private def gcd(n1: (Int, Int), n2: (Int, Int)): (Int, Int) = {
+    val remainder = n1 % n2
+    if (remainder == (0, 0)) n2 else gcd(n2, remainder)
   }
 
-  val rnd = new util.Random(0)
-  val start = System.currentTimeMillis
-  var iter = 100000
-  while (iter > 0) {
-    gcd((rnd.nextInt(10000), rnd.nextInt(10000)), (rnd.nextInt(10000), rnd.nextInt(10000)))
-    iter -= 1
+  println(timed(() => gcd((55, 2) * (10, 4), (17, 13) * (10, 4))))
+
+  def timed[T](op: () => T): T = {
+    val start = System.currentTimeMillis
+    var iter = 1000
+    while (iter > 0) {
+      op()
+      iter -= 1
+    }
+    val stop  = System.currentTimeMillis
+    println("The operation took " + (stop - start) + " us.")
+    op()
   }
-  val stop  = System.currentTimeMillis
-  println("iterations took " + (stop - start) + " ms")
 }
+
