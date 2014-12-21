@@ -37,7 +37,9 @@ object GCDTest extends App {
     if (remainder == (0, 0)) n2 else gcd(n2, remainder)
   }
 
-  println(timed(() => gcd((55, 2) * (10, 4), (17, 13) * (10, 4))))
+
+  println(timed(() => gcd((544,185), (131,181))))
+
 
   def timed[T](op: () => T): T = {
     val start = System.currentTimeMillis

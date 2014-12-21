@@ -42,7 +42,7 @@ object GCDTestTrans extends App {
     if (norm(remainder) == 0) n2 else gcd(n2, remainder)
   }
 
-  println(out2in(timed(() => gcd(*(in2out((55, 2)),in2out((10, 4))), *(in2out((17, 13)), in2out((10, 4)))))))
+  println(out2in(timed(() => gcd(in2out((544,185)), in2out((131,181))))))
 
   def timed[T](op: () => T): T = {
     val start = System.currentTimeMillis
