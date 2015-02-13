@@ -26,6 +26,9 @@ object ILDLBuild extends Build {
 
     scalacOptions ++= Seq("-feature", "-deprecation", "-unchecked", "-Xlint"),
 
+    // reflect is a first-class dependency
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+
     parallelExecution in Global := false
   )
 

@@ -1,12 +1,12 @@
 package ildl.example.original
 
 // taken from http://rosettacode.org/wiki/Hamming_numbers#Scala
-class Hamming extends Iterator[Long] {
+class Hamming extends Iterator[BigInt] {
   import scala.collection.mutable.Queue
-  val q2 = new Queue[Long]
-  val q3 = new Queue[Long]
-  val q5 = new Queue[Long]
-  def enqueue(n: Long) = {
+  val q2 = new Queue[BigInt]
+  val q3 = new Queue[BigInt]
+  val q5 = new Queue[BigInt]
+  def enqueue(n: BigInt) = {
     q2 enqueue n * 2
     q3 enqueue n * 3
     q5 enqueue n * 5

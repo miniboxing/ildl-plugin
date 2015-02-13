@@ -18,39 +18,41 @@ class MyQueue {
     array(index_start)
 }
 
-object QueueOfLongAsArrayOfLong {
-  type In = Queue[Long]
+object QueueOfBigIntAsArrayOfLong {
+  type In = Queue[BigInt]
   type Out = MyQueue
-  def toRepr(in: Queue[Long]): MyQueue = new MyQueue
-  def fromRepr(q: MyQueue): Queue[Long] = ???
-  def extension_enqueue(q: MyQueue, l: Long): Unit = q.enqueue1(l)
-  def extension_dequeue(q: MyQueue): Long = q.dequeue1()
-  def extension_head(q: MyQueue): Long = q.head1()
+  def toRepr(in: Queue[BigInt]): MyQueue = new MyQueue
+  def fromRepr(q: MyQueue): Queue[BigInt] = ???
+  def extension_enqueue(q: MyQueue, l: BigInt): Unit = q.enqueue1(l.toLong)
+  def extension_dequeue(q: MyQueue): BigInt = q.dequeue1()
+  def extension_head(q: MyQueue): BigInt = q.head1()
 }
 
 // taken from http://rosettacode.org/wiki/Hamming_numbers#Scala
-class Hamming extends Iterator[Long] {
+class Hamming extends Iterator[BigInt] {
   import scala.collection.mutable.Queue
-  val q2: MyQueue = QueueOfLongAsArrayOfLong.toRepr(new Queue[Long])
-  val q3: MyQueue = QueueOfLongAsArrayOfLong.toRepr(new Queue[Long])
-  val q5: MyQueue = QueueOfLongAsArrayOfLong.toRepr(new Queue[Long])
-  def enqueue(n: Long) = {
-    QueueOfLongAsArrayOfLong.extension_enqueue(q2, n * 2)
-    QueueOfLongAsArrayOfLong.extension_enqueue(q3, n * 3)
-    QueueOfLongAsArrayOfLong.extension_enqueue(q5, n * 5)
+  val q2: MyQueue = QueueOfBigIntAsArrayOfLong.toRepr(new Queue[BigInt])
+  val q3: MyQueue = QueueOfBigIntAsArrayOfLong.toRepr(new Queue[BigInt])
+  val q5: MyQueue = QueueOfBigIntAsArrayOfLong.toRepr(new Queue[BigInt])
+  def enqueue(n: BigInt) = {
+    QueueOfBigIntAsArrayOfLong.extension_enqueue(q2, n * 2)
+    QueueOfBigIntAsArrayOfLong.extension_enqueue(q3, n * 3)
+    QueueOfBigIntAsArrayOfLong.extension_enqueue(q5, n * 5)
   }
   def next = {
-    val n: Long = QueueOfLongAsArrayOfLong.extension_head(q2) min QueueOfLongAsArrayOfLong.extension_head(q3) min QueueOfLongAsArrayOfLong.extension_head(q5)
-    if (QueueOfLongAsArrayOfLong.extension_head(q2) == n) { QueueOfLongAsArrayOfLong.extension_dequeue(q2) }
-    if (QueueOfLongAsArrayOfLong.extension_head(q3) == n) { QueueOfLongAsArrayOfLong.extension_dequeue(q3) }
-    if (QueueOfLongAsArrayOfLong.extension_head(q5) == n) { QueueOfLongAsArrayOfLong.extension_dequeue(q5) }
+    val n: BigInt = QueueOfBigIntAsArrayOfLong.extension_head(q2) min
+                    QueueOfBigIntAsArrayOfLong.extension_head(q3) min
+                    QueueOfBigIntAsArrayOfLong.extension_head(q5)
+    if (QueueOfBigIntAsArrayOfLong.extension_head(q2) == n) { QueueOfBigIntAsArrayOfLong.extension_dequeue(q2) }
+    if (QueueOfBigIntAsArrayOfLong.extension_head(q3) == n) { QueueOfBigIntAsArrayOfLong.extension_dequeue(q3) }
+    if (QueueOfBigIntAsArrayOfLong.extension_head(q5) == n) { QueueOfBigIntAsArrayOfLong.extension_dequeue(q5) }
     enqueue(n)
     n
   }
   def hasNext = true
-  QueueOfLongAsArrayOfLong.extension_enqueue(q2,1)
-  QueueOfLongAsArrayOfLong.extension_enqueue(q3,1)
-  QueueOfLongAsArrayOfLong.extension_enqueue(q5,1)
+  QueueOfBigIntAsArrayOfLong.extension_enqueue(q2,1)
+  QueueOfBigIntAsArrayOfLong.extension_enqueue(q3,1)
+  QueueOfBigIntAsArrayOfLong.extension_enqueue(q5,1)
 }
 
 object HammingTestTrans {
