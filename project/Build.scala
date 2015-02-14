@@ -71,13 +71,13 @@ object ILDLBuild extends Build {
   val testsDeps: Seq[Setting[_]] = junitDeps ++ Seq(
     getJarsTask,
     fork in Test := true,
-    javaOptions in Test <+= (dependencyClasspath in Runtime, scalaBinaryVersion, packageBin in Compile in plugin) map { (path, ver, _) =>
+    javaOptions in Test <+= (dependencyClasspath in Runtime, scalaBinaryVersion, packageBin in Compile in plugin, packageBin in Compile in runtime) map { (path, ver, _, runtime) =>
       def isBoot(file: java.io.File) = 
         ((file.getName() startsWith "scala-") && (file.getName() endsWith ".jar")) ||
         (file.toString contains ("target/scala-" + ver)) // this makes me cry, seriously sbt...
 
-      val cp = "-Xbootclasspath/a:" + path.map(_.data).filter(isBoot).mkString(":")
-      // println(cp)
+      val cp = "-Xbootclasspath/a:" + path.map(_.data).filter(isBoot).mkString(":") + ":" + runtime
+      println(cp)
       cp
     },
     libraryDependencies ++= (
@@ -95,7 +95,7 @@ object ILDLBuild extends Build {
     )
   )
 
-  lazy val _ildl       = Project(id = "ildl",             base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests)
+  lazy val _ildl       = Project(id = "ildl",             base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests, benchmarks)
   lazy val runtime     = Project(id = "ildl-runtime",     base = file("components/runtime"),     settings = defaults)
   lazy val plugin      = Project(id = "ildl-plugin",      base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
   lazy val tests       = Project(id = "ildl-tests",       base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ testsDeps) dependsOn(plugin, runtime)

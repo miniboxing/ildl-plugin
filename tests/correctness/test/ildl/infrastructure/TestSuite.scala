@@ -60,6 +60,7 @@ class TestSuite {
       val launch_file = replaceExtension(source, "launch")
       val expect = slurp(check_file)
       val launch = slurp(launch_file).replace("\n","")
+      System.err.println(flags)
       val output = new CompileTest(code, flags, launch).compilationOutput()
       import scala.collection.JavaConversions._
       def stripTrailingWS(s: String) = s.replaceAll("\\s*$","")

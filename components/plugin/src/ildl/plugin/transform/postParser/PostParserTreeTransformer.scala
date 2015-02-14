@@ -59,7 +59,7 @@ trait PostParserTreeTransformer {
           for (tree <- trees)
             trav traverse tree
 
-          Multi(trees)
+          Multi(trees.map(transform))
         case _ =>
           Descend
       }

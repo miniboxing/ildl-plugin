@@ -12,4 +12,11 @@ trait ildlDefinitions {
 
   lazy val ildlPackageObjectSymbol = rootMirror.getPackageObject("ildl")
   lazy val idllAdrtSymbol = definitions.getMemberMethod(ildlPackageObjectSymbol, TermName("adrt"))
+
+  lazy val ildlPackageSymbol = rootMirror.getPackage(TermName("ildl"))
+  lazy val ildlTransformationDescrSym = definitions.getMemberClass(ildlPackageSymbol, TypeName("TransformationDescription"))
+
+  // TODO: This should be defined programatically
+  lazy val ildlInternalPackageSymbol = rootMirror.getPackage(TermName("ildl.internal"))
+  lazy val reprClass = definitions.getMemberClass(ildlInternalPackageSymbol, TypeName("repr"))
 }

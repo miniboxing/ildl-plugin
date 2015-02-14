@@ -13,5 +13,6 @@ trait ildlMetadata {
 
   object metadata {
     val descriptionObject = perRunCaches.newMap[Position, Tree]()
+    val synbolDescriptionObjects = perRunCaches.newMap[Symbol, List[Tree]]()
   }
 }

@@ -15,7 +15,7 @@ trait InjectTreeTransformer extends TreeRewriters {
   import helper._
 
   override def newTransformer(unit: CompilationUnit): Transformer =
-    afterInject(new InjectTransformer(unit))
+    beforeInject(new InjectTransformer(unit))
 
   def getTransformDescriptors(tree: Tree): List[Tree] = {
     val attach = tree.attachments.get[ildlAttachment].get
@@ -36,21 +36,25 @@ trait InjectTreeTransformer extends TreeRewriters {
 
       // valDefs
       case vd @ ValDef(mods, name, tpt, rhs) if vd.hasAttachment[ildlAttachment] =>
-//        val descr = metadata.descriptionObject(vd)
-//        val ntpt = TypeTree(transformType(tpt.tpe, descr))
-//        val nrhs = transform(rhs)
-//        val vd2 = treeCopy.ValDef(tree, mods, name, ntpt, nrhs)
-//        localTyper.typed(vd2)
         val descrs = getTransformDescriptors(tree)
-        println("transforming " + vd + "  :  " + descrs)
-        Descend
+        val ntpt = atOwner(vd.symbol)(localTyper.typed(TypeTree(transformType(vd.pos, tpt.tpe, descrs))))
+        val nrhs = transform(rhs)
+        val vd2 = treeCopy.ValDef(vd, mods, name, ntpt, nrhs)
+        metadata.synbolDescriptionObjects(vd.symbol) = descrs
+        afterInject(vd.symbol.info)
+        localTyper.typed(vd2)
 
       // defdefs
-      case dd : DefDef if dd.hasAttachment[ildlAttachment] =>
-//        println("transforming " + vd + "  :  " + System.identityHashCode(tree) + "    " + vd.attachments)
+      case dd @ DefDef(mods, name, tpars, vparamss, tpt, rhs) if dd.hasAttachment[ildlAttachment] =>
         val descrs = getTransformDescriptors(tree)
-        println("transforming " + dd + "  :  " + descrs)
-        Descend
+        val ntpt = TypeTree(transformType(dd.pos, tpt.tpe, descrs))
+        val nrhs = transform(rhs)
+        val nvss = vparamss.map(_.map(transformValDef))
+        val dd2 = treeCopy.DefDef(dd, mods, name, tpars, nvss, ntpt, nrhs)
+        metadata.synbolDescriptionObjects(dd.symbol) = descrs
+        afterInject(dd.symbol.info)
+        localTyper.typed(dd2)
+
       case _ =>
         Descend
     }
