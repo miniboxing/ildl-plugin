@@ -3,7 +3,7 @@ name := "ildl"
 
 scalaVersion in Global := "2.11.4"
 
-version in Global := "0.0-SNAPSHOT"
+version in Global := "0.1-SNAPSHOT"
 
 organization in Global := "ch.epfl.lamp"
 

@@ -10,10 +10,6 @@ package object ildl {
   /**
    *  The iLDL ad-hoc data representation transformation
    */
-  def adrt[T](descr: Descr)(f: T): T = macro adrt_impl[T]
-
-  /** iLDL macro implementation */
-  def adrt_impl[T](c: Context)(descr: c.Expr[Descr])(f: T): c.Expr[T] =
-    ???
+  def adrt[T](descr: Descr)(f: T): T = ???
 }
 

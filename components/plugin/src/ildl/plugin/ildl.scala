@@ -6,7 +6,19 @@ import scala.tools.nsc.plugins._
 import scala.tools.nsc.transform._
 import scala.tools.nsc.settings.ScalaVersion
 
-class ildl(val global: Global) extends Plugin {
+import infrastructure._
+import transform._
+import postParser._
+
+trait PostParserComponent extends
+    PluginComponent
+    with TreeRewriters
+    with PostParserTreeTransformer {
+
+  def flag_passive: Boolean
+}
+
+class ILDL(val global: Global) extends Plugin {
   import global._
 
   val name = "ildl"
@@ -14,7 +26,7 @@ class ildl(val global: Global) extends Plugin {
 
   var flag_passive = false
 
-  lazy val components = List[PluginComponent]()
+  lazy val components = List[PluginComponent](PostParserPhase)
 
   override def processOptions(options: List[String], error: String => Unit) {
     for (option <- options) {
@@ -26,4 +38,15 @@ class ildl(val global: Global) extends Plugin {
       }
     }
   }
+
+  private object PostParserPhase extends PostParserComponent {
+    val global: ILDL.this.global.type = ILDL.this.global
+    val runsAfter = List("parser")
+    override val runsRightAfter = Some("parser")
+    val phaseName = "ildl-postparser"
+
+    def flag_passive = ILDL.this.flag_passive
+  }
+
+
 }

@@ -1,4 +1,4 @@
 <plugin>
   <name>ildl</name>
-  <classname>ildl.plugin.Minibox</classname>
+  <classname>ildl.plugin.ILDL</classname>
 </plugin>
