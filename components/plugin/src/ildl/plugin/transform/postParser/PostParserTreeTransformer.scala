@@ -26,13 +26,35 @@ trait PostParserTreeTransformer {
 
     import global._
 
+    case class ILDLAttachment(tree: Tree)
+    class ILDLAttachementTraverser(att: ILDLAttachment) extends Traverser {
+      override def traverse(tree: Tree) = tree match {
+        case vd: ValDef if !vd.hasAttachment[ILDLAttachment] => vd.updateAttachment[ILDLAttachment](att)
+        case _ => super.traverse(tree)
+      }
+    }
+//    implicit class WithAlreadyTyped(val tree: Tree) {
+//      def withTypedAnnot: Tree = tree.updateAttachment[AlreadyTyped.type](AlreadyTyped)
+//    }
+
     protected def rewrite(tree: Tree): Result = {
       tree match {
         case Apply(Apply(Ident(TermName("adrt")), transf :: Nil), Block(stmts, expr) :: Nil) =>
-          expr match {
-            case Literal(Constant(())) => Multi(stmts)
-            case _                     => Multi(stmts ::: List(expr))
-          }
+
+          val empty = Apply(Apply(Ident(TermName("adrt")), transf :: Nil), Literal(Constant(())) :: Nil)
+          val trees =
+            expr match {
+              case Literal(Constant(())) => empty :: stmts
+              case _                     => empty :: stmts ::: List(expr)
+            }
+
+          val att = ILDLAttachment(transf)
+          val trav = new ILDLAttachementTraverser(att)
+
+          for (tree <- trees)
+            trav traverse tree
+
+          Multi(trees)
         case _ =>
           Descend
       }

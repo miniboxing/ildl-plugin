@@ -8,4 +8,4 @@ import scala.annotation.TypeConstraint
  *  and accidental occurrence of an unrelated `Repr` type,
  *  without the High => Repr transformation semantics.
  */
-class repr extends StaticAnnotation with TypeConstraint
+class high extends StaticAnnotation with TypeConstraint
