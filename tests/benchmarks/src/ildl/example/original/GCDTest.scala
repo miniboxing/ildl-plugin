@@ -34,7 +34,7 @@ object GCDTest extends App {
   @annotation.tailrec
   private def gcd(n1: (Int, Int), n2: (Int, Int)): (Int, Int) = {
     val remainder = n1 % n2
-    if (remainder == (0, 0)) n2 else gcd(n2, remainder)
+    if (remainder == ((0, 0))) n2 else gcd(n2, remainder)
   }
 
 

@@ -9,9 +9,9 @@ trait ildlMetadata {
 
   import global._
 
-  case class ildlAttachment(tree: Tree)
+  case class ildlAttachment(descrs: List[Position])
 
   object metadata {
-    val descriptionObject = perRunCaches.newMap[Tree, Tree]()
+    val descriptionObject = perRunCaches.newMap[Position, Tree]()
   }
 }

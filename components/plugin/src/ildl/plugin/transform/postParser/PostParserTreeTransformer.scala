@@ -16,10 +16,8 @@ trait PostParserTreeTransformer {
 
   class PostParserPhase(prev: Phase) extends StdPhase(prev) {
     override def name = PostParserTreeTransformer.this.phaseName
-    def apply(unit: CompilationUnit): Unit = {
-      //afterInteropBridge(new BridgeTransformer(unit).transformUnit(unit))
+    def apply(unit: CompilationUnit): Unit =
       new PostParserTransformer(unit).transformUnit(unit)
-    }
   }
 
   class PostParserTransformer(unit: CompilationUnit) extends TreeRewriter(unit) {
@@ -27,34 +25,15 @@ trait PostParserTreeTransformer {
     import global._
     import helper._
 
-    class ildlAttachementTraverser(att: ildlAttachment) extends Traverser {
-
-      println()
-      println("Attachment Traverser initialized")
+    class ildlAttachementTraverser(descr: Position) extends Traverser {
 
       override def traverse(tree: Tree) = {
-        tree match {
-          case _: ValDef | _: DefDef =>
-            tree.updateAttachment[ildlAttachment](att)
-            println("marked " + tree + "  :  " + tree.attachments)
-          case _ =>
-        }
-        super.traverse(tree)
-      }
-    }
-
-    class ildlMetadataTraverser(descr: Tree) extends Traverser {
-
-      println()
-      println("Attachment Metadata initialized")
-
-      override def traverse(tree: Tree) = {
-        tree match {
-          case _: ValDef | _: DefDef =>
-            metadata.descriptionObject(tree) = descr
-            println("added to metadata " + tree + "    " + System.identityHashCode(tree))
-          case _ =>
-        }
+        val newatt =
+          if (tree.hasAttachment[ildlAttachment])
+            ildlAttachment(descr :: tree.attachments.get[ildlAttachment].get.descrs)
+          else
+            ildlAttachment(descr :: Nil)
+        tree.updateAttachment[ildlAttachment](newatt)
         super.traverse(tree)
       }
     }
@@ -74,14 +53,11 @@ trait PostParserTreeTransformer {
               case _                     => empty :: stmts ::: List(expr)
             }
 
-          val att = ildlAttachment(descr)
-          val trav = new ildlAttachementTraverser(att)
-          val trav2 = new ildlMetadataTraverser(descr)
+          // add the transformation to all trees
+          val trav = new ildlAttachementTraverser(descr.pos)
 
-          for (tree <- trees) {
+          for (tree <- trees)
             trav traverse tree
-            trav2 traverse tree
-          }
 
           Multi(trees)
         case _ =>

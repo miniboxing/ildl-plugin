@@ -10,4 +10,6 @@ trait ildlDefinitions {
   import global._
   import definitions._
 
+  lazy val ildlPackageObjectSymbol = rootMirror.getPackageObject("ildl")
+  lazy val idllAdrtSymbol = definitions.getMemberMethod(ildlPackageObjectSymbol, TermName("adrt"))
 }
