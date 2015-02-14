@@ -25,34 +25,63 @@ trait PostParserTreeTransformer {
   class PostParserTransformer(unit: CompilationUnit) extends TreeRewriter(unit) {
 
     import global._
+    import helper._
 
-    case class ILDLAttachment(tree: Tree)
-    class ILDLAttachementTraverser(att: ILDLAttachment) extends Traverser {
-      override def traverse(tree: Tree) = tree match {
-        case vd: ValDef if !vd.hasAttachment[ILDLAttachment] => vd.updateAttachment[ILDLAttachment](att)
-        case _ => super.traverse(tree)
+    class ildlAttachementTraverser(att: ildlAttachment) extends Traverser {
+
+      println()
+      println("Attachment Traverser initialized")
+
+      override def traverse(tree: Tree) = {
+        tree match {
+          case _: ValDef | _: DefDef =>
+            tree.updateAttachment[ildlAttachment](att)
+            println("marked " + tree + "  :  " + tree.attachments)
+          case _ =>
+        }
+        super.traverse(tree)
       }
     }
-//    implicit class WithAlreadyTyped(val tree: Tree) {
-//      def withTypedAnnot: Tree = tree.updateAttachment[AlreadyTyped.type](AlreadyTyped)
-//    }
+
+    class ildlMetadataTraverser(descr: Tree) extends Traverser {
+
+      println()
+      println("Attachment Metadata initialized")
+
+      override def traverse(tree: Tree) = {
+        tree match {
+          case _: ValDef | _: DefDef =>
+            metadata.descriptionObject(tree) = descr
+            println("added to metadata " + tree + "    " + System.identityHashCode(tree))
+          case _ =>
+        }
+        super.traverse(tree)
+      }
+    }
 
     protected def rewrite(tree: Tree): Result = {
       tree match {
-        case Apply(Apply(Ident(TermName("adrt")), transf :: Nil), Block(stmts, expr) :: Nil) =>
+        case Apply(Apply(Ident(TermName("adrt")), descr :: Nil), Block(stmts, expr) :: Nil) =>
 
-          val empty = Apply(Apply(Ident(TermName("adrt")), transf :: Nil), Literal(Constant(())) :: Nil)
+          // keep the empty tree around, to force type-checking of the description object
+          // the ildl-inject phase will remove it from the tree
+          val empty = Apply(Apply(Ident(TermName("adrt")), descr :: Nil), Literal(Constant(())) :: Nil)
+
+          // the actual trees that are transformed => flattened in-place
           val trees =
             expr match {
               case Literal(Constant(())) => empty :: stmts
               case _                     => empty :: stmts ::: List(expr)
             }
 
-          val att = ILDLAttachment(transf)
-          val trav = new ILDLAttachementTraverser(att)
+          val att = ildlAttachment(descr)
+          val trav = new ildlAttachementTraverser(att)
+          val trav2 = new ildlMetadataTraverser(descr)
 
-          for (tree <- trees)
+          for (tree <- trees) {
             trav traverse tree
+            trav2 traverse tree
+          }
 
           Multi(trees)
         case _ =>

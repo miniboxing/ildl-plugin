@@ -1,4 +1,4 @@
 <plugin>
   <name>ildl</name>
-  <classname>ildl.plugin.ILDL</classname>
+  <classname>ildl.plugin.ildl</classname>
 </plugin>

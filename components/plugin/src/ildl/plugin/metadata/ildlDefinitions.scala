@@ -5,7 +5,7 @@ import scala.tools.nsc.plugins.PluginComponent
 import scala.collection.immutable.ListMap
 
 trait ildlDefinitions {
-  this: PluginComponent =>
+  this: ildlHelperComponent =>
 
   import global._
   import definitions._
