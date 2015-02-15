@@ -39,8 +39,8 @@ trait InjectComponent extends
 
   def injectPhase: StdPhase
 
-  def afterInject[T](op: => T): T = global.enteringPhase(injectPhase)(op)
-  def beforeInject[T](op: => T): T = global.exitingPhase(injectPhase)(op)
+  def afterInject[T](op: => T): T = global.exitingPhase(injectPhase)(op)
+  def beforeInject[T](op: => T): T = global.enteringPhase(injectPhase)(op)
 }
 
 /** The component that introduces coercions */
@@ -53,8 +53,8 @@ trait CoerceComponent extends
 
   def coercePhase: StdPhase
 
-  def afterCoerce[T](op: => T): T = global.enteringPhase(coercePhase)(op)
-  def beforeCoerce[T](op: => T): T = global.exitingPhase(coercePhase)(op)
+  def afterCoerce[T](op: => T): T = global.exitingPhase(coercePhase)(op)
+  def beforeCoerce[T](op: => T): T = global.enteringPhase(coercePhase)(op)
 }
 
 
@@ -67,6 +67,9 @@ class ildl(val global: Global) extends Plugin {
   var flag_passive = false
 
   lazy val components = List[PluginComponent](PostParserPhase, InjectPhase, CoercePhase)
+
+  // LDL ftw!
+  global.addAnnotationChecker(CoercePhase.ReprAnnotationChecker)
 
   override def processOptions(options: List[String], error: String => Unit) {
     for (option <- options) {

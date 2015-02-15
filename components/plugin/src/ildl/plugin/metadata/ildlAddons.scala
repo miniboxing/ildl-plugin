@@ -15,20 +15,33 @@ trait ildlAddons {
     // @repr annotation tools:
     def hasReprAnnot: Boolean =
       tpe.dealiasWiden.hasAnnotation(reprClass)
-    def withReprAnnot(descr: Tree): Type =
+    def withReprAnnot(descr: Tree): Type = {
+//      assert(descr.symbol != ildlTransformationDescrSym, descr)
       tpe.withAnnotation(AnnotationInfo(reprClass.tpe, List(descr), Nil))
-    def withReprAnnot(descr: Symbol): Type =
+    }
+    def withReprAnnot(descr: Symbol): Type = {
+//      assert(descr != ildlTransformationDescrSym, descr)
+//      assert(descr.isModuleClass)
       tpe.withAnnotation(AnnotationInfo(reprClass.tpe, List(gen.mkAttributedRef(descr)), Nil))
+    }
     def withoutReprAnnot: Type =
       tpe.filterAnnotations(_.tpe =:= reprClass.tpe)
 
     def getDescrObject: Symbol = tpe.dealiasWiden.annotations.filter(_.tpe.typeSymbol == reprClass) match {
       case Nil         => assert(false, "Internal error: No @repr annotation detected."); ???
-      case List(annot) => annot.argAtIndex(0).get.symbol
+      case List(annot) =>
+        val sym = annot.argAtIndex(0).get.symbol
+//        assert(sym != ildlTransformationDescrSym, annot.argAtIndex(0))
+        if (sym == ildlTransformationDescrSym)
+          sym
+        else if (sym.isModule)
+          sym
+        else
+          sym.sourceModule
       case _           => assert(false, "Internal error: Multiple @repr annotations detected."); ???
     }
-    def getDescrHighToRepr: Symbol = tpe.getDescrObject.tpe.member(highToReprName)
-    def getDescrReprToHigh: Symbol = tpe.getDescrObject.tpe.member(reprToHighName)
+    def getDescrHighToRepr: Symbol = tpe.getDescrObject.tpe.member(highToReprName).filter(!_.isDeferred)
+    def getDescrReprToHigh: Symbol = tpe.getDescrObject.tpe.member(reprToHighName).filter(!_.isDeferred)
 
     def withoutReprDeep: Type = (new TypeMap {
       def apply(tpe: Type): Type = mapOver(tpe)

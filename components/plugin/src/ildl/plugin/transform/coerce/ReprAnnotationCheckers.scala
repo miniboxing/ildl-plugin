@@ -89,10 +89,15 @@ trait ReprAnnotationCheckers {
         val res11 = tpe1.hasReprAnnot == tpe2.hasReprAnnot
         val res12 = res11 && (!tpe1.hasReprAnnot || (tpe1.getDescrObject == tpe2.getDescrObject))
         val res2 = tpe2.isWildcard
-        // println("after: " + tpe1 + " <: " + tpe2 + " ==> " + res + " (phase = " + global.phase.name + " " + global.phase.id + "  " + mboxAdaptPhase.id + ")")
+//        if (tpe1.hasReprAnnot && tpe1.hasReprAnnot) {
+//          println(tpe1.getDescrObject)
+//          println(tpe2.getDescrObject)
+//          println(tpe1.getDescrObject == tpe2.getDescrObject)
+//        }
+//        println("after: " + tpe1 + " <: " + tpe2 + " ==> " + res2 + " (phase = " + global.phase.name + " " + global.phase.id + "  " + coercePhase.id + ")")
         res11 && res12 || res2
       } else {
-        // println("before: " + tpe1 + " <: " + tpe2 + " ==> true" + " (phase = " + global.phase.name + "  " + global.phase.id + "  " + mboxAdaptPhase.id +  ")")
+//        println("before: " + tpe1 + " <: " + tpe2 + " ==> true" + " (phase = " + global.phase.name + "  " + global.phase.id + "  " + coercePhase.id +  ")")
         true
       }
 

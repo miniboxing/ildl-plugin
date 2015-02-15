@@ -94,9 +94,9 @@ object ILDLBuild extends Build {
     )
   )
 
-  lazy val _ildl       = Project(id = "ildl",             base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests, benchmarks)
+  lazy val _ildl       = Project(id = "ildl",             base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests) //, benchmarks)
   lazy val runtime     = Project(id = "ildl-runtime",     base = file("components/runtime"),     settings = defaults)
   lazy val plugin      = Project(id = "ildl-plugin",      base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
   lazy val tests       = Project(id = "ildl-tests",       base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ testsDeps) dependsOn(plugin, runtime)
-  lazy val benchmarks  = Project(id = "ildl-benchmarks",  base = file("tests/benchmarks"),       settings = defaults ++ runtimeDeps ++ scalaMeter ++ pluginCompilationDeps) dependsOn(plugin, runtime)
+  // lazy val benchmarks  = Project(id = "ildl-benchmarks",  base = file("tests/benchmarks"),       settings = defaults ++ runtimeDeps ++ scalaMeter ++ pluginCompilationDeps) dependsOn(plugin, runtime)
 }

@@ -126,7 +126,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
       override def typed(tree: Tree, mode: Mode, pt: Type): Tree = {
         val ind = indent
         indent += 1
-        adaptdbg(ind, " <== " + tree + ": " + showRaw(pt, true, true, false, false) + "  now: " + tree.tpe)
+        adaptdbg(ind, " <== " + tree + " now: " + tree.tpe + "  expected: " + pt)
 
         if (tree.hasAttachment[AlreadyTyped.type] && (pt == WildcardType) && (tree.tpe != null))
           return tree
@@ -134,6 +134,16 @@ trait CoerceTreeTransformer extends TypingTransformers {
         val res = tree match {
           case EmptyTree | TypeTree() =>
             super.typed(tree, mode, pt)
+
+          // Don't retype transformation description objects
+          case tpl: ClassDef =>
+            val isDescrObject = tpl.symbol.isTransfDescriptionObject
+            if (isDescrObject)
+              tpl
+            else {
+              tpl.setType(null)
+              super.typed(tpl, mode, pt)
+            }
 
           case Select(qual, meth) if qual.isTerm && tree.symbol.isMethod =>
             val qual2 = super.typedQualifier(qual.setType(null), mode, WildcardType).withTypedAnnot
