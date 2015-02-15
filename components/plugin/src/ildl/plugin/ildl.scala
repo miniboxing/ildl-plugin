@@ -10,6 +10,7 @@ import metadata._
 import transform._
 import postParser._
 import inject._
+import bridge._
 import coerce._
 import commit._
 
@@ -42,6 +43,21 @@ trait InjectComponent extends
 
   def afterInject[T](op: => T): T = global.exitingPhase(injectPhase)(op)
   def beforeInject[T](op: => T): T = global.enteringPhase(injectPhase)(op)
+}
+
+/** The component that introduces coercions */
+trait BridgeComponent extends
+    PluginComponent
+    with BridgeTreeTransformer {
+
+  val helper: ildlHelperComponent { val global: BridgeComponent.this.global.type }
+
+  def bridgePhase: StdPhase
+
+  def afterBridge[T](op: => T): T = global.exitingPhase(bridgePhase)(op)
+  def afterCoerce[T](op: => T): T
+  def beforeBridge[T](op: => T): T = global.enteringPhase(bridgePhase)(op)
+  def beforeCoerce[T](op: => T): T
 }
 
 /** The component that introduces coercions */
@@ -80,7 +96,7 @@ class ildl(val global: Global) extends Plugin {
 
   var flag_passive = false
 
-  lazy val components = List[PluginComponent](PostParserPhase, InjectPhase, CoercePhase, CommitPhase)
+  lazy val components = List[PluginComponent](PostParserPhase, InjectPhase, BridgePhase, CoercePhase, CommitPhase)
 
   // LDL ftw!
   global.addAnnotationChecker(CoercePhase.ReprAnnotationChecker)
@@ -126,12 +142,30 @@ class ildl(val global: Global) extends Plugin {
     }
   }
 
+  private object BridgePhase extends {
+    val helper = helperComponent
+  } with BridgeComponent {
+    val global: ildl.this.global.type = ildl.this.global
+    val runsAfter = List("uncurry")
+    override val runsRightAfter = Some("uncurry")
+    val phaseName = "ildl-bridge"
+
+    var bridgePhase : StdPhase = _
+    override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
+      bridgePhase = new BridgePhase(prev.asInstanceOf[BridgePhase.StdPhase])
+      bridgePhase
+    }
+
+    def afterCoerce[T](op: => T): T = global.exitingPhase(CoercePhase.coercePhase)(op)
+    def beforeCoerce[T](op: => T): T = global.enteringPhase(CoercePhase.coercePhase)(op)
+  }
+
   private object CoercePhase extends {
     val helper = helperComponent
   } with CoerceComponent {
     val global: ildl.this.global.type = ildl.this.global
-    val runsAfter = List("uncurry")
-    override val runsRightAfter = Some("uncurry")
+    val runsAfter = List(BridgePhase.phaseName)
+    override val runsRightAfter = Some(BridgePhase.phaseName)
     val phaseName = "ildl-coerce"
 
     var coercePhase : StdPhase = _

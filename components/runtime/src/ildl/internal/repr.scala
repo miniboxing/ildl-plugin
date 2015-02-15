@@ -1,7 +1,7 @@
 package ildl
 package internal
 
-import annotation.Annotation
+import annotation.StaticAnnotation
 import annotation.TypeConstraint
 
-class repr(descr: TransformationDescription) extends Annotation with TypeConstraint
+class repr(descr: TransformationDescription) extends StaticAnnotation with TypeConstraint

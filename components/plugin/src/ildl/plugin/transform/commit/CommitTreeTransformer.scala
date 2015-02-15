@@ -1,3 +1,4 @@
+// NOTE: This file was adapted form the miniboxing repository:
 //
 //     _____   .__         .__ ___.                    .__ scala-miniboxing.org
 //    /     \  |__|  ____  |__|\_ |__    ____  ___  ___|__|  ____     ____
