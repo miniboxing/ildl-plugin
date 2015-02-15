@@ -1,0 +1,21 @@
+[[syntax trees at end of               ildl-coerce]] // newSource1.scala
+package test {
+  object GCDTest extends Object {
+    def <init>(): test.GCDTest.type = {
+      GCDTest.super.<init>();
+      ()
+    };
+    object IntPairAsLong extends Object with ildl.TransformationDescription {
+      def <init>(): test.GCDTest.IntPairAsLong.type = {
+        IntPairAsLong.super.<init>();
+        ()
+      };
+      type High = (Int, Int);
+      type Repr = Long;
+      def toRepr(pair: (Int, Int)): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = scala.this.Predef.???();
+      def fromRepr(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???()
+    };
+    private[this] val n1: (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.IntPairAsLong.toRepr(new (Int, Int)(1, 2));
+    <stable> <accessor> def n1(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.n1
+  }
+}

@@ -49,6 +49,7 @@ trait InjectInfoTransformer extends InfoTransform {
     tpe match {
       case PolyType(targs, tpe) => PolyType(targs, transformType(pos, tpe, descrs))
       case MethodType(args, tpe) => MethodType(args, transformType(pos, tpe, descrs))
+      case NullaryMethodType(tpe) => NullaryMethodType(transformType(pos, tpe, descrs))
       case _ if !tpe.hasAnnotation(reprClass) =>
         var ntpe = tpe
         var done = false
@@ -81,6 +82,7 @@ trait InjectInfoTransformer extends InfoTransform {
     tpe match {
       case PolyType(targs, tpe) => PolyType(targs, transformHighAnnotation(sym, tpe, descr))
       case MethodType(args, tpe) => MethodType(args, transformHighAnnotation(sym, tpe, descr))
+      case NullaryMethodType(tpe) => NullaryMethodType(transformHighAnnotation(sym, tpe, descr))
       case _ if tpe.hasHighAnnot =>
         val highTpe = descr.tpe.member(TypeName("High")).alternatives.head.tpe
         val reprTpe = descr.tpe.member(TypeName("Repr")).alternatives.head.tpe

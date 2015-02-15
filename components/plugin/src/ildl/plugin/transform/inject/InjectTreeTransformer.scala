@@ -17,11 +17,15 @@ trait InjectTreeTransformer extends TreeRewriters {
   override def newTransformer(unit: CompilationUnit): Transformer =
     beforeInject(new InjectTransformer(unit))
 
-  def getTransformDescriptors(tree: Tree): List[Tree] = {
-    val attach = tree.attachments.get[ildlAttachment].get
-    val descrs = attach.descrs.map(metadata.descriptionObject(_))
-    descrs
-  }
+  def getTransformDescriptors(tree: Tree): List[Tree] =
+    if (tree.hasAttachment[ildlAttachment]) {
+      val attach = tree.attachments.get[ildlAttachment].get
+      val descrs = attach.descrs.map(metadata.descriptionObject(_))
+      descrs
+    } else {
+      assert(tree.symbol.isAccessor && metadata.synbolDescriptionObjects.isDefinedAt(tree.symbol.accessed))
+      metadata.synbolDescriptionObjects(tree.symbol.accessed)
+    }
 
   class InjectTransformer(unit: CompilationUnit) extends TreeRewriter(unit) {
 
@@ -45,19 +49,22 @@ trait InjectTreeTransformer extends TreeRewriters {
         localTyper.typed(vd2)
 
       // defdefs
-      case dd @ DefDef(mods, name, tpars, vparamss, tpt, rhs) if dd.hasAttachment[ildlAttachment] =>
+      case dd @ DefDef(mods, name, tpars, vparamss, tpt, rhs) if shouldInject(dd) =>
         val descrs = getTransformDescriptors(tree)
         val ntpt = TypeTree(transformType(dd.pos, tpt.tpe, descrs))
         val nrhs = transform(rhs)
         val nvss = vparamss.map(_.map(transformValDef))
         val dd2 = treeCopy.DefDef(dd, mods, name, tpars, nvss, ntpt, nrhs)
         metadata.synbolDescriptionObjects(dd.symbol) = descrs
-        afterInject(dd.symbol.info)
         localTyper.typed(dd2)
 
       case _ =>
         Descend
     }
+
+    def shouldInject(dd: DefDef): Boolean =
+      dd.hasAttachment[ildlAttachment] ||
+      dd.symbol.isAccessor && metadata.synbolDescriptionObjects.isDefinedAt(dd.symbol.accessed)
   }
 }
 
