@@ -10,6 +10,7 @@ import metadata._
 import transform._
 import postParser._
 import inject._
+import coerce._
 
 /** Metadata and definitions */
 trait ildlHelperComponent extends
@@ -28,7 +29,7 @@ trait PostParserComponent extends
   val helper: ildlHelperComponent { val global: PostParserComponent.this.global.type }
 }
 
-/** The component that inject @repr annotations */
+/** The component that injects @repr annotations */
 trait InjectComponent extends
     PluginComponent
     with InjectTreeTransformer
@@ -41,6 +42,21 @@ trait InjectComponent extends
   def afterInject[T](op: => T): T = global.enteringPhase(injectPhase)(op)
   def beforeInject[T](op: => T): T = global.exitingPhase(injectPhase)(op)
 }
+
+/** The component that introduces coercions */
+trait CoerceComponent extends
+    PluginComponent
+    with ReprAnnotationCheckers
+    with CoerceTreeTransformer {
+
+  val helper: ildlHelperComponent { val global: CoerceComponent.this.global.type }
+
+  def coercePhase: StdPhase
+
+  def afterCoerce[T](op: => T): T = global.enteringPhase(coercePhase)(op)
+  def beforeCoerce[T](op: => T): T = global.exitingPhase(coercePhase)(op)
+}
+
 
 class ildl(val global: Global) extends Plugin {
   import global._

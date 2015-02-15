@@ -11,13 +11,33 @@ trait ildlAddons {
   import definitions._
 
   implicit class RichType(tpe: Type) {
+
+    // @repr annotation tools:
     def hasReprAnnot: Boolean =
-      tpe.hasAnnotation(reprClass)
+      tpe.dealiasWiden.hasAnnotation(reprClass)
     def withReprAnnot(descr: Tree): Type =
       tpe.withAnnotation(AnnotationInfo(reprClass.tpe, List(descr), Nil))
-    def withoutReprAnnot(descr: Tree): Type =
+    def withReprAnnot(descr: Symbol): Type =
+      tpe.withAnnotation(AnnotationInfo(reprClass.tpe, List(gen.mkAttributedRef(descr)), Nil))
+    def withoutReprAnnot: Type =
       tpe.filterAnnotations(_.tpe =:= reprClass.tpe)
 
+    def getDescrObject: Symbol = tpe.dealiasWiden.annotations.filter(_.tpe.typeSymbol == reprClass) match {
+      case Nil         => assert(false, "Internal error: No @repr annotation detected."); ???
+      case List(annot) => annot.tpe.typeArgs(0).typeSymbol
+      case _           => assert(false, "Internal error: Multiple @repr annotations detected."); ???
+    }
+    def withoutReprDeep: Type = (new TypeMap {
+      def apply(tpe: Type): Type = mapOver(tpe)
+      override def mapOver(tpe: Type): Type = tpe match {
+        case ann: AnnotatedType if ann.hasAnnotation(reprClass) =>
+          tpe.filterAnnotations(ann => !(ann.tpe =:= reprClass.tpe))
+        case _ =>
+          super.mapOver(tpe)
+      }}).apply(tpe)
+
+
+    // @high annotation tools:
     def hasHighAnnot: Boolean =
       tpe.hasAnnotation(ildlHighClass)
     def withoutHighAnnot: Type =
@@ -30,5 +50,9 @@ trait ildlAddons {
       sym == ildlTransformationDescrSym
   }
 
-  // TODO: RichTree
+  implicit class RichTree(tree: Tree) {
+    def hasReprAnnot: Boolean =
+      tree.tpe.hasReprAnnot
+
+  }
 }
