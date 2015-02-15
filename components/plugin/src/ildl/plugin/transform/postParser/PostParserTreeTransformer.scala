@@ -40,7 +40,7 @@ trait PostParserTreeTransformer {
 
     protected def rewrite(tree: Tree): Result = {
       tree match {
-        case Apply(Apply(Ident(TermName("adrt")), descr :: Nil), Block(stmts, expr) :: Nil) =>
+        case Apply(Apply(Ident(TermName("adrt")), descr :: Nil), inner :: Nil) =>
 
           // keep the empty tree around, to force type-checking of the description object
           // the ildl-inject phase will remove it from the tree
@@ -48,9 +48,10 @@ trait PostParserTreeTransformer {
 
           // the actual trees that are transformed => flattened in-place
           val trees =
-            expr match {
-              case Literal(Constant(())) => empty :: stmts
-              case _                     => empty :: stmts ::: List(expr)
+            inner match {
+              case Block(stmts, Literal(Constant(()))) => empty :: transformStats(stmts, currentOwner)
+              case Block(stmts, expr)                  => empty :: transformStats(stmts ::: List(expr), currentOwner)
+              case expr                                => empty :: transformStats(List(expr), currentOwner)
             }
 
           // add the transformation to all trees
@@ -59,7 +60,7 @@ trait PostParserTreeTransformer {
           for (tree <- trees)
             trav traverse tree
 
-          Multi(trees.map(transform))
+          Multi(trees)
         case _ =>
           Descend
       }
