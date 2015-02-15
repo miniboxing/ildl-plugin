@@ -1,0 +1,5 @@
+newSource1.scala:27: error: type mismatch;
+ found   : (Int, Int)
+ required: Int
+      n2 = n1
+           ^
