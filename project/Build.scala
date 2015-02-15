@@ -71,13 +71,12 @@ object ILDLBuild extends Build {
   val testsDeps: Seq[Setting[_]] = junitDeps ++ Seq(
     getJarsTask,
     fork in Test := true,
-    javaOptions in Test <+= (dependencyClasspath in Runtime, scalaBinaryVersion, packageBin in Compile in plugin, packageBin in Compile in runtime) map { (path, ver, _, runtime) =>
+    javaOptions in Test <+= (dependencyClasspath in Runtime, scalaBinaryVersion, packageBin in Compile in plugin, packageBin in Compile in runtime) map { (path, ver, _, _) =>
       def isBoot(file: java.io.File) = 
         ((file.getName() startsWith "scala-") && (file.getName() endsWith ".jar")) ||
         (file.toString contains ("target/scala-" + ver)) // this makes me cry, seriously sbt...
 
-      val cp = "-Xbootclasspath/a:" + path.map(_.data).filter(isBoot).mkString(":") + ":" + runtime
-      println(cp)
+      val cp = "-Xbootclasspath/a:" + path.map(_.data).filter(isBoot).mkString(":")
       cp
     },
     libraryDependencies ++= (

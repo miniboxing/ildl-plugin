@@ -11,10 +11,10 @@ import difflib.myers._
 /* Taken from: [[https://github.com/nicolasstucki/specialized/commit/f7ee90610d0052cb3607cef138051575db3c2eb9]] */
 class TestSuite {
 
-  private[this] def files(dirs: List[String], ext: String) = {
+  private[this] def files(what: String, dirs: List[String], ext: String) = {
     val cwd = sys.props.get("user.dir").getOrElse(".")
     val res = dirs.foldLeft(Path(new JFile(cwd)))((path, dir) => path / dir)
-    System.err.println("Picking tests from: " + res)
+    System.err.println(s"Picking $what from: $res")
     res.jfile.listFiles().filter(_.getName().endsWith(ext)).sortBy(_.getName())
   }
 
@@ -31,7 +31,10 @@ class TestSuite {
   // TODO: This needs to be general, it's currently a mess
   private[this] def pluginCompilerFlag() =
     try {
-      "-Xplugin:" + files(List("..", "..", "components", "plugin", "target", "scala-2.11"), ".jar").head.toString
+      val plugin  = files("plugin", List("..", "..", "components", "plugin", "target", "scala-2.11"), ".jar").head.toString
+      val runtime = files("runtime", List("..", "..", "components", "plugin", "target", "scala-2.11"), ".jar").head.toString
+
+      s"-Xplugin:$plugin -cp $plugin:$runtime"
     } catch {
       case x: NoSuchElementException =>
         sys.error("The plugin jar is not available! Run \"sbt ildl-plugin/package\" to generate it.")
@@ -46,7 +49,7 @@ class TestSuite {
     // use carefully:
 //    UPDATE_CHECKFILE = true
 
-    val tests = files(List("resources", "tests"), ".scala").toList
+    val tests = files("tests", List("resources", "tests"), ".scala").toList
 
     for (source <- tests) {
       System.err.print(f"Compiling ${source.getName()}%-60s ... ")
@@ -60,7 +63,6 @@ class TestSuite {
       val launch_file = replaceExtension(source, "launch")
       val expect = slurp(check_file)
       val launch = slurp(launch_file).replace("\n","")
-      System.err.println(flags)
       val output = new CompileTest(code, flags, launch).compilationOutput()
       import scala.collection.JavaConversions._
       def stripTrailingWS(s: String) = s.replaceAll("\\s*$","")
