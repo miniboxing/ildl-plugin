@@ -14,7 +14,8 @@ import inject._
 /** Metadata and definitions */
 trait ildlHelperComponent extends
   ildlDefinitions with
-  ildlMetadata {
+  ildlMetadata with
+  ildlAddons {
   val global: Global
 }
 
