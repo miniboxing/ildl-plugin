@@ -42,6 +42,16 @@ trait ildlAddons {
     }
     def getDescrHighToRepr: Symbol = tpe.getDescrObject.tpe.member(highToReprName).filter(!_.isDeferred)
     def getDescrReprToHigh: Symbol = tpe.getDescrObject.tpe.member(reprToHighName).filter(!_.isDeferred)
+    def getDescrHighTpe: Type = {
+      val res = tpe.getDescrObject.tpe.member(highTpeName).tpe.dealias
+      assert(res != NoType, tpe.getDescrObject.tpe.member(highTpeName))
+      res
+    }
+    def getDescrReprTpe: Type = {
+      val res = tpe.getDescrObject.tpe.member(reprTpeName).tpe.dealias
+      assert(res != NoType, tpe.getDescrObject.tpe.member(reprTpeName))
+      res
+    }
 
     def withoutReprDeep: Type = (new TypeMap {
       def apply(tpe: Type): Type = mapOver(tpe)

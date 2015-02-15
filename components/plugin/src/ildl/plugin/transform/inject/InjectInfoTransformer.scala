@@ -56,7 +56,7 @@ trait InjectInfoTransformer extends InfoTransform {
         var wned = false
         var crtd = EmptyTree: Tree
 
-        for (descr <- descrs) {
+        for (descr <- descrs.reverse) {
           val highTpe = descr.tpe.member(TypeName("High")).alternatives.head.tpe
           val reprTpe = descr.tpe.member(TypeName("Repr")).alternatives.head.tpe
           if (tpe =:= highTpe)

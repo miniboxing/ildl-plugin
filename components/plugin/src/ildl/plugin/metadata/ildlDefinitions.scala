@@ -10,6 +10,8 @@ trait ildlDefinitions {
   import global._
   import definitions._
 
+  def flag_passive: Boolean
+
   lazy val ildlPackageObjectSymbol = rootMirror.getPackageObject("ildl")
   lazy val idllAdrtSymbol = definitions.getMemberMethod(ildlPackageObjectSymbol, TermName("adrt"))
 
@@ -23,4 +25,6 @@ trait ildlDefinitions {
 
   lazy val reprToHighName = TermName("fromRepr")
   lazy val highToReprName = TermName("toRepr")
+  lazy val highTpeName = TypeName("High")
+  lazy val reprTpeName = TypeName("Repr")
 }

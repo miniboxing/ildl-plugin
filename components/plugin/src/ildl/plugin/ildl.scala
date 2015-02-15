@@ -11,6 +11,7 @@ import transform._
 import postParser._
 import inject._
 import coerce._
+import commit._
 
 /** Metadata and definitions */
 trait ildlHelperComponent extends
@@ -57,6 +58,19 @@ trait CoerceComponent extends
   def beforeCoerce[T](op: => T): T = global.enteringPhase(coercePhase)(op)
 }
 
+/** The component that introduces coercions */
+trait CommitComponent extends
+    PluginComponent
+    with CommitInfoTransformer
+    with CommitTreeTransformer {
+
+  val helper: ildlHelperComponent { val global: CommitComponent.this.global.type }
+
+  def commitPhase: StdPhase
+
+  def afterCommit[T](op: => T): T = global.exitingPhase(commitPhase)(op)
+  def beforeCommit[T](op: => T): T = global.enteringPhase(commitPhase)(op)
+}
 
 class ildl(val global: Global) extends Plugin {
   import global._
@@ -66,7 +80,7 @@ class ildl(val global: Global) extends Plugin {
 
   var flag_passive = false
 
-  lazy val components = List[PluginComponent](PostParserPhase, InjectPhase, CoercePhase)
+  lazy val components = List[PluginComponent](PostParserPhase, InjectPhase, CoercePhase, CommitPhase)
 
   // LDL ftw!
   global.addAnnotationChecker(CoercePhase.ReprAnnotationChecker)
@@ -105,8 +119,6 @@ class ildl(val global: Global) extends Plugin {
     override val runsRightAfter = Some("typer")
     val phaseName = "ildl-inject"
 
-    def flag_passive = ildl.this.flag_passive
-
     var injectPhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       injectPhase = new Phase(prev)
@@ -122,12 +134,25 @@ class ildl(val global: Global) extends Plugin {
     override val runsRightAfter = Some("uncurry")
     val phaseName = "ildl-coerce"
 
-    def flag_passive = ildl.this.flag_passive
-
     var coercePhase : StdPhase = _
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       coercePhase = new CoercePhase(prev.asInstanceOf[CoercePhase.StdPhase])
       coercePhase
+    }
+  }
+
+  private object CommitPhase extends {
+    val helper = helperComponent
+  } with CommitComponent {
+    val global: ildl.this.global.type = ildl.this.global
+    val runsAfter = List(CoercePhase.phaseName)
+    override val runsRightAfter = Some(CoercePhase.phaseName)
+    val phaseName = "ildl-commit"
+
+    var commitPhase : StdPhase = _
+    override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
+      commitPhase = new Phase(prev)
+      commitPhase
     }
   }
 }
