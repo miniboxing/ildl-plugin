@@ -20,4 +20,7 @@ trait ildlDefinitions {
   // TODO: This should be defined programatically
   lazy val ildlInternalPackageSymbol = rootMirror.getPackage(TermName("ildl.internal"))
   lazy val reprClass = definitions.getMemberClass(ildlInternalPackageSymbol, TypeName("repr"))
+
+  lazy val reprToHighName = TermName("fromRepr")
+  lazy val highToReprName = TermName("toRepr")
 }

@@ -24,9 +24,12 @@ trait ildlAddons {
 
     def getDescrObject: Symbol = tpe.dealiasWiden.annotations.filter(_.tpe.typeSymbol == reprClass) match {
       case Nil         => assert(false, "Internal error: No @repr annotation detected."); ???
-      case List(annot) => annot.tpe.typeArgs(0).typeSymbol
+      case List(annot) => annot.argAtIndex(0).get.symbol
       case _           => assert(false, "Internal error: Multiple @repr annotations detected."); ???
     }
+    def getDescrHighToRepr: Symbol = tpe.getDescrObject.tpe.member(highToReprName)
+    def getDescrReprToHigh: Symbol = tpe.getDescrObject.tpe.member(reprToHighName)
+
     def withoutReprDeep: Type = (new TypeMap {
       def apply(tpe: Type): Type = mapOver(tpe)
       override def mapOver(tpe: Type): Type = tpe match {

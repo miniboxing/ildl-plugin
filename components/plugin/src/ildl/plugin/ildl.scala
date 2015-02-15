@@ -66,7 +66,7 @@ class ildl(val global: Global) extends Plugin {
 
   var flag_passive = false
 
-  lazy val components = List[PluginComponent](PostParserPhase, InjectPhase)
+  lazy val components = List[PluginComponent](PostParserPhase, InjectPhase, CoercePhase)
 
   override def processOptions(options: List[String], error: String => Unit) {
     for (option <- options) {
@@ -108,6 +108,23 @@ class ildl(val global: Global) extends Plugin {
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       injectPhase = new Phase(prev)
       injectPhase
+    }
+  }
+
+  private object CoercePhase extends {
+    val helper = helperComponent
+  } with CoerceComponent {
+    val global: ildl.this.global.type = ildl.this.global
+    val runsAfter = List("uncurry")
+    override val runsRightAfter = Some("uncurry")
+    val phaseName = "ildl-coerce"
+
+    def flag_passive = ildl.this.flag_passive
+
+    var coercePhase : StdPhase = _
+    override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
+      coercePhase = new CoercePhase(prev.asInstanceOf[CoercePhase.StdPhase])
+      coercePhase
     }
   }
 }

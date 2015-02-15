@@ -83,13 +83,15 @@ trait CoerceTreeTransformer extends TypingTransformers {
 
         if (tree.isTerm) {
           if ((oldTpe.hasReprAnnot ^ newTpe.hasReprAnnot) && (!pt.isWildcard)) {
-            val conversion = ??? // TODO: if (oldTpe.hasReprAnnot) marker_minibox2box else marker_box2minibox
+            val descObject = if (oldTpe.hasReprAnnot) oldTpe.getDescrObject else newTpe.getDescrObject
+            val conversion = if (oldTpe.hasReprAnnot) oldTpe.getDescrReprToHigh else newTpe.getDescrHighToRepr
             val (tpe, descr) =
               if (oldTpe.hasReprAnnot)
                 (oldTpe.dealiasWiden.withoutReprAnnot, oldTpe.getDescrObject)
               else
                 (newTpe.dealiasWiden.withoutReprAnnot, newTpe.getDescrObject)
-            val tree1 = ??? // TODO: gen.mkMethodCall(conversion, List(tpe, repr.tpeHK), List(tree.withTypedAnnot))
+            val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
+            val tree1 = gen.mkMethodCall(convCall, List(tree.withTypedAnnot))
             val tree2 = super.typed(tree1, mode, pt)
             assert(tree2.tpe != ErrorType, tree2)
             // super.adapt is automatically executed when calling super.typed
@@ -99,9 +101,10 @@ trait CoerceTreeTransformer extends TypingTransformers {
             val descr2 = newTpe.getDescrObject
             if (descr1 != descr2) {
               // representation mismatch
-              // TODO: val tree1 = gen.mkMethodCall(marker_minibox2minibox, List(oldTpe.dealiasWiden.withoutReprAnnot, repr1.tpeHK, repr2.tpeHK), List(tree.withTypedAnnot))
-              // TODO: super.typed(tree1, mode, pt)
-              ???
+              val convCall1 = gen.mkAttributedSelect(gen.mkAttributedRef(oldTpe.getDescrObject), oldTpe.getDescrReprToHigh)
+              val convCall2 = gen.mkAttributedSelect(gen.mkAttributedRef(newTpe.getDescrObject), newTpe.getDescrHighToRepr)
+              val tree1 = gen.mkMethodCall(convCall2, gen.mkMethodCall(convCall1, List(tree.withTypedAnnot)) :: Nil)
+              super.typed(tree1, mode, pt)
             } else {
               // workaround the isSubType issue with singleton types
               // and annotated types (see mb_erasure_torture10.scala)
@@ -140,11 +143,11 @@ trait CoerceTreeTransformer extends TypingTransformers {
               val tpe2 = if (qual2.tpe.hasAnnotation(reprClass)) qual2.tpe else qual2.tpe.widen
               val tpe3 = tpe2.removeAnnotation(reprClass)
               //val qual3 = super.typedQualifier(qual.setType(null), mode, tpe3)
-// TODO TODO TODO
-//              val storageType = qual2.tpe.getStorageRepr.tpeHK
-//              val qual3 =  gen.mkMethodCall(gen.mkAttributedRef(marker_minibox2box), List(tpe3, storageType), List(qual2))
-//              super.typed(Select(qual3, meth) setSymbol tree.symbol, mode, pt)
-              ???
+              val descObject = qual2.tpe.getDescrObject
+              val conversion = qual2.tpe.getDescrReprToHigh
+              val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
+              val qual3 =  gen.mkMethodCall(convCall, List(qual2))
+              super.typed(Select(qual3, meth) setSymbol tree.symbol, mode, pt)
             } else {
               tree.setType(null)
               super.typed(tree, mode, pt)
