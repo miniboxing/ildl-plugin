@@ -1,0 +1,4 @@
+newSource1.scala:7: error: The value hi contains the @high annotation despite not being enclosed in a transformation description object. This is an invalid use of the @high annotation.
+  val hi: Int @high = 2
+      ^
+one error found

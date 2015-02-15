@@ -14,9 +14,33 @@ trait InjectInfoTransformer extends InfoTransform {
   import helper._
 
   override def transformInfo(sym: Symbol, tpe: Type): Type = {
+
+    // make sure description objects do not nest
+    if (currentRun.compiles(sym) && sym.isTransfDescriptionObject) {
+      val enclosing = sym.ownerChain.find(s => (s != sym) && (s.isTransfDescriptionObject))
+      if (enclosing.isDefined) {
+        global.reporter.error(sym.pos, s"The ${sym.name} transformation description object is nested inside the " +
+                                       s"${enclosing.get.name} transformation description object, a construction which " +
+                                       s"is illegal (al least for now).")
+      }
+    }
+
+    // types inside the `adrt` scope get annotated:
     if (metadata.synbolDescriptionObjects.isDefinedAt(sym)) {
       val descrs = metadata.synbolDescriptionObjects(sym)
       transformType(NoPosition, tpe, descrs)
+    } else if (tpe.finalResultType.hasHighAnnot) {
+      // Match exterior description object
+      val enclosingDescr = sym.ownerChain.find(s => s.isTransfDescriptionObject)
+      enclosingDescr match {
+        case None =>
+          global.reporter.error(sym.pos, s"The ${sym} contains the @high annotation despite not being enclosed in a " +
+                                         s"transformation description object. This is an invalid use of the @high " +
+                                         s"annotation.")
+          tpe.withoutHighAnnot
+        case Some(descr) =>
+          transformHighAnnotation(sym, tpe, gen.mkAttributedRef(descr))
+      }
     } else
       tpe
   }
@@ -63,11 +87,11 @@ trait InjectInfoTransformer extends InfoTransform {
         if (tpe.withoutHighAnnot =:= reprTpe) {
           highTpe.withReprAnnot(descr)
         } else {
-          global.reporter.error(descr.pos, s"The ${descr.symbol.name} transformation description object contains a definition " +
-                                           s"error: The @high annotation in $sym's type is applied to something that is " +
-                                           s"not the representation type (which is $reprTpe). This is an error in the" +
-                                           s"transformation description object definition.")
-          ErrorType
+          global.reporter.error(sym.pos, s"The ${descr.symbol.name} transformation description object contains a definition " +
+                                         s"error: The @high annotation in $sym's type is applied to something that is " +
+                                         s"not the representation type (which is $reprTpe). This is an error in the" +
+                                         s"transformation description object definition.")
+          tpe.withoutHighAnnot
         }
       case _ =>
         tpe

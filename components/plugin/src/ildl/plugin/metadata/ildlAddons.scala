@@ -24,5 +24,11 @@ trait ildlAddons {
       tpe.filterAnnotations(x => !(x.tpe =:= ildlHighClass.tpe))
   }
 
-  // TODO: RichTree, RichSym
+  implicit class RichSym(sym: Symbol) {
+    def isTransfDescriptionObject: Boolean =
+      sym.isModuleOrModuleClass && (sym.tpe <:< ildlTransformationDescrSym.tpe) ||
+      sym == ildlTransformationDescrSym
+  }
+
+  // TODO: RichTree
 }
