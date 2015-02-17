@@ -41,24 +41,24 @@ trait BridgeTreeTransformer extends TreeRewriters {
       tree match {
         case defdef: DefDef =>
 
-          def sameResultEncoding(s: Symbol): Boolean = {
-            val res1 = s.tpe.finalResultType.hasReprAnnot == defdef.symbol.info.finalResultType.hasReprAnnot
+          val sameResultEncoding = (reference: Symbol) => (s: Symbol) => {
+            val res1 = s.tpe.finalResultType.hasReprAnnot == reference.info.finalResultType.hasReprAnnot
             val res1a = res1 && !(s.tpe.finalResultType.hasReprAnnot)
             val res2 = res1 && (s.tpe.finalResultType.hasReprAnnot)
-            val res2a = res2 && (s.tpe.finalResultType.getAnnotDescrObject == defdef.symbol.info.finalResultType.getAnnotDescrObject)
+            val res2a = res2 && (s.tpe.finalResultType.getAnnotDescrObject == reference.info.finalResultType.getAnnotDescrObject)
 
             res1a || res2a
           }
 
           val preOverrides = beforeCoerce(defdef.symbol.allOverriddenSymbols).flatMap(_.alternatives)
-          val postOverrides = afterCoerce(defdef.symbol.allOverriddenSymbols).flatMap(_.alternatives).filter(sameResultEncoding)
+          val postOverrides = afterCoerce(defdef.symbol.allOverriddenSymbols).flatMap(_.alternatives).filter(sameResultEncoding(defdef.symbol))
 
           val bridgeSyms = preOverrides.filterNot(postOverrides.contains)
 
           def filterBridges(bridges: List[Symbol]): List[Symbol] = bridges match {
             case Nil => Nil
             case sym :: tail =>
-              val overs = afterCoerce(sym.allOverriddenSymbols).flatMap(_.alternatives).filter(sameResultEncoding)
+              val overs = afterCoerce(sym.allOverriddenSymbols).flatMap(_.alternatives).filter(sameResultEncoding(sym))
               val others = tail filterNot (overs.contains)
               sym :: filterBridges(others)
           }

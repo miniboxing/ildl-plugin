@@ -84,15 +84,15 @@ trait InjectInfoTransformer extends InfoTransform {
       case NullaryMethodType(tpe) => NullaryMethodType(transformHighAnnotation(sym, tpe, descr))
       case _ if tpe.hasHighAnnot =>
 
-        val highTpe = getDescrHighType(descr.getDescrObject, tpe)
+        val highTpe = getDescrHighType(descr.getDescrObject, tpe.withoutHighAnnot)
         if (highTpe != ErrorType) {
-            highTpe.withReprAnnot(descr)
-          } else {
-            global.reporter.error(sym.pos, s"The ${descr.symbol.name} transformation description object contains a " +
-                                           s"definition error: The @high annotation in $sym's type is applied to " +
-                                           s"something that does not match the representation type. This is an error " +
-                                           s"in the transformation description object definition.")
-            tpe.withoutHighAnnot
+          highTpe.withReprAnnot(descr)
+        } else {
+          global.reporter.error(sym.pos, s"The ${descr.symbol.name} transformation description object contains a " +
+                                         s"definition error: The @high annotation in $sym's type is applied to " +
+                                         s"something that does not match the representation type. This is an error " +
+                                         s"in the transformation description object definition.")
+          tpe.withoutHighAnnot
         }
 
       case _ =>
