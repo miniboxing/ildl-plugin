@@ -116,6 +116,7 @@ class ildl(val global: Global) extends Plugin {
     val global: ildl.this.global.type = ildl.this.global
 
     def flag_passive = ildl.this.flag_passive
+    def ildlInjectPhase: Phase = InjectPhase.injectPhase
   }
 
   private object PostParserPhase extends {

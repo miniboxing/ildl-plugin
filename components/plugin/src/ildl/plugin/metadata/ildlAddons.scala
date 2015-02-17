@@ -105,30 +105,49 @@ trait ildlAddons {
   def matchesDescrReprType(descr: Symbol, repr: Type) =
     getDescrHighType(descr, repr) != ErrorType
 
-  def getDescrHighType(descr: Symbol, repr: Type): Type =
+  def getDescrHighType(descr: Symbol, repr: Type): Type = getDescrMatchingType(descr, repr, isHigh = false)
+  def getDescrReprType(descr: Symbol, high: Type): Type = getDescrMatchingType(descr, high, isHigh = true)
+
+  def getDescrMatchingType(descr: Symbol, tpe: Type, isHigh: Boolean): Type =
     descr.getTransfType match {
-      case Rigid =>
+
+    case Rigid =>
         val highTpe = descr.getDescrHighTpe
         val reprTpe = descr.getDescrReprTpe
-        if (repr =:= reprTpe) {
-          highTpe
+        val (cpTpe, resTpe) =
+          if (isHigh)
+            (highTpe, reprTpe)
+          else
+            (reprTpe, highTpe)
+        if (tpe =:= cpTpe) {
+          resTpe
         } else
           ErrorType
-      case Freestyle =>
-        ErrorType
-    }
 
-  def getDescrReprType(descr: Symbol, high: Type): Type =
-    descr.getTransfType match {
-      case Rigid =>
-        val highTpe = descr.getDescrHighTpe
-        val reprTpe = descr.getDescrReprTpe
-        if (high =:= highTpe) {
-          highTpe
-        } else
-          ErrorType
       case Freestyle =>
-        ErrorType
-    }
+        val coercion =
+          if (isHigh)
+            descr.getDescrHighToRepr
+          else
+            descr.getDescrReprToHigh
 
+        val coercionTree = Ident("<coercion>").setType(global.enteringPhase(ildlInjectPhase)(coercion.tpe))
+        val appliedTree  = Apply(coercionTree, List(Ident("<argument>") setType tpe))
+        val result: Type = {
+          val newContext = global.analyzer.rootContext(typer.context.unit, throwing = false, checking = false)
+          newContext.implicitsEnabled = false
+          newContext.macrosEnabled = false
+//          newContext.enrichmentEnabled = false
+          val newTyper = global.analyzer.newTyper(newContext)
+          val reprTpe: Type =
+            newTyper.silent(_.typed(appliedTree), reportAmbiguousErrors = false) match {
+              case global.analyzer.SilentResultValue(t: Tree) =>
+                t.tpe
+              case global.analyzer.SilentTypeError(err) =>
+                ErrorType
+            }
+          reprTpe
+        }
+        result
+    }
 }

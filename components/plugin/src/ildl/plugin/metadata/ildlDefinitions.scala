@@ -3,12 +3,15 @@ package metadata
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.collection.immutable.ListMap
+import scala.reflect.internal.Phase
 
 trait ildlDefinitions {
   this: ildlHelperComponent =>
 
   import global._
   import definitions._
+
+  def ildlInjectPhase: Phase
 
   sealed abstract trait TransformationType
   object Rigid     extends TransformationType
