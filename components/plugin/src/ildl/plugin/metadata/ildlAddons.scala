@@ -3,6 +3,7 @@ package metadata
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.collection.immutable.ListMap
+import scala.reflect.internal.util.SourceFile
 
 trait ildlAddons {
   this: ildlHelperComponent =>
@@ -131,23 +132,24 @@ trait ildlAddons {
           else
             descr.getDescrReprToHigh
 
+        val unit = global.currentUnit
+        val context = global.analyzer.rootContext(unit, throwing = false, checking = false)
+        context.implicitsEnabled = false
+        context.macrosEnabled = false
+        context.enrichmentEnabled = false
+
         val coercionTree = Ident("<coercion>").setType(global.enteringPhase(ildlInjectPhase)(coercion.tpe))
         val appliedTree  = Apply(coercionTree, List(Ident("<argument>") setType tpe))
+        val localTyper = global.analyzer.newTyper(context)
         val result: Type = {
-          val newContext = global.analyzer.rootContext(typer.context.unit, throwing = false, checking = false)
-          newContext.implicitsEnabled = false
-          newContext.macrosEnabled = false
-//          newContext.enrichmentEnabled = false
-          val newTyper = global.analyzer.newTyper(newContext)
-          val reprTpe: Type =
-            newTyper.silent(_.typed(appliedTree), reportAmbiguousErrors = false) match {
-              case global.analyzer.SilentResultValue(t: Tree) =>
-                t.tpe
-              case global.analyzer.SilentTypeError(err) =>
-                ErrorType
-            }
-          reprTpe
+          localTyper.silent(_.typed(appliedTree), reportAmbiguousErrors = false) match {
+            case global.analyzer.SilentResultValue(t: Tree) => t.tpe
+            case global.analyzer.SilentTypeError(err) =>       ErrorType
+          }
         }
+
+//        println(descr + " with: " + tpe + " isHigh= " + isHigh + "  ==> " + result)
+
         result
     }
 }
