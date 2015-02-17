@@ -98,4 +98,37 @@ trait ildlAddons {
     else
       sym.sourceModule
   }
+
+  def matchesDescrHighType(descr: Symbol, high: Type) =
+    getDescrReprType(descr, high) != ErrorType
+
+  def matchesDescrReprType(descr: Symbol, repr: Type) =
+    getDescrHighType(descr, repr) != ErrorType
+
+  def getDescrHighType(descr: Symbol, repr: Type): Type =
+    descr.getTransfType match {
+      case Rigid =>
+        val highTpe = descr.getDescrHighTpe
+        val reprTpe = descr.getDescrReprTpe
+        if (repr =:= reprTpe) {
+          highTpe
+        } else
+          ErrorType
+      case Freestyle =>
+        ErrorType
+    }
+
+  def getDescrReprType(descr: Symbol, high: Type): Type =
+    descr.getTransfType match {
+      case Rigid =>
+        val highTpe = descr.getDescrHighTpe
+        val reprTpe = descr.getDescrReprTpe
+        if (high =:= highTpe) {
+          highTpe
+        } else
+          ErrorType
+      case Freestyle =>
+        ErrorType
+    }
+
 }
