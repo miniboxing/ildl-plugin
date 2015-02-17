@@ -84,13 +84,13 @@ trait CoerceTreeTransformer extends TypingTransformers {
 
         if (tree.isTerm) {
           if ((oldTpe.hasReprAnnot ^ newTpe.hasReprAnnot) && (!pt.isWildcard)) {
-            val descObject = if (oldTpe.hasReprAnnot) oldTpe.getDescrObject else newTpe.getDescrObject
-            val conversion = if (oldTpe.hasReprAnnot) oldTpe.getDescrReprToHigh else newTpe.getDescrHighToRepr
+            val descObject = if (oldTpe.hasReprAnnot) oldTpe.getAnnotDescrObject else newTpe.getAnnotDescrObject
+            val conversion = if (oldTpe.hasReprAnnot) oldTpe.getAnnotDescrReprToHigh else newTpe.getAnnotDescrHighToRepr
             val (tpe, descr) =
               if (oldTpe.hasReprAnnot)
-                (oldTpe.dealiasWiden.withoutReprAnnot, oldTpe.getDescrObject)
+                (oldTpe.dealiasWiden.withoutReprAnnot, oldTpe.getAnnotDescrObject)
               else
-                (newTpe.dealiasWiden.withoutReprAnnot, newTpe.getDescrObject)
+                (newTpe.dealiasWiden.withoutReprAnnot, newTpe.getAnnotDescrObject)
             val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
             val tree1 = gen.mkMethodCall(convCall, List(tree.withTypedAnnot))
             val tree2 = super.typed(tree1, mode, pt)
@@ -98,12 +98,12 @@ trait CoerceTreeTransformer extends TypingTransformers {
             // super.adapt is automatically executed when calling super.typed
             tree2
           } else if (oldTpe.hasReprAnnot && (oldTpe.hasReprAnnot == newTpe.hasReprAnnot) && !(oldTpe <:< newTpe)) {
-            val descr1 = oldTpe.getDescrObject
-            val descr2 = newTpe.getDescrObject
+            val descr1 = oldTpe.getAnnotDescrObject
+            val descr2 = newTpe.getAnnotDescrObject
             if (descr1 != descr2) {
               // representation mismatch
-              val convCall1 = gen.mkAttributedSelect(gen.mkAttributedRef(oldTpe.getDescrObject), oldTpe.getDescrReprToHigh)
-              val convCall2 = gen.mkAttributedSelect(gen.mkAttributedRef(newTpe.getDescrObject), newTpe.getDescrHighToRepr)
+              val convCall1 = gen.mkAttributedSelect(gen.mkAttributedRef(oldTpe.getAnnotDescrObject), oldTpe.getAnnotDescrReprToHigh)
+              val convCall2 = gen.mkAttributedSelect(gen.mkAttributedRef(newTpe.getAnnotDescrObject), newTpe.getAnnotDescrHighToRepr)
               val tree1 = gen.mkMethodCall(convCall2, gen.mkMethodCall(convCall1, List(tree.withTypedAnnot)) :: Nil)
               super.typed(tree1, mode, pt)
             } else {
@@ -154,8 +154,8 @@ trait CoerceTreeTransformer extends TypingTransformers {
               val tpe2 = if (qual2.tpe.hasAnnotation(reprClass)) qual2.tpe else qual2.tpe.widen
               val tpe3 = tpe2.removeAnnotation(reprClass)
               //val qual3 = super.typedQualifier(qual.setType(null), mode, tpe3)
-              val descObject = qual2.tpe.getDescrObject
-              val conversion = qual2.tpe.getDescrReprToHigh
+              val descObject = qual2.tpe.getAnnotDescrObject
+              val conversion = qual2.tpe.getAnnotDescrReprToHigh
               val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
               val qual3 =  gen.mkMethodCall(convCall, List(qual2))
               super.typed(Select(qual3, meth) setSymbol tree.symbol, mode, pt)

@@ -1,3 +1,3 @@
-newSource1.scala:13: error: The Transf transformation description object contains a definition error: The @high annotation in value hi's type is applied to something that is not the representation type (which is test.Transf.Repr). This is an error in thetransformation description object definition.
+newSource1.scala:13: error: The Transf transformation description object contains a definition error: The @high annotation in value hi's type is applied to something that is not the representation type (which is Long). This is an error in thetransformation description object definition.
   val hi: String @high = "xxx"
       ^

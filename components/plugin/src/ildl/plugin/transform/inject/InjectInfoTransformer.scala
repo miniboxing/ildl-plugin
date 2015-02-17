@@ -32,6 +32,7 @@ trait InjectInfoTransformer extends InfoTransform {
     } else if (tpe.finalResultType.hasHighAnnot) {
       // Match exterior description object
       val enclosingDescr = sym.ownerChain.find(s => s.isTransfDescriptionObject)
+
       enclosingDescr match {
         case None =>
           global.reporter.error(sym.pos, s"The ${sym} contains the @high annotation despite not being enclosed in a " +
@@ -57,8 +58,8 @@ trait InjectInfoTransformer extends InfoTransform {
         var crtd = EmptyTree: Tree
 
         for (descr <- descrs.reverse) {
-          val highTpe = descr.tpe.member(TypeName("High")).alternatives.head.tpe
-          val reprTpe = descr.tpe.member(TypeName("Repr")).alternatives.head.tpe
+          val highTpe = descr.getDescrHighTpe
+          val reprTpe = descr.getDescrReprTpe
           if (tpe =:= highTpe)
             if (!done) {
               done = true
@@ -84,17 +85,24 @@ trait InjectInfoTransformer extends InfoTransform {
       case MethodType(args, tpe) => MethodType(args, transformHighAnnotation(sym, tpe, descr))
       case NullaryMethodType(tpe) => NullaryMethodType(transformHighAnnotation(sym, tpe, descr))
       case _ if tpe.hasHighAnnot =>
-        val highTpe = descr.tpe.member(TypeName("High")).alternatives.head.tpe
-        val reprTpe = descr.tpe.member(TypeName("Repr")).alternatives.head.tpe
-        if (tpe.withoutHighAnnot =:= reprTpe) {
-          highTpe.withReprAnnot(descr)
-        } else {
-          global.reporter.error(sym.pos, s"The ${descr.symbol.name} transformation description object contains a definition " +
-                                         s"error: The @high annotation in $sym's type is applied to something that is " +
-                                         s"not the representation type (which is $reprTpe). This is an error in the" +
-                                         s"transformation description object definition.")
-          tpe.withoutHighAnnot
+        descr.getTransfType match {
+          case Rigid =>
+            val highTpe = descr.getDescrHighTpe
+            val reprTpe = descr.getDescrReprTpe
+
+            if (tpe.withoutHighAnnot =:= reprTpe) {
+              highTpe.withReprAnnot(descr)
+            } else {
+              global.reporter.error(sym.pos, s"The ${descr.symbol.name} transformation description object contains a definition " +
+                                             s"error: The @high annotation in $sym's type is applied to something that is " +
+                                             s"not the representation type (which is $reprTpe). This is an error in the" +
+                                             s"transformation description object definition.")
+              tpe.withoutHighAnnot
+            }
+          case Freestyle =>
+            ???
         }
+
       case _ =>
         tpe
     }

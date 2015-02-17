@@ -1,15 +1,14 @@
 [[syntax trees at end of               ildl-inject]] // newSource1.scala
 package test {
   import ildl._;
-  object Transf extends AnyRef with ildl.TransformationDescription {
+  object Transf extends AnyRef with ildl.RigidTransformationDescription {
     def <init>(): test.Transf.type = {
       Transf.super.<init>();
       ()
     };
     type High = Int;
     type Repr = Long;
-    def toRepr(high: Int): test.Transf.High @ildl.internal.repr(test.this.Transf) = scala.this.Int.int2long(high);
+    def toRepr(high: Int): Int @ildl.internal.repr(test.this.Transf) = scala.this.Int.int2long(high);
     def fromRepr(lo: Long @ildl.high): Int = lo.toInt
   }
 }
-

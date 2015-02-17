@@ -88,7 +88,7 @@ trait ReprAnnotationCheckers {
     override def annotationsConform(tpe1: Type, tpe2: Type): Boolean =
       if (coercePhase != null && global.phase.id > coercePhase.id) {
         val res11 = tpe1.hasReprAnnot == tpe2.hasReprAnnot
-        val res12 = res11 && (!tpe1.hasReprAnnot || (tpe1.getDescrObject == tpe2.getDescrObject))
+        val res12 = res11 && (!tpe1.hasReprAnnot || (tpe1.getAnnotDescrObject == tpe2.getAnnotDescrObject))
         val res2 = tpe2.isWildcard
 //        if (tpe1.hasReprAnnot && tpe1.hasReprAnnot) {
 //          println(tpe1.getDescrObject)
@@ -110,7 +110,7 @@ trait ReprAnnotationCheckers {
           if (tp.hasReprAnnot)
             tp
           else {
-            val descrs = ts.map(_.getDescrObject).distinct
+            val descrs = ts.map(_.getAnnotDescrObject).distinct
             assert(descrs.length == 1, s"More than one storage type in $ts: $descrs")
             tp.withReprAnnot(descrs.head)
           }

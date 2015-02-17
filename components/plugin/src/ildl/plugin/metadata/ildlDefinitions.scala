@@ -10,6 +10,10 @@ trait ildlDefinitions {
   import global._
   import definitions._
 
+  sealed abstract trait TransformationType
+  object Rigid     extends TransformationType
+  object Freestyle extends TransformationType
+
   def flag_passive: Boolean
 
   lazy val ildlPackageObjectSymbol = rootMirror.getPackageObject("ildl")
@@ -17,6 +21,8 @@ trait ildlDefinitions {
 
   lazy val ildlPackageSymbol = rootMirror.getPackage(TermName("ildl"))
   lazy val ildlTransformationDescrSym = definitions.getMemberClass(ildlPackageSymbol, TypeName("TransformationDescription"))
+  lazy val ildlRigidTransformationDescrSym = definitions.getMemberClass(ildlPackageSymbol, TypeName("RigidTransformationDescription"))
+  lazy val ildlFreestyleTransformationDescrSym = definitions.getMemberClass(ildlPackageSymbol, TypeName("FreestyleTransformationDescription"))
   lazy val ildlHighClass =              definitions.getMemberClass(ildlPackageSymbol, TypeName("high"))
 
   // TODO: This should be defined programatically

@@ -9,24 +9,24 @@ package test {
       GCDTest.super.<init>();
       ()
     };
-    object IntPairAsLong extends AnyRef with ildl.TransformationDescription {
+    object IntPairAsLong extends AnyRef with ildl.RigidTransformationDescription {
       def <init>(): test.GCDTest.IntPairAsLong.type = {
         IntPairAsLong.super.<init>();
         ()
       };
       type High = (Int, Int);
       type Repr = Long;
-      def toRepr(pair: (Int, Int)): test.GCDTest.IntPairAsLong.High @ildl.internal.repr(GCDTest.this.IntPairAsLong) = scala.this.Predef.???;
+      def toRepr(pair: (Int, Int)): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = scala.this.Predef.???;
       def fromRepr(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???
     };
-    object IntPairAsFloat extends AnyRef with ildl.TransformationDescription {
+    object IntPairAsFloat extends AnyRef with ildl.RigidTransformationDescription {
       def <init>(): test.GCDTest.IntPairAsFloat.type = {
         IntPairAsFloat.super.<init>();
         ()
       };
       type High = (Int, Int);
       type Repr = Float;
-      def toRepr(pair: (Int, Int)): test.GCDTest.IntPairAsFloat.High @ildl.internal.repr(GCDTest.this.IntPairAsFloat) = scala.this.Predef.???;
+      def toRepr(pair: (Int, Int)): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsFloat) = scala.this.Predef.???;
       def fromRepr(l: Float @ildl.high): (Int, Int) = scala.this.Predef.???
     };
     def test(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = {

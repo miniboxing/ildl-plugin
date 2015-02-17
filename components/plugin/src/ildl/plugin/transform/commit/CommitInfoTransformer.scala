@@ -49,7 +49,7 @@ trait CommitInfoTransformer extends InfoTransform {
         val annots = tpe.annotations.filter(ann => ann.tpe.typeSymbol == reprClass)
         if (annots.length != 1)
           global.reporter.error(symbol.pos, s"Multiple annotations found for $symbol: ${beforeCommit(symbol.tpe)}")
-        tpe.getDescrReprTpe
+        tpe.getAnnotDescrReprTpe
       case _ =>
         super.mapOver(tpe)
     }

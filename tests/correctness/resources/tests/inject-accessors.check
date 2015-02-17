@@ -5,7 +5,7 @@ package test {
       GCDTest.super.<init>();
       ()
     };
-    object IntPairAsLong extends Object with ildl.TransformationDescription {
+    object IntPairAsLong extends Object with ildl.RigidTransformationDescription {
       def <init>(): test.GCDTest.IntPairAsLong.type = {
         IntPairAsLong.super.<init>();
         ()

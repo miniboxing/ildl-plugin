@@ -27,41 +27,15 @@ trait ildlAddons {
     def withoutReprAnnot: Type =
       tpe.filterAnnotations(_.tpe =:= reprClass.tpe)
 
-    def getDescrObject: Symbol = tpe.dealiasWiden.annotations.filter(_.tpe.typeSymbol == reprClass) match {
+    def getAnnotDescrObject: Symbol = tpe.dealiasWiden.annotations.filter(_.tpe.typeSymbol == reprClass) match {
       case Nil         => assert(false, "Internal error: No @repr annotation detected."); ???
-      case List(annot) =>
-        val sym = annot.argAtIndex(0).get.symbol
-//        assert(sym != ildlTransformationDescrSym, annot.argAtIndex(0))
-        if (sym == ildlTransformationDescrSym)
-          sym
-        else if (sym.isModule)
-          sym
-        else
-          sym.sourceModule
+      case List(annot) => annot.argAtIndex(0).get.getDescrObject
       case _           => assert(false, "Internal error: Multiple @repr annotations detected."); ???
-    }
-    def getDescrHighToRepr: Symbol = tpe.getDescrObject.tpe.member(highToReprName).filter(!_.isDeferred)
-    def getDescrReprToHigh: Symbol = tpe.getDescrObject.tpe.member(reprToHighName).filter(!_.isDeferred)
-    def getDescrHighTpe: Type = {
-      val res = tpe.getDescrObject.tpe.member(highTpeName).tpe.dealias
-      assert(res != NoType, tpe.getDescrObject.tpe.member(highTpeName))
-      res
-    }
-    def getDescrReprTpe: Type = {
-      val res = tpe.getDescrObject.tpe.member(reprTpeName).tpe.dealias
-      assert(res != NoType, tpe.getDescrObject.tpe.member(reprTpeName))
-      res
-    }
-
-    def withoutReprDeep: Type = (new TypeMap {
-      def apply(tpe: Type): Type = mapOver(tpe)
-      override def mapOver(tpe: Type): Type = tpe match {
-        case ann: AnnotatedType if ann.hasAnnotation(reprClass) =>
-          tpe.filterAnnotations(ann => !(ann.tpe =:= reprClass.tpe))
-        case _ =>
-          super.mapOver(tpe)
-      }}).apply(tpe)
-
+   }
+    def getAnnotDescrHighToRepr: Symbol = tpe.getAnnotDescrObject.getDescrHighToRepr
+    def getAnnotDescrReprToHigh: Symbol = tpe.getAnnotDescrObject.getDescrReprToHigh
+    def getAnnotDescrHighTpe: Type = tpe.getAnnotDescrObject.getDescrHighTpe
+    def getAnnotDescrReprTpe: Type = tpe.getAnnotDescrObject.getDescrReprTpe
 
     // @high annotation tools:
     def hasHighAnnot: Boolean =
@@ -73,12 +47,55 @@ trait ildlAddons {
   implicit class RichSym(sym: Symbol) {
     def isTransfDescriptionObject: Boolean =
       sym.isModuleOrModuleClass && (sym.tpe <:< ildlTransformationDescrSym.tpe) ||
-      sym == ildlTransformationDescrSym
+      sym == ildlTransformationDescrSym ||
+      sym == ildlRigidTransformationDescrSym ||
+      sym == ildlFreestyleTransformationDescrSym
+
+    def getTransfType: TransformationType = {
+      assert(isTransfDescriptionObject, sym)
+      if (sym.tpe <:< ildlRigidTransformationDescrSym.tpe)
+        Rigid
+      else if (sym.tpe <:< ildlFreestyleTransformationDescrSym.tpe)
+        Freestyle
+      else
+        ???
+    }
+    def getDescrHighToRepr: Symbol =
+      sym.tpe.member(highToReprName).filter(!_.isDeferred)
+    def getDescrReprToHigh: Symbol =
+      sym.tpe.member(reprToHighName).filter(!_.isDeferred)
+    def getDescrHighTpe: Type = {
+      val res = sym.tpe.member(highTpeName).tpe.dealias
+      assert(res != NoType, sym.tpe.member(highTpeName) + "  " + sym)
+      res
+    }
+    def getDescrReprTpe: Type = {
+      val res = sym.tpe.member(reprTpeName).tpe.dealias
+      assert(res != NoType, sym.tpe.member(reprTpeName) + "  " + sym)
+      res
+    }
   }
 
   implicit class RichTree(tree: Tree) {
     def hasReprAnnot: Boolean =
       tree.tpe.hasReprAnnot
+    def getTransfType: TransformationType =
+      tree.symbol.getTransfType
+    def getDescrHighTpe: Type =
+      getDescrObject.getDescrHighTpe
+    def getDescrReprTpe: Type =
+      getDescrObject.getDescrReprTpe
+    def getDescrObject: Symbol =
+      nomalizeDescriptorSymbol(tree.symbol)
+  }
 
+  def nomalizeDescriptorSymbol(sym: Symbol) = {
+    assert(sym != NoSymbol)
+    if ((sym == ildlTransformationDescrSym) || (sym == ildlRigidTransformationDescrSym) || (sym == ildlFreestyleTransformationDescrSym))
+      sym
+    else if (sym.isModule)
+      sym
+    else
+      sym.sourceModule
   }
 }

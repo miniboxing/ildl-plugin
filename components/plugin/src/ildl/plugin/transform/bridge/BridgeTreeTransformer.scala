@@ -45,7 +45,7 @@ trait BridgeTreeTransformer extends TreeRewriters {
             val res1 = s.tpe.finalResultType.hasReprAnnot == defdef.symbol.info.finalResultType.hasReprAnnot
             val res1a = res1 && !(s.tpe.finalResultType.hasReprAnnot)
             val res2 = res1 && (s.tpe.finalResultType.hasReprAnnot)
-            val res2a = res2 && (s.tpe.finalResultType.getDescrObject == defdef.symbol.info.finalResultType.getDescrObject)
+            val res2a = res2 && (s.tpe.finalResultType.getAnnotDescrObject == defdef.symbol.info.finalResultType.getAnnotDescrObject)
 
             res1a || res2a
           }
