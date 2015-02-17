@@ -35,8 +35,10 @@ trait CommitInfoTransformer extends InfoTransform {
   object deepTransformation extends TypeMap {
 
     var symbol: Symbol = NoSymbol
+    var position: Position = NoPosition
 
-    def apply(tpe: Type) = transform(NoSymbol, tpe)
+    def apply(tpe: Type) = mapOver(tpe)
+
     def transform(sym: Symbol, tpe: Type): Type = {
       symbol = sym
       val res = mapOver(tpe)
@@ -44,12 +46,33 @@ trait CommitInfoTransformer extends InfoTransform {
       res
     }
 
+    def transform(pos: Position, tpe: Type): Type = {
+      position = pos
+      val res = mapOver(tpe)
+      position = NoPosition
+      res
+    }
+
+    def getPosition: Position =
+      if (symbol == NoSymbol)
+        position
+      else
+        symbol.pos
+
     override def mapOver(tpe: Type): Type = tpe match {
       case tpe if tpe.annotations.exists(ann => ann.tpe.typeSymbol == reprClass) =>
         val annots = tpe.annotations.filter(ann => ann.tpe.typeSymbol == reprClass)
         if (annots.length != 1)
-          global.reporter.error(symbol.pos, s"Multiple annotations found for $symbol: ${beforeCommit(symbol.tpe)}")
-        tpe.getAnnotDescrReprTpe
+          global.reporter.error(getPosition, s"Multiple annotations found for $symbol: ${beforeCommit(symbol.tpe)}")
+        val descr = tpe.getAnnotDescrObject
+        val tpe2 = getDescrReprType(descr, tpe.withoutReprAnnot)
+        if (tpe2 == ErrorType)
+          global.reporter.error(getPosition, "There is no corresponding representation type for high-level type " +
+                                             tpe.withoutReprAnnot + " set in the `toRepr` method. The `toRepr` and `fromRepr`" +
+                                             "methods should define a bijection between the high and repr types! " +
+                                             "The concerned transformation description " +
+                                             "object is: " + descr.fullName + ".")
+        tpe2.withoutHighAnnot
       case _ =>
         super.mapOver(tpe)
     }

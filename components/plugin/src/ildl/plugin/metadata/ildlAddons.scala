@@ -26,7 +26,7 @@ trait ildlAddons {
       tpe.withAnnotation(AnnotationInfo(reprClass.tpe, List(gen.mkAttributedRef(descr)), Nil))
     }
     def withoutReprAnnot: Type =
-      tpe.filterAnnotations(_.tpe =:= reprClass.tpe)
+      tpe.filterAnnotations(ann => !(ann.tpe =:= reprClass.tpe))
 
     def getAnnotDescrObject: Symbol = tpe.dealiasWiden.annotations.filter(_.tpe.typeSymbol == reprClass) match {
       case Nil         => assert(false, "Internal error: No @repr annotation detected."); ???
@@ -144,7 +144,8 @@ trait ildlAddons {
         val result: Type = {
           localTyper.silent(_.typed(appliedTree), reportAmbiguousErrors = false) match {
             case global.analyzer.SilentResultValue(t: Tree) => t.tpe
-            case global.analyzer.SilentTypeError(err) =>       ErrorType
+            case global.analyzer.SilentTypeError(err) =>
+              ErrorType
           }
         }
 

@@ -80,9 +80,11 @@ trait CoerceTreeTransformer extends TypingTransformers {
           if (oldTpe <:< newTpe)
             tree
           else
-            tree.setType(newTpe)
+            super.adapt(tree, mode, pt, original)
 
-        if (tree.isTerm) {
+        if ((tree.tpe.isInstanceOf[PolyType]) && (mode.inFunMode))
+          super.adapt(tree, mode, pt, original)
+        else if (tree.isTerm) {
           if ((oldTpe.hasReprAnnot ^ newTpe.hasReprAnnot) && (!pt.isWildcard)) {
             val descObject = if (oldTpe.hasReprAnnot) oldTpe.getAnnotDescrObject else newTpe.getAnnotDescrObject
             val conversion = if (oldTpe.hasReprAnnot) oldTpe.getAnnotDescrReprToHigh else newTpe.getAnnotDescrHighToRepr
