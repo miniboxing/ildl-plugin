@@ -28,7 +28,7 @@ object GCDTest {
       override def foo(cp: (Int, Int)): (Int, Int) = ???
     }
   }
-/*
+
   adrt(IntPairAsLong) {
     trait V extends U {
       // should have one bridge:
@@ -42,5 +42,4 @@ object GCDTest {
       override def foo(cp: (Int, Int)): (Int, Int) = ???
     }
   }
-*/
 }

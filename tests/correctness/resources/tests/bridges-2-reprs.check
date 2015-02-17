@@ -1,3 +1,6 @@
+newSource1.scala:42: warning: The method foo in trait W (transitively) overrides method foo in trait V. This requires creating a bridge method, which is okay. But calling this bridge method goes through two data representation conversions, making it very slow. So please make sure objects of type W are not passed as objects of type V, otherwise you will experience significant slowdowns.
+      override def foo(cp: (Int, Int)): (Int, Int) = ???
+                   ^
 [[syntax trees at end of               ildl-commit]] // newSource1.scala
 package test {
   object GCDTest extends Object {
@@ -37,7 +40,21 @@ package test {
       };
       override def foo(cp: Long): Long = GCDTest.this.IntPairAsLong.toRepr(scala.this.Predef.???());
       @scala.annotation.bridge override def foo(cp: (Int, Int)): (Int, Int) = GCDTest.this.IntPairAsLong.fromRepr(U.this.foo(GCDTest.this.IntPairAsLong.toRepr(cp)))
+    };
+    abstract trait V extends Object with test.GCDTest.U {
+      def /*V*/$init$(): Unit = {
+        ()
+      };
+      override def foo(cp: Long): Long = GCDTest.this.IntPairAsLong.toRepr(scala.this.Predef.???());
+      @scala.annotation.bridge override def foo(cp: (Int, Int)): (Int, Int) = GCDTest.this.IntPairAsLong.fromRepr(V.this.foo(GCDTest.this.IntPairAsLong.toRepr(cp)))
+    };
+    abstract trait W extends Object with test.GCDTest.V {
+      def /*W*/$init$(): Unit = {
+        ()
+      };
+      override def foo(cp: Float): Float = GCDTest.this.IntPairAsFloat.toRepr(scala.this.Predef.???());
+      @scala.annotation.bridge override def foo(cp: Long): Long = GCDTest.this.IntPairAsLong.toRepr(GCDTest.this.IntPairAsFloat.fromRepr(W.this.foo(GCDTest.this.IntPairAsFloat.toRepr(GCDTest.this.IntPairAsLong.fromRepr(cp)))));
+      @scala.annotation.bridge override def foo(cp: (Int, Int)): (Int, Int) = GCDTest.this.IntPairAsFloat.fromRepr(W.this.foo(GCDTest.this.IntPairAsFloat.toRepr(cp)))
     }
   }
 }
-

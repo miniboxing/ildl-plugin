@@ -64,6 +64,8 @@ trait BridgeTreeTransformer extends TreeRewriters {
           }
           val bridgeSymsFiltered = filterBridges(bridgeSyms)
 
+          var warned = false
+
           val bridges: List[Tree] =
             for (sym <- bridgeSymsFiltered) yield {
               val local = defdef.symbol
@@ -72,15 +74,24 @@ trait BridgeTreeTransformer extends TreeRewriters {
               // bridge symbol:
               val bridge = local.cloneSymbol
 
-//              println(sym + " in " + sym.owner)
-//              println(sym.tpe)
-//              println(local.owner.info.memberInfo(sym))
-
               bridge.setInfo(local.owner.info.memberInfo(sym).cloneInfo(bridge))
               bridge.addAnnotation(BridgeClass)
               if (decls != EmptyScope) decls enter bridge
 
               // TODO: Restore the warning when going across representations!
+              val tpes1 =  local.tpe.finalResultType ::  local.tpe.params.map(_.tpe)
+              val tpes2 = bridge.tpe.finalResultType :: bridge.tpe.params.map(_.tpe)
+              for ((tpe1, tpe2) <- tpes1 zip tpes2) {
+                if (!warned && tpe1.hasReprAnnot && tpe2.hasReprAnnot && (tpe1.getAnnotDescrObject != tpe2.getAnnotDescrObject)) {
+                  global.reporter.warning(local.pos, "The " + local + " in " + local.owner + " (transitively) " +
+                                                     "overrides " + sym + " in " + sym.owner + ". This requires " +
+                                                     "creating a bridge method, which is okay. But calling this bridge " +
+                                                     "method goes through two data representation conversions, making " +
+                                                     "it very slow. So please make sure objects of type " + local.owner.name +
+                                                     " are not passed as objects of type " + sym.owner.name + ", otherwise " +
+                                                     "you will experience significant slowdowns.")
+                }
+              }
 
               // bridge tree:
               val bridgeRhs0 = gen.mkMethodCall(gen.mkAttributedRef(local), bridge.typeParams.map(_.tpeHK), bridge.info.params.map(Ident))
