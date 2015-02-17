@@ -4,7 +4,7 @@ import ildl._
 
 object GCDTest {
 
-  object IntPairAsLong extends TransformationDescription {
+  object IntPairAsLong extends RigidTransformationDescription {
     type High = (Int, Int)
     type Repr = Long
     def toRepr(pair: (Int, Int)): Long @high = ???

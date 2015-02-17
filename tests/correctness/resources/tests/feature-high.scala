@@ -2,7 +2,7 @@ package test
 
 import ildl._
 
-object Transf extends TransformationDescription {
+object Transf extends RigidTransformationDescription {
   type High = Int
   type Repr = Long
   def toRepr(high: Int): Long @high = high
