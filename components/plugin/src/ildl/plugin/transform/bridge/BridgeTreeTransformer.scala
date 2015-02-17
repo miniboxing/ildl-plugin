@@ -83,7 +83,7 @@ trait BridgeTreeTransformer extends TreeRewriters {
               // TODO: Restore the warning when going across representations!
 
               // bridge tree:
-              val bridgeRhs0 = gen.mkMethodCall(gen.mkAttributedIdent(local), bridge.typeParams.map(_.tpeHK), bridge.info.params.map(Ident))
+              val bridgeRhs0 = gen.mkMethodCall(gen.mkAttributedRef(local), bridge.typeParams.map(_.tpeHK), bridge.info.params.map(Ident))
               val bridgeRhs1 = atOwner(bridge)(localTyper.typed(bridgeRhs0))
               val bridgeDef = newDefDef(bridge, bridgeRhs1)() setType NoType
               mmap(bridgeDef.vparamss)(_ setType NoType)
