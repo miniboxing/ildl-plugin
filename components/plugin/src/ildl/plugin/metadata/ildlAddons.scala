@@ -28,6 +28,9 @@ trait ildlAddons {
     def withoutReprAnnot: Type =
       tpe.filterAnnotations(ann => !(ann.tpe =:= reprClass.tpe))
 
+    def withoutReprAnnotAggresive: Type =
+      withoutReprAnnot.dealias.withoutReprAnnot
+
     def getAnnotDescrObject: Symbol = tpe.dealiasWiden.annotations.filter(_.tpe.typeSymbol == reprClass) match {
       case Nil         => assert(false, "Internal error: No @repr annotation detected."); ???
       case List(annot) => annot.argAtIndex(0).get.getDescrObject

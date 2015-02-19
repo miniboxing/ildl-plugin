@@ -56,14 +56,29 @@ trait CoerceTreeTransformer extends TypingTransformers {
 //       println("  " * ind + msg)
     }
 
-    def matches(tpe1: Type, tpe2: Type): Boolean =
-      tpe2.withoutReprAnnot.dealiasWiden.withoutReprAnnot <:< tpe1.withoutReprAnnot.dealiasWiden.withoutReprAnnot
+
+    object MaybeImplicit {
+      abstract sealed trait ImplicitMetadata
+      case class NonEmptyMetadata(method: Tree, targs: List[Type]) extends ImplicitMetadata
+      case object EmptyMetadata extends ImplicitMetadata
+
+      def unapply(tree: Tree): Option[(Tree, ImplicitMetadata, String)] = tree match {
+        case Apply(impl, List(qual))                   if impl.symbol.isImplicit => Some((qual, NonEmptyMetadata(impl, Nil), "implicit_" + impl.symbol.name.decode))
+        case Apply(TypeApply(impl, targs), List(qual)) if impl.symbol.isImplicit => Some((qual, NonEmptyMetadata(impl, targs.map(_.tpe)), "implicit_" + impl.symbol.name.decode))
+        case _ => Some((tree, EmptyMetadata, "extension"))
+      }
+
+      def apply(qual: Tree, meta: ImplicitMetadata) = meta match {
+        case meta: NonEmptyMetadata => gen.mkMethodCall(meta.method, meta.targs, List(qual))
+        case EmptyMetadata => qual
+      }
+    }
 
     object FullApply {
       def unapply(tree: Tree): Option[(Tree, List[Tree], List[Tree])] =
         tree match {
-          case Apply(sel@Select(_, _), args)                   => Some((sel, Nil, args))
-          case Apply(TypeApply(sel@Select(_, _), targs), args) => Some((sel, targs, args))
+          case Apply(sel@Select(_, _), args)                   if !sel.symbol.isImplicit => Some((sel, Nil, args))
+          case Apply(TypeApply(sel@Select(_, _), targs), args) if !sel.symbol.isImplicit => Some((sel, targs, args))
           case _ => None
         }
       def apply(qual: Tree, targs: List[Tree], args: List[Tree]): Tree =
@@ -153,7 +168,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
 
         val result: Boolean =
           localTyper.silent(_.typed(candTree, mode, pt), reportAmbiguousErrors = false) match {
-            case SilentResultValue(t: Tree) => matches(t.tpe, tree.tpe)
+            case SilentResultValue(t: Tree) => t.tpe.withoutReprAnnotAggresive <:< tree.tpe.withoutReprAnnotAggresive
             case SilentTypeError(err) => false
           }
 
@@ -187,13 +202,12 @@ trait CoerceTreeTransformer extends TypingTransformers {
               super.typed(tpl, mode, pt)
             }
 
-          case FullApply(sel@Select(qual, meth), targs, args) if qual.isTerm && tree.symbol.isMethod =>
+          case FullApply(sel@Select(MaybeImplicit(qual, implData, prefix), meth), targs, args) if qual.isTerm && tree.symbol.isMethod =>
             val qual2 = super.typedQualifier(qual.setType(null), mode, WildcardType).withTypedAnnot
 
             import helper._
             val global = CoerceTreeTransformer.this.global
             if (qual2.hasReprAnnot) {
-              val prefix = "extension"
               val tpe2 = if (qual2.tpe.hasAnnotation(reprClass)) qual2.tpe else qual2.tpe.widen
               val tpe3 = tpe2.removeAnnotation(reprClass)
               val descObject = qual2.tpe.getAnnotDescrObject
@@ -215,7 +229,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
                   val conversion = qual2.tpe.getAnnotDescrReprToHigh
                   val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
                   val qual3 =  gen.mkMethodCall(convCall, List(qual2))
-                  super.typed(FullApply(Select(qual3, meth) setSymbol tree.symbol, targs, args), mode, pt)
+                  super.typed(FullApply(Select(MaybeImplicit(qual3, implData), meth) setSymbol tree.symbol, targs, args), mode, pt)
               }
             } else {
               tree.setType(null)
