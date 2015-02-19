@@ -56,6 +56,23 @@ trait CoerceTreeTransformer extends TypingTransformers {
 //       println("  " * ind + msg)
     }
 
+    def matches(tpe1: Type, tpe2: Type): Boolean =
+      tpe2.withoutReprAnnot.dealiasWiden.withoutReprAnnot <:< tpe1.withoutReprAnnot.dealiasWiden.withoutReprAnnot
+
+    object FullApply {
+      def unapply(tree: Tree): Option[(Tree, List[Tree], List[Tree])] =
+        tree match {
+          case Apply(sel@Select(_, _), args)                   => Some((sel, Nil, args))
+          case Apply(TypeApply(sel@Select(_, _), targs), args) => Some((sel, targs, args))
+          case _ => None
+        }
+      def apply(qual: Tree, targs: List[Tree], args: List[Tree]): Tree =
+        if (targs.isEmpty)
+          Apply(qual, args)
+        else
+          Apply(TypeApply(qual, targs), args)
+    }
+
     class TreeAdapter(context0: Context) extends Typer(context0) {
 
       override val infer = new Inferencer {
@@ -96,7 +113,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
             val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
             val tree1 = gen.mkMethodCall(convCall, List(tree.withTypedAnnot))
             val tree2 = super.typed(tree1, mode, pt)
-            assert(tree2.tpe != ErrorType, tree2)
+            //assert(tree2.tpe != ErrorType, tree2)
             // super.adapt is automatically executed when calling super.typed
             tree2
           } else if (oldTpe.hasReprAnnot && (oldTpe.hasReprAnnot == newTpe.hasReprAnnot) && !(oldTpe <:< newTpe)) {
@@ -119,6 +136,28 @@ trait CoerceTreeTransformer extends TypingTransformers {
         } else {
           superAdapt
         }
+      }
+
+      def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, qual2: Tree, targs: List[Tree], args: List[Tree], mode: Mode, pt: Type): Boolean = {
+        val newQual = gen.mkAttributedRef(descObject)
+        val extMeth = gen.mkAttributedSelect(newQual, candidate)
+        val candTree = FullApply(extMeth, targs.map(_.duplicate), qual2.duplicate :: args.map(_.duplicate))
+
+        // cleaned up typer
+        val unit = global.currentUnit
+        val contextZ = rootContext(unit, throwing = false, checking = false)
+        contextZ.implicitsEnabled = false
+        contextZ.macrosEnabled = false
+        contextZ.enrichmentEnabled = false
+        val localTyper = newTyper(contextZ)
+
+        val result: Boolean =
+          localTyper.silent(_.typed(candTree, mode, pt), reportAmbiguousErrors = false) match {
+            case SilentResultValue(t: Tree) => matches(t.tpe, tree.tpe)
+            case SilentTypeError(err) => false
+          }
+
+        result
       }
 
       case object AlreadyTyped
@@ -148,19 +187,36 @@ trait CoerceTreeTransformer extends TypingTransformers {
               super.typed(tpl, mode, pt)
             }
 
-          case Select(qual, meth) if qual.isTerm && tree.symbol.isMethod =>
+          case FullApply(sel@Select(qual, meth), targs, args) if qual.isTerm && tree.symbol.isMethod =>
             val qual2 = super.typedQualifier(qual.setType(null), mode, WildcardType).withTypedAnnot
 
             import helper._
+            val global = CoerceTreeTransformer.this.global
             if (qual2.hasReprAnnot) {
+              val prefix = "extension"
               val tpe2 = if (qual2.tpe.hasAnnotation(reprClass)) qual2.tpe else qual2.tpe.widen
               val tpe3 = tpe2.removeAnnotation(reprClass)
-              //val qual3 = super.typedQualifier(qual.setType(null), mode, tpe3)
               val descObject = qual2.tpe.getAnnotDescrObject
-              val conversion = qual2.tpe.getAnnotDescrReprToHigh
-              val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
-              val qual3 =  gen.mkMethodCall(convCall, List(qual2))
-              super.typed(Select(qual3, meth) setSymbol tree.symbol, mode, pt)
+
+              val extName = TermName(prefix + "_" + meth)
+              val publicCandidates = descObject.info.member(extName).alternatives.filter(mb => mb.isPublic && !mb.isDeferred)
+              val matchingCandidates = publicCandidates.filter(typechecks(_, descObject, tree, qual2, targs, args, mode, pt))
+
+              matchingCandidates match {
+                case List(candidate) =>
+                  val newQual = gen.mkAttributedRef(descObject)
+                  val extMeth = gen.mkAttributedSelect(newQual, candidate)
+                  super.typed(FullApply(extMeth, targs, qual2 :: args))
+                case _ =>
+                  CoerceTreeTransformer.this.global.reporter.warning(tree.pos,
+                    "The " + sel.symbol + " can be optimized if you define a public, non-overloaded " +
+                    "and matching exension method for it in " + descObject + ", with the name " + extName.decoded +
+                    (if (matchingCandidates.isEmpty) "." else " (the method is overloaded).\n"))
+                  val conversion = qual2.tpe.getAnnotDescrReprToHigh
+                  val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
+                  val qual3 =  gen.mkMethodCall(convCall, List(qual2))
+                  super.typed(FullApply(Select(qual3, meth) setSymbol tree.symbol, targs, args), mode, pt)
+              }
             } else {
               tree.setType(null)
               super.typed(tree, mode, pt)

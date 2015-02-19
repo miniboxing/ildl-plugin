@@ -1,0 +1,46 @@
+newSource1.scala:24: warning: The method / can be optimized if you define a public, non-overloaded and matching exension method for it in object IntAsLong, with the name extension_/.
+    val e = a / a // no
+              ^
+newSource1.scala:25: warning: The method % can be optimized if you define a public, non-overloaded and matching exension method for it in object IntAsLong, with the name extension_% (the method is overloaded).
+    val f = a % a // no
+              ^
+newSource1.scala:26: warning: The method toString can be optimized if you define a public, non-overloaded and matching exension method for it in object IntAsLong, with the name extension_toString.
+    f.toString    // no
+      ^
+[[syntax trees at end of               ildl-commit]] // newSource1.scala
+package tests {
+  object Test extends Object {
+    def <init>(): tests.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    object IntAsLong extends Object with ildl.FreestyleTransformationDescription {
+      def <init>(): tests.Test.IntAsLong.type = {
+        IntAsLong.super.<init>();
+        ()
+      };
+      def toRepr(i: Int): Long = i.toLong();
+      def fromRepr(l: Long @ildl.high): Int = l.toInt();
+      def extension_+(recv: Long @ildl.high, other: Int): Long = scala.this.Predef.???();
+      def extension_-(recv: Long @ildl.high, other: Any): Long = scala.this.Predef.???();
+      def extension_*(recv: Long @ildl.high, other: Long @ildl.high): Long = scala.this.Predef.???();
+      def extension_/(recv: Long @ildl.high, other: String): Long = scala.this.Predef.???();
+      def extension_%(recv: Long @ildl.high, other: Long @ildl.high): Long = scala.this.Predef.???();
+      def extension_%(recv: Long @ildl.high, other: Any): Long = scala.this.Predef.???();
+      def extension_toString(): String = scala.this.Predef.???()
+    };
+    private[this] val a: Long = Test.this.IntAsLong.toRepr(1);
+    <stable> <accessor> def a(): Long = Test.this.a;
+    private[this] val b: Long = Test.this.IntAsLong.extension_+(Test.this.a(), Test.this.IntAsLong.fromRepr(Test.this.a()));
+    <stable> <accessor> def b(): Long = Test.this.b;
+    private[this] val c: Long = Test.this.IntAsLong.extension_-(Test.this.a(), Test.this.IntAsLong.fromRepr(Test.this.a()));
+    <stable> <accessor> def c(): Long = Test.this.c;
+    private[this] val d: Long = Test.this.IntAsLong.extension_*(Test.this.a(), Test.this.a());
+    <stable> <accessor> def d(): Long = Test.this.d;
+    private[this] val e: Long = Test.this.IntAsLong.toRepr(Test.this.IntAsLong.fromRepr(Test.this.a())./(Test.this.IntAsLong.fromRepr(Test.this.a())));
+    <stable> <accessor> def e(): Long = Test.this.e;
+    private[this] val f: Long = Test.this.IntAsLong.toRepr(Test.this.IntAsLong.fromRepr(Test.this.a()).%(Test.this.IntAsLong.fromRepr(Test.this.a())));
+    <stable> <accessor> def f(): Long = Test.this.f;
+    Test.this.IntAsLong.fromRepr(Test.this.f()).toString()
+  }
+}

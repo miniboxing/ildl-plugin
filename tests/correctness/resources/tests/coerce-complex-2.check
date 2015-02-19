@@ -1,3 +1,12 @@
+newSource1.scala:23: warning: The method toString can be optimized if you define a public, non-overloaded and matching exension method for it in object IntPairAsFloat, with the name extension_toString.
+    val s1 = n1.toString
+                ^
+newSource1.scala:28: warning: The method toString can be optimized if you define a public, non-overloaded and matching exension method for it in object IntPairAsLong, with the name extension_toString.
+    val s2 = n2.toString
+                ^
+newSource1.scala:30: warning: The method toString can be optimized if you define a public, non-overloaded and matching exension method for it in object IntPairAsFloat, with the name extension_toString.
+    val s3 = n1.toString
+                ^
 [[syntax trees at end of               ildl-coerce]] // newSource1.scala
 package test {
   object GCDTest extends Object {

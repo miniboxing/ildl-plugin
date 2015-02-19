@@ -78,7 +78,7 @@ trait BridgeTreeTransformer extends TreeRewriters {
               bridge.addAnnotation(BridgeClass)
               if (decls != EmptyScope) decls enter bridge
 
-              // TODO: Restore the warning when going across representations!
+              // warn in case the transformation is going through 2 data representation transformations:
               val tpes1 =  local.tpe.finalResultType ::  local.tpe.params.map(_.tpe)
               val tpes2 = bridge.tpe.finalResultType :: bridge.tpe.params.map(_.tpe)
               for ((tpe1, tpe2) <- tpes1 zip tpes2) {
@@ -90,6 +90,7 @@ trait BridgeTreeTransformer extends TreeRewriters {
                                                      "it very slow. So please make sure objects of type " + local.owner.name +
                                                      " are not passed as objects of type " + sym.owner.name + ", otherwise " +
                                                      "you will experience significant slowdowns.")
+                  warned = true
                 }
               }
 
