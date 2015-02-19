@@ -1,0 +1,121 @@
+newSource1.scala:35: warning: The method / can be optimized if you define a public, non-overloaded and matching exension method for it in object ZZZAsLong, with the name implicit_ZZZOps_/.
+    val e = a / a // no
+              ^
+newSource1.scala:36: warning: The method % can be optimized if you define a public, non-overloaded and matching exension method for it in object ZZZAsLong, with the name implicit_ZZZOps_% (the method is overloaded).
+
+    val f = a % a // no
+              ^
+newSource1.scala:37: warning: The method toString can be optimized if you define a public, non-overloaded and matching exension method for it in object ZZZAsLong, with the name extension_toString.
+    f.toString    // no
+      ^
+[[syntax trees at end of               ildl-commit]] // newSource1.scala
+package tests {
+  object Test extends Object {
+    def <init>(): tests.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    case class ZZZ extends Object with Product with Serializable {
+      <caseaccessor> <paramaccessor> private[this] val v: Long = _;
+      <stable> <caseaccessor> <accessor> <paramaccessor> def v(): Long = ZZZ.this.v;
+      def <init>(v: Long): tests.Test.ZZZ = {
+        ZZZ.super.<init>();
+        ()
+      };
+      <synthetic> def copy(v: Long): tests.Test.ZZZ = new tests.Test.ZZZ(v);
+      <synthetic> def copy$default$1(): Long = ZZZ.this.v();
+      override <synthetic> def productPrefix(): String = "ZZZ";
+      <synthetic> def productArity(): Int = 1;
+      <synthetic> def productElement(x$1: Int): Any = {
+        case <synthetic> val x1: Int = x$1;
+        x1 match {
+          case 0 => ZZZ.this.v()
+          case _ => throw new IndexOutOfBoundsException(x$1.toString())
+        }
+      };
+      override <synthetic> def productIterator(): Iterator[Any] = runtime.this.ScalaRunTime.typedProductIterator[Any](ZZZ.this);
+      <synthetic> def canEqual(x$1: Any): Boolean = x$1.$isInstanceOf[tests.Test.ZZZ]();
+      override <synthetic> def hashCode(): Int = {
+        <synthetic> var acc: Int = -889275714;
+        acc = Statics.this.mix(acc, Statics.this.longHash(v()));
+        Statics.this.finalizeHash(acc, 1)
+      };
+      override <synthetic> def toString(): String = ScalaRunTime.this._toString(ZZZ.this);
+      override <synthetic> def equals(x$1: Any): Boolean = ZZZ.this.eq(x$1.asInstanceOf[Object]()).||({
+  case <synthetic> val x1: Any = x$1;
+  case5(){
+    if (x1.isInstanceOf[tests.Test.ZZZ]())
+      matchEnd4(true)
+    else
+      case6()
+  };
+  case6(){
+    matchEnd4(false)
+  };
+  matchEnd4(x: Boolean){
+    x
+  }
+}.&&({
+        <synthetic> val ZZZ$1: tests.Test.ZZZ = x$1.asInstanceOf[tests.Test.ZZZ]();
+        ZZZ.this.v().==(ZZZ$1.v()).&&(ZZZ$1.canEqual(ZZZ.this))
+      }))
+    };
+    <synthetic> object ZZZ extends scala.runtime.AbstractFunction1[Long,tests.Test.ZZZ] with Serializable {
+      def <init>(): tests.Test.ZZZ.type = {
+        ZZZ.super.<init>();
+        ()
+      };
+      final override <synthetic> def toString(): String = "ZZZ";
+      case <synthetic> def apply(v: Long): tests.Test.ZZZ = new tests.Test.ZZZ(v);
+      case <synthetic> def unapply(x$0: tests.Test.ZZZ): Option[Long] = if (x$0.==(null))
+        scala.this.None
+      else
+        new Some[Long](x$0.v());
+      <synthetic> private def readResolve(): Object = Test.this.ZZZ
+    };
+    implicit class ZZZOps extends Object {
+      <paramaccessor> private[this] val zzz: tests.Test.ZZZ = _;
+      def <init>(zzz: tests.Test.ZZZ): tests.Test.ZZZOps = {
+        ZZZOps.super.<init>();
+        ()
+      };
+      def +(other: tests.Test.ZZZ): tests.Test.ZZZ = new tests.Test.ZZZ(ZZZOps.this.zzz.v().+(other.v()));
+      def -(other: tests.Test.ZZZ): tests.Test.ZZZ = new tests.Test.ZZZ(ZZZOps.this.zzz.v().-(other.v()));
+      def *(other: tests.Test.ZZZ): tests.Test.ZZZ = new tests.Test.ZZZ(ZZZOps.this.zzz.v().*(other.v()));
+      def /(other: tests.Test.ZZZ): tests.Test.ZZZ = new tests.Test.ZZZ(ZZZOps.this.zzz.v()./(other.v()));
+      def %(other: tests.Test.ZZZ): tests.Test.ZZZ = new tests.Test.ZZZ(ZZZOps.this.zzz.v().%(other.v()))
+    };
+    implicit <synthetic> def ZZZOps(zzz: tests.Test.ZZZ): tests.Test.ZZZOps = new tests.Test.ZZZOps(zzz);
+    object ZZZAsLong extends Object with ildl.FreestyleTransformationDescription {
+      def <init>(): tests.Test.ZZZAsLong.type = {
+        ZZZAsLong.super.<init>();
+        ()
+      };
+      def toRepr(zzz: tests.Test.ZZZ): Long = zzz.v();
+      def fromRepr(v: Long @ildl.high): tests.Test.ZZZ = new tests.Test.ZZZ(v);
+      def implicit_ZZZOps_+(recv: Long @ildl.high, other: tests.Test.ZZZ): Long = scala.this.Predef.???();
+      def implicit_ZZZOps_-(recv: Long @ildl.high, other: Any): Long = scala.this.Predef.???();
+      def implicit_ZZZOps_*(recv: Long @ildl.high, other: Long @ildl.high): Long = scala.this.Predef.???();
+      def implicit_ZZZOps_/(recv: Long @ildl.high, other: String): Long = scala.this.Predef.???();
+      def implicit_ZZZOps_%(recv: Long @ildl.high, other: Long @ildl.high): Long = scala.this.Predef.???();
+      def implicit_ZZZOps_%(recv: Long @ildl.high, other: Any): Long = scala.this.Predef.???();
+      def extension_toString(): String = scala.this.Predef.???()
+    };
+    private[this] val a: Long = Test.this.ZZZAsLong.toRepr(new tests.Test.ZZZ(1L));
+    <stable> <accessor> def a(): Long = Test.this.a;
+    private[this] val b: Long = Test.this.ZZZAsLong.implicit_ZZZOps_+(Test.this.a(), Test.this.ZZZAsLong.fromRepr(Test.this.a()));
+    <stable> <accessor> def b(): Long = Test.this.b;
+    private[this] val c: Long = Test.this.ZZZAsLong.implicit_ZZZOps_-(Test.this.a(), Test.this.ZZZAsLong.fromRepr(Test.this.a()));
+    <stable> <accessor> def c(): Long = Test.this.c;
+    private[this] val d: Long = Test.this.ZZZAsLong.implicit_ZZZOps_*(Test.this.a(), Test.this.a());
+    <stable> <accessor> def d(): Long = Test.this.d;
+    private[this] val e: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.fromRepr(Test.this.a()))./(Test.this.ZZZAsLong.fromRepr(Test.this.a())));
+    <stable> <accessor> def e(): Long = Test.this.e;
+    private[this] val f: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.fromRepr(Test.this.a())).%(Test.this.ZZZAsLong.fromRepr(Test.this.a())));
+    <stable> <accessor> def f(): Long = Test.this.f;
+    Test.this.ZZZAsLong.fromRepr(Test.this.f()).toString()
+  }
+}
+
+[Now checking: ildl-commit]
+

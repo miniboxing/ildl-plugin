@@ -1,0 +1,95 @@
+newSource1.scala:24: warning: The method bar can be optimized if you define a public, non-overloaded and matching exension method for it in object ListAsArray, with the name implicit_MyListOps_bar.
+    val c = a.bar(3)  // not working
+                 ^
+[[syntax trees at end of               ildl-commit]] // newSource1.scala
+package tests {
+  object Test extends Object {
+    def <init>(): tests.Test.type = {
+      Test.super.<init>();
+      ()
+    };
+    case class MyList[T] extends Object with Product with Serializable {
+      <caseaccessor> <paramaccessor> private[this] val arr: Array[T] = _;
+      <stable> <caseaccessor> <accessor> <paramaccessor> def arr(): Array[T] = MyList.this.arr;
+      def <init>(arr: Array[T]): tests.Test.MyList[T] = {
+        MyList.super.<init>();
+        ()
+      };
+      <synthetic> def copy[T](arr: Array[T]): tests.Test.MyList[T] = new tests.Test.MyList[T](arr);
+      <synthetic> def copy$default$1[T](): Array[T] = MyList.this.arr();
+      override <synthetic> def productPrefix(): String = "MyList";
+      <synthetic> def productArity(): Int = 1;
+      <synthetic> def productElement(x$1: Int): Any = {
+        case <synthetic> val x1: Int = x$1;
+        x1 match {
+          case 0 => MyList.this.arr()
+          case _ => throw new IndexOutOfBoundsException(x$1.toString())
+        }
+      };
+      override <synthetic> def productIterator(): Iterator[Any] = runtime.this.ScalaRunTime.typedProductIterator[Any](MyList.this);
+      <synthetic> def canEqual(x$1: Any): Boolean = x$1.$isInstanceOf[tests.Test.MyList[_]]();
+      override <synthetic> def hashCode(): Int = ScalaRunTime.this._hashCode(MyList.this);
+      override <synthetic> def toString(): String = ScalaRunTime.this._toString(MyList.this);
+      override <synthetic> def equals(x$1: Any): Boolean = MyList.this.eq(x$1.asInstanceOf[Object]()).||({
+  case <synthetic> val x1: Any = x$1;
+  case5(){
+    if (x1.isInstanceOf[tests.Test.MyList[T]]())
+      matchEnd4(true)
+    else
+      case6()
+  };
+  case6(){
+    matchEnd4(false)
+  };
+  matchEnd4(x: Boolean){
+    x
+  }
+}.&&({
+        <synthetic> val MyList$1: tests.Test.MyList[T] = x$1.asInstanceOf[tests.Test.MyList[T]]();
+        MyList.this.arr().==(MyList$1.arr()).&&(MyList$1.canEqual(MyList.this))
+      }))
+    };
+    <synthetic> object MyList extends Object with Serializable {
+      def <init>(): tests.Test.MyList.type = {
+        MyList.super.<init>();
+        ()
+      };
+      final override <synthetic> def toString(): String = "MyList";
+      case <synthetic> def apply[T](arr: Array[T]): tests.Test.MyList[T] = new tests.Test.MyList[T](arr);
+      case <synthetic> def unapply[T](x$0: tests.Test.MyList[T]): Option[Array[T]] = if (x$0.==(null))
+        scala.this.None
+      else
+        new Some[Array[T]](x$0.arr());
+      <synthetic> private def readResolve(): Object = Test.this.MyList
+    };
+    implicit class MyListOps[T] extends Object {
+      <paramaccessor> private[this] val myl: tests.Test.MyList[T] = _;
+      def <init>(myl: tests.Test.MyList[T]): tests.Test.MyListOps[T] = {
+        MyListOps.super.<init>();
+        ()
+      };
+      def foo(i: Int): T = MyListOps.this.myl.arr().apply(i);
+      def bar(i: Int): T = MyListOps.this.myl.arr().apply(i)
+    };
+    implicit <synthetic> def MyListOps[T](myl: tests.Test.MyList[T]): tests.Test.MyListOps[T] = new tests.Test.MyListOps[T](myl);
+    object ListAsArray extends Object with ildl.FreestyleTransformationDescription {
+      def <init>(): tests.Test.ListAsArray.type = {
+        ListAsArray.super.<init>();
+        ()
+      };
+      def toRepr[T](list: tests.Test.MyList[T]): Array[T] = scala.this.Predef.???();
+      def fromRepr[T](arr: Array[T] @ildl.high): tests.Test.MyList[T] = scala.this.Predef.???();
+      def implicit_MyListOps_foo[T](arr: Array[T] @ildl.high, i: Int): Nothing = scala.this.Predef.???();
+      def implicit_MyListOps_foo[T](arr: Array[T] @ildl.high, i: String): Nothing = scala.this.Predef.???()
+    };
+    private[this] val a: Array[Int] = Test.this.ListAsArray.toRepr[Int](new tests.Test.MyList[Int](scala.Array.apply(1, scala.this.Predef.wrapIntArray(Array[Int]{2, 3}))));
+    <stable> <accessor> def a(): Array[Int] = Test.this.a;
+    private[this] val b: Int = Test.this.ListAsArray.implicit_MyListOps_foo[Int](Test.this.a(), 2);
+    <stable> <accessor> def b(): Int = Test.this.b;
+    private[this] val c: Int = Test.this.MyListOps[Int](Test.this.ListAsArray.fromRepr[Int](Test.this.a())).bar(3);
+    <stable> <accessor> def c(): Int = Test.this.c
+  }
+}
+
+[Now checking: ildl-commit]
+
