@@ -33,7 +33,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
     override def checkable = false
     def apply(unit: CompilationUnit): Unit = {
       val tree = afterCoerce(new TreeAdapters().adapt(unit))
-      tree.foreach(node => assert(node.tpe != null, node))
+//      tree.foreach(node => assert(node.tpe != null, node))
     }
   }
 
@@ -69,7 +69,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
       }
 
       def apply(qual: Tree, meta: ImplicitMetadata) = meta match {
-        case meta: NonEmptyMetadata => gen.mkMethodCall(meta.method, meta.targs, List(qual))
+        case meta: NonEmptyMetadata => gen.mkMethodCall(meta.method, /* meta.targs, */ List(qual))
         case EmptyMetadata => qual
       }
     }
@@ -135,7 +135,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
             val descr1 = oldTpe.getAnnotDescrObject
             val descr2 = newTpe.getAnnotDescrObject
             if (descr1 != descr2) {
-              // representation mismatch
+              // representation mismatch -- TODO: WARN HERE
               val convCall1 = gen.mkAttributedSelect(gen.mkAttributedRef(oldTpe.getAnnotDescrObject), oldTpe.getAnnotDescrReprToHigh)
               val convCall2 = gen.mkAttributedSelect(gen.mkAttributedRef(newTpe.getAnnotDescrObject), newTpe.getAnnotDescrHighToRepr)
               val tree1 = gen.mkMethodCall(convCall2, gen.mkMethodCall(convCall1, List(tree.withTypedAnnot)) :: Nil)
@@ -156,7 +156,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
       def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, qual2: Tree, targs: List[Tree], args: List[Tree], mode: Mode, pt: Type): Boolean = {
         val newQual = gen.mkAttributedRef(descObject)
         val extMeth = gen.mkAttributedSelect(newQual, candidate)
-        val candTree = FullApply(extMeth, targs.map(_.duplicate), qual2.duplicate :: args.map(_.duplicate))
+        val candTree = FullApply(extMeth, Nil, qual2.duplicate :: args.map(_.duplicate))
 
         // cleaned up typer
         val unit = global.currentUnit
@@ -168,7 +168,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
 
         val result: Boolean =
           localTyper.silent(_.typed(candTree, mode, pt), reportAmbiguousErrors = false) match {
-            case SilentResultValue(t: Tree) => t.tpe.withoutReprAnnotAggresive <:< tree.tpe.withoutReprAnnotAggresive
+            case SilentResultValue(t: Tree) => t.tpe.withoutReprAnnotAggresive <:< pt.withoutReprAnnotAggresive
             case SilentTypeError(err) => false
           }
 
@@ -214,13 +214,13 @@ trait CoerceTreeTransformer extends TypingTransformers {
 
               val extName = TermName(prefix + "_" + meth)
               val publicCandidates = descObject.info.member(extName).alternatives.filter(mb => mb.isPublic && !mb.isDeferred)
-              val matchingCandidates = publicCandidates.filter(typechecks(_, descObject, tree, qual2, targs, args, mode, pt))
+              val matchingCandidates = publicCandidates.filter(typechecks(_, descObject, tree, qual2, Nil, args, mode, pt))
 
               matchingCandidates match {
                 case List(candidate) =>
                   val newQual = gen.mkAttributedRef(descObject)
                   val extMeth = gen.mkAttributedSelect(newQual, candidate)
-                  super.typed(FullApply(extMeth, targs, qual2 :: args))
+                  super.typed(FullApply(extMeth, Nil, qual2 :: args))
                 case _ =>
                   CoerceTreeTransformer.this.global.reporter.warning(tree.pos,
                     "The " + sel.symbol + " can be optimized if you define a public, non-overloaded " +
@@ -229,7 +229,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
                   val conversion = qual2.tpe.getAnnotDescrReprToHigh
                   val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
                   val qual3 =  gen.mkMethodCall(convCall, List(qual2))
-                  super.typed(FullApply(Select(MaybeImplicit(qual3, implData), meth) setSymbol tree.symbol, targs, args), mode, pt)
+                  super.typed(FullApply(Select(MaybeImplicit(qual3, implData), meth) setSymbol tree.symbol, targs, args).withTypedAnnot, mode, pt)
               }
             } else {
               tree.setType(null)

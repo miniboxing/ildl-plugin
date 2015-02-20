@@ -13,6 +13,7 @@ trait ildlAddons {
 
   implicit class RichType(tpe: Type) {
 
+    assert(tpe != null)
     // @repr annotation tools:
     def hasReprAnnot: Boolean =
       tpe.dealiasWiden.hasAnnotation(reprClass)
