@@ -15,7 +15,7 @@ import scala.collection.generic.CanBuildFrom
  */
 abstract sealed trait LazyList[T] {
   /** Map */
-  def map[U, That](f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]): LazyList[U]
+  def map[U, That](f: T => U): LazyList[U]
 
   /** Fold */
   def foldLeft[U](z: U)(f: (U, T) => U): U
@@ -43,8 +43,15 @@ object ListAsLazyList extends FreestyleTransformationDescription {
 
   // optimizing the map method:
   def extension_map[T, U, That](lazylist: LazyList[T] @high)
-                               (f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]): LazyList[U] @high =
-    lazylist.map(f)(bf)
+                               (f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]): LazyList[U] @high = {
+
+    // sanity check => we could accept random canBulildFrom objects,
+    // but that makes the transformation slightly more complex
+    assert(bf == List.ReusableCBF, "The LazyList transformation only supports " +
+                                   "using the default `CanBuildFromObject`" +
+                                   "from the Scala collections library.")
+    lazylist.map(f)
+  }
 
   // optimizing the foldLeft method:
   def extension_foldLeft[T, U](lazylist: LazyList[T] @high)
@@ -71,10 +78,8 @@ object ListAsLazyList extends FreestyleTransformationDescription {
 
 class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
 
-  def map[U, That](f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]) = {
-    LazyList.checkCBF(bf)
+  def map[U, That](f: T => U) =
     new LazyListMapper(list, f)
-  }
 
   def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var lst = list
@@ -97,10 +102,8 @@ class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
 
 class LazyListMapper[T, To](list: List[To], fs: To => T) extends LazyList[T] {
 
-  def map[U, That](f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]) = {
-    LazyList.checkCBF(bf)
+  def map[U, That](f: T => U) =
     new LazyListMapper(list, fs andThen f)
-  }
 
   def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var lst = list
@@ -115,14 +118,4 @@ class LazyListMapper[T, To](list: List[To], fs: To => T) extends LazyList[T] {
   def length: Int = list.length // since we don't support filter yet
 
   def force: List[T] = list.map(fs)
-}
-
-object LazyList {
-  def checkCBF(bf: CanBuildFrom[_,_,_]): Unit = {
-    // sanity check => we could accept random canBulildFrom objects,
-    // but that makes the transformation slightly more complex
-    assert(bf == List.ReusableCBF, "The LazyList transformation only supports " +
-                                   "using the default `CanBuildFromObject`" +
-                                   "from the Scala collections library.")
-  }
 }
