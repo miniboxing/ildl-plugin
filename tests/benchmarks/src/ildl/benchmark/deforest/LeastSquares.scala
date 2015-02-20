@@ -27,8 +27,8 @@ object LeastSquares {
       val sumxy = data.map(p => p._1 * p._2).sum
       val sumxx = data.map(p => p._1 * p._1).sum
 
-      val offset = (size * sumxy - sumx * sumy) / (size * sumxx - sumx * sumx)
-      val slope  = (sumy * sumxx - sumx * sumxy) / (size * sumxx - sumx * sumx)
+      val slope  = (size * sumxy - sumx * sumy) / (size * sumxx - sumx * sumx)
+      val offset = (sumy * sumxx - sumx * sumxy) / (size * sumxx - sumx * sumx)
 
       (slope, offset)
     }
