@@ -44,7 +44,10 @@ object ILDLBuild extends Build {
     Seq(
       libraryDependencies ++= scalaMeter, 
       testFrameworks += scalaMeterFramework,
-      testOptions in ThisBuild += Tests.Argument(scalaMeterFramework, "-silent", "-preJDK7")
+      testOptions in ThisBuild += Tests.Argument(scalaMeterFramework, "-silent", "-preJDK7"),
+
+      // blitz
+      libraryDependencies += "com.github.scala-blitz" %% "scala-blitz" % "1.1"
     )
   }
 
