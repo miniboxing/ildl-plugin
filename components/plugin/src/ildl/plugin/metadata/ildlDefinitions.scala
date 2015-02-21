@@ -11,7 +11,7 @@ trait ildlDefinitions {
   import global._
   import definitions._
 
-  def ildlInjectPhase: Phase
+  def ildlBridgePhase: Phase
 
   sealed abstract trait TransformationType
   object Rigid     extends TransformationType

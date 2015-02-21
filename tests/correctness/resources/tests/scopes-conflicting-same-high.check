@@ -16,7 +16,7 @@ package test {
       };
       type High = (Int, Int);
       type Repr = Long;
-      def toRepr(pair: (Int, Int)): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = scala.this.Predef.???;
+      def toRepr(pair: (Int, Int)): Long @ildl.high = scala.this.Predef.???;
       def fromRepr(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???
     };
     object IntPairAsFloat extends AnyRef with ildl.RigidTransformationDescription {
@@ -26,7 +26,7 @@ package test {
       };
       type High = (Int, Int);
       type Repr = Float;
-      def toRepr(pair: (Int, Int)): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsFloat) = scala.this.Predef.???;
+      def toRepr(pair: (Int, Int)): Float @ildl.high = scala.this.Predef.???;
       def fromRepr(l: Float @ildl.high): (Int, Int) = scala.this.Predef.???
     };
     def test(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = {

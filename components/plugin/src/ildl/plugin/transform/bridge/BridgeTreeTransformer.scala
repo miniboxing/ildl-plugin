@@ -24,11 +24,27 @@ trait BridgeTreeTransformer extends TreeRewriters {
   import global._
   import helper._
 
-  class BridgePhase(prev: StdPhase) extends StdPhase(prev) {
+  class BridgePhase(prev: StdPhase) extends Phase(prev) {
     override def name = BridgeTreeTransformer.this.phaseName
     override def checkable = true
-    def apply(unit: CompilationUnit): Unit = {
-      afterBridge(new BridgeTransformer(unit).transformUnit(unit))
+    override def apply(unit: CompilationUnit): Unit = {
+      afterBridge {
+        new BridgeTransformer(unit).transformUnit(unit)
+        new ForceDescriptionObjectInfo().traverse(unit.body)
+      }
+    }
+  }
+
+  def newTransformer(unit: CompilationUnit): Transformer = ???
+
+  class ForceDescriptionObjectInfo extends Traverser {
+    override def traverse(tree: Tree): Unit = {
+      if (tree.tpe.hasReprAnnot) {
+        // force the info for the representation description
+        // object and its members:
+        tree.tpe.getAnnotDescrObject.info.members.map(_.info)
+      }
+      super.traverse(tree)
     }
   }
 

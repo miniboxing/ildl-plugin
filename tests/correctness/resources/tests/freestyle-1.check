@@ -10,19 +10,18 @@ package tests {
         ListAsVector.super.<init>();
         ()
       };
-      def toRepr[T](list: List[T]): Vector[T] = list.toVector();
+      def toRepr[T](list: List[T]): scala.collection.immutable.Vector[T] = list.toVector();
       def fromRepr[T](vec: scala.collection.immutable.Vector[T] @ildl.high): List[T] = vec.toList()
     };
     def main(args: Array[String]): Unit = {
-      val l1: Vector[Int] = Test.this.ListAsVector.toRepr[Int](immutable.this.List.apply[Int](scala.this.Predef.wrapIntArray(Array[Int]{1, 2, 3})));
-      val l2: Vector[Int] = l1;
+      val l1: scala.collection.immutable.Vector[Int] = Test.this.ListAsVector.toRepr[Int](immutable.this.List.apply[Int](scala.this.Predef.wrapIntArray(Array[Int]{1, 2, 3})));
+      val l2: scala.collection.immutable.Vector[Int] = l1;
       val l3: Any = Test.this.ListAsVector.fromRepr[Int](l1);
       scala.this.Predef.println(l3);
       scala.this.Predef.println("OK")
     }
   }
 }
-
 [Now checking: ildl-commit]
 List(1, 2, 3)
 OK

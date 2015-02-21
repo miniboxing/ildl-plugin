@@ -33,7 +33,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
     override def checkable = false
     def apply(unit: CompilationUnit): Unit = {
       val tree = afterCoerce(new TreeAdapters().adapt(unit))
-//      tree.foreach(node => assert(node.tpe != null, node))
+      tree.foreach(node => assert(node.tpe != null, node))
     }
   }
 

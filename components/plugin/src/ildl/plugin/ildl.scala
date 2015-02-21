@@ -48,7 +48,8 @@ trait InjectComponent extends
 /** The component that introduces coercions */
 trait BridgeComponent extends
     PluginComponent
-    with BridgeTreeTransformer {
+    with BridgeTreeTransformer
+    with BridgeInfoTransformer {
 
   val helper: ildlHelperComponent { val global: BridgeComponent.this.global.type }
 
@@ -116,7 +117,7 @@ class ildl(val global: Global) extends Plugin {
     val global: ildl.this.global.type = ildl.this.global
 
     def flag_passive = ildl.this.flag_passive
-    def ildlInjectPhase: Phase = InjectPhase.injectPhase
+    def ildlBridgePhase: Phase = BridgePhase.bridgePhase
   }
 
   private object PostParserPhase extends {
@@ -170,7 +171,7 @@ class ildl(val global: Global) extends Plugin {
     val phaseName = "ildl-coerce"
 
     var coercePhase : StdPhase = _
-    override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
+    override def newPhase(prev: scala.tools.nsc.Phase): Phase = {
       coercePhase = new CoercePhase(prev.asInstanceOf[CoercePhase.StdPhase])
       coercePhase
     }

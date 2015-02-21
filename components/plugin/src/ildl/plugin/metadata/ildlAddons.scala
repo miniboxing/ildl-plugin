@@ -116,7 +116,7 @@ trait ildlAddons {
   def getDescrMatchingType(descr: Symbol, tpe: Type, isHigh: Boolean): Type =
     descr.getTransfType match {
 
-    case Rigid =>
+      case Rigid =>
         val highTpe = descr.getDescrHighTpe
         val reprTpe = descr.getDescrReprTpe
         val (cpTpe, resTpe) =
@@ -142,7 +142,7 @@ trait ildlAddons {
         context.macrosEnabled = false
         context.enrichmentEnabled = false
 
-        val coercionTree = Ident("<coercion>").setType(global.enteringPhase(ildlInjectPhase)(coercion.tpe))
+        val coercionTree = Ident("<coercion>").setType(global.enteringPhase(ildlBridgePhase)(coercion.tpe))
         val appliedTree  = Apply(coercionTree, List(Ident("<argument>") setType tpe))
         val localTyper = global.analyzer.newTyper(context)
         val result: Type = {

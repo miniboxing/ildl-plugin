@@ -35,7 +35,6 @@ trait CommitTreeTransformer extends TypingTransformers {
   }
 
   def checkNoRepr(tree: Tree) = {
-    //println(tree)
     for (t <- tree)
       assert(noReprAnnot(t.tpe), t + ": " + t.tpe)
     tree
@@ -62,7 +61,6 @@ trait CommitTreeTransformer extends TypingTransformers {
     override def transform(tree0: Tree): Tree = {
       val oldTpe = tree0.tpe
       val newTpe = deepTransformation.transform(tree0.pos, oldTpe)
-//      println(oldTpe + " ==> " + newTpe)
 
       // force new info on the symbol
       if (tree0.hasSymbolField)

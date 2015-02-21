@@ -8,7 +8,7 @@ package test {
     };
     type High = Int;
     type Repr = Long;
-    def toRepr(high: Int): Int @ildl.internal.repr(test.this.Transf) = scala.this.Int.int2long(high);
+    def toRepr(high: Int): Long @ildl.high = scala.this.Int.int2long(high);
     def fromRepr(lo: Long @ildl.high): Int = lo.toInt
   }
 }
