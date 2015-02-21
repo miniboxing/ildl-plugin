@@ -1,8 +1,6 @@
 package ildl
 package benchmark
-package deforst
-
-import ildl.benchmark.deforest.ListAsLazyList
+package deforest
 
 object LeastSquares {
 
@@ -13,8 +11,8 @@ object LeastSquares {
     val sumxy = data.map(p => p._1 * p._2).sum
     val sumxx = data.map(p => p._1 * p._1).sum
 
-    val offset = (size * sumxy - sumx * sumy) / (size * sumxx - sumx * sumx)
-    val slope  = (sumy * sumxx - sumx * sumxy) / (size * sumxx - sumx * sumx)
+    val slope  = (size * sumxy - sumx * sumy) / (size * sumxx - sumx * sumx)
+    val offset = (sumy * sumxx - sumx * sumxy) / (size * sumxx - sumx * sumx)
 
     (slope, offset)
   }
@@ -33,4 +31,31 @@ object LeastSquares {
       (slope, offset)
     }
   }
+
+    def leastSquaresFused(data: List[(Double, Double)]): (Double, Double) = {
+      var lst = data
+      var size = 0
+      var sumx = 0.0
+      var sumy = 0.0
+      var sumxy = 0.0
+      var sumxx = 0.0
+
+      while (lst != Nil) {
+        val p = lst.head
+        val x = p._1
+        val y = p._2
+        size += 1
+        sumx += x
+        sumy += y
+        sumxy += x * y
+        sumxx += x * x
+        lst = lst.tail
+      }
+
+      val slope  = (size * sumxy - sumx * sumy) / (size * sumxx - sumx * sumx)
+      val offset = (sumy * sumxx - sumx * sumxy) / (size * sumxx - sumx * sumx)
+
+      (slope, offset)
+    }
+
 }
