@@ -12,7 +12,7 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
   import LeastSquares._
 
   val sizes = Gen.range("size")(1000000, 5000000, 1000000)
-  val bench = Gen.enumeration("bench")("direct", "adrt__", "fused_", "blitz_")
+  val bench = Gen.enumeration("bench")("direct", "adrt__", "blitz_")
 
   var data: List[(Double, Double)] = _
   var slope: Double = _
@@ -42,7 +42,6 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
           bench match {
             case "direct" => leastSquaresDirect(data)
             case "adrt__" => leastSquaresADRT(data)
-            case "fused_" => leastSquaresFused(data)
             case "blitz_" => leastSquaresBlitz(data)
           }
       slope  = slope0

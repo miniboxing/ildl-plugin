@@ -37,10 +37,6 @@ object ListAsLazyList extends FreestyleTransformationDescription {
                               (implicit num: Numeric[U]): U =
     lazylist.foldLeft(num.zero)(num.plus)
 
-  // optimizing the sum method:
-  def extension_sum[T, U >: T](lazylist: LazyList[T] @high) =
-    lazylist.length
-
   // optimizing the implicit force method:
   def implicitly_listForce_force[T](lazylist: LazyList[T] @high) =
     lazylist.force
