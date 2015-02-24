@@ -11,12 +11,12 @@ package deforest
  *   * it accumulated maps, so it's a List[T] with a function that
  *     composes the accumulated maps
  */
-abstract sealed trait LazyList[T] {
+abstract sealed trait LazyList[@specialized T] {
   /** Map */
-  def map[U, That](f: T => U): LazyList[U]
+  def map[@specialized U, That](f: T => U): LazyList[U]
 
   /** Fold */
-  def foldLeft[U](z: U)(f: (U, T) => U): U
+  def foldLeft[@specialized U](z: U)(f: (U, T) => U): U
 
   /** Length */
   def length: Int
@@ -26,12 +26,12 @@ abstract sealed trait LazyList[T] {
 }
 
 
-class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
+class LazyListWrapper[@specialized T](list: List[T]) extends LazyList[T] {
 
-  def map[U, That](f: T => U) =
+  def map[@specialized U, That](f: T => U) =
     new LazyListMapper(list, f)
 
-  def foldLeft[U](z: U)(f: (U, T) => U): U = {
+  def foldLeft[@specialized U](z: U)(f: (U, T) => U): U = {
     var lst = list
     var acc  = z
     while(lst != Nil) {
@@ -47,12 +47,12 @@ class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
 }
 
 
-class LazyListMapper[T, To](list: List[To], fs: To => T) extends LazyList[T] {
+class LazyListMapper[@specialized T, @specialized To](list: List[To], fs: To => T) extends LazyList[T] {
 
-  def map[U, That](f: T => U) =
+  def map[@specialized U, That](f: T => U) =
     new LazyListMapper(list, fs andThen f)
 
-  def foldLeft[U](z: U)(f: (U, T) => U): U = {
+  def foldLeft[@specialized U](z: U)(f: (U, T) => U): U = {
     var lst = list
     var acc  = z
     while(lst != Nil) {

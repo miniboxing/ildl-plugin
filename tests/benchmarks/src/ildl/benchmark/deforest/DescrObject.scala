@@ -8,15 +8,16 @@ import scala.collection.generic.CanBuildFrom
 object ListAsLazyList extends FreestyleTransformationDescription {
 
   // conversions:
-  def toRepr[T](list: List[T]): LazyList[T] @high = new LazyListWrapper(list)
-  def fromRepr[T](lazylist: LazyList[T] @high): List[T] = lazylist.force
+  def toRepr[@specialized T](list: List[T]): LazyList[T] @high = new LazyListWrapper(list)
+  def fromRepr[@specialized T](lazylist: LazyList[T] @high): List[T] = lazylist.force
 
   // optimizing the length:
-  def extension_length[T](lazylist: LazyList[T] @high) =
+  def extension_length[@specialized T](lazylist: LazyList[T] @high) =
     lazylist.length
 
   // optimizing the map method:
-  def extension_map[T, U, That](lazylist: LazyList[T] @high)
+  def extension_map[@specialized T, @specialized U, That]
+                               (lazylist: LazyList[T] @high)
                                (f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]): LazyList[U] @high = {
 
     // sanity check => we could accept random canBulildFrom objects,
@@ -28,16 +29,18 @@ object ListAsLazyList extends FreestyleTransformationDescription {
   }
 
   // optimizing the foldLeft method:
-  def extension_foldLeft[T, U](lazylist: LazyList[T] @high)
+  def extension_foldLeft[@specialized T, @specialized U]
+                              (lazylist: LazyList[T] @high)
                               (z: U)(f: (U, T) => U): U =
     lazylist.foldLeft(z)(f)
 
   // optimizing the sum method:
-  def extension_sum[T, U >: T](lazylist: LazyList[T] @high)
+  def extension_sum[@specialized T, @specialized U >: T]
+                              (lazylist: LazyList[T] @high)
                               (implicit num: Numeric[U]): U =
     lazylist.foldLeft(num.zero)(num.plus)
 
   // optimizing the implicit force method:
-  def implicitly_listForce_force[T](lazylist: LazyList[T] @high) =
+  def implicitly_listForce_force[@specialized T](lazylist: LazyList[T] @high) =
     lazylist.force
 }
