@@ -23,8 +23,8 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
 
   measure method "leastSquares" in {
     using(Gen.tupled(sizes, bench)) config (
-        exec.independentSamples -> 5,
-        exec.benchRuns -> 5,
+        exec.independentSamples -> 2,
+        exec.benchRuns -> 2,
         exec.jvmflags -> flags(interp)
     ) setUp {
       case (size, bench) =>

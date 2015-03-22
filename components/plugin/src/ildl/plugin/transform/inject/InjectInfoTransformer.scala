@@ -26,8 +26,8 @@ trait InjectInfoTransformer extends InfoTransform {
     }
 
     // types inside the `adrt` scope get annotated:
-    if (metadata.synbolDescriptionObjects.isDefinedAt(sym)) {
-      val descrs = metadata.synbolDescriptionObjects(sym)
+    if (metadata.symbolDescriptionObjects.isDefinedAt(sym)) {
+      val descrs = metadata.symbolDescriptionObjects(sym)
       transformType(NoPosition, tpe, descrs)
     } else
       tpe

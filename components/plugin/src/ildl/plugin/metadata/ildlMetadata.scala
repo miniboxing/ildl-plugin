@@ -17,6 +17,6 @@ trait ildlMetadata {
     val descriptionObject = perRunCaches.newMap[Position, Tree]()
 
     /** Recording the transformation description objects visible for every symbol */
-    val synbolDescriptionObjects = perRunCaches.newMap[Symbol, List[Tree]]()
+    val symbolDescriptionObjects = perRunCaches.newMap[Symbol, List[Tree]]()
   }
 }

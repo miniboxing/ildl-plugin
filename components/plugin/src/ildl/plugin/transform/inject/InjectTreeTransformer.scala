@@ -22,10 +22,12 @@ trait InjectTreeTransformer extends TreeRewriters {
       val attach = tree.attachments.get[ildlAttachment].get
       val descrs = attach.descrs.map(metadata.descriptionObject(_))
       descrs
-    } else {
-      assert(tree.symbol.isAccessor && metadata.synbolDescriptionObjects.isDefinedAt(tree.symbol.accessed))
-      metadata.synbolDescriptionObjects(tree.symbol.accessed)
-    }
+    } else if (tree.symbol.isGetter && metadata.symbolDescriptionObjects.isDefinedAt(tree.symbol.accessed)) {
+      metadata.symbolDescriptionObjects(tree.symbol.accessed)
+    } else if (tree.symbol.owner.isSetter && metadata.symbolDescriptionObjects.isDefinedAt(tree.symbol.owner.accessed)) {
+      metadata.symbolDescriptionObjects(tree.symbol.owner.accessed)
+    } else
+      ???
 
   class InjectTransformer(unit: CompilationUnit) extends TreeRewriter(unit) {
 
@@ -39,12 +41,12 @@ trait InjectTreeTransformer extends TreeRewriters {
         Multi(Nil) // then wipe the reference to adrt :)
 
       // valDefs
-      case vd @ ValDef(mods, name, tpt, rhs) if vd.hasAttachment[ildlAttachment] =>
+      case vd @ ValDef(mods, name, tpt, rhs) if shouldInject(vd) =>
         val descrs = getTransformDescriptors(tree)
         val ntpt = atOwner(vd.symbol)(localTyper.typed(TypeTree(transformType(vd.pos, tpt.tpe, descrs))))
         val nrhs = transform(rhs)
         val vd2 = treeCopy.ValDef(vd, mods, name, ntpt, nrhs)
-        metadata.synbolDescriptionObjects(vd.symbol) = descrs
+        metadata.symbolDescriptionObjects(vd.symbol) = descrs
         afterInject(vd.symbol.info)
         localTyper.typed(vd2)
 
@@ -55,16 +57,20 @@ trait InjectTreeTransformer extends TreeRewriters {
         val nrhs = transform(rhs)
         val nvss = vparamss.map(_.map(transformValDef))
         val dd2 = treeCopy.DefDef(dd, mods, name, tpars, nvss, ntpt, nrhs)
-        metadata.synbolDescriptionObjects(dd.symbol) = descrs
+        metadata.symbolDescriptionObjects(dd.symbol) = descrs
         localTyper.typed(dd2)
 
       case _ =>
         Descend
     }
 
+    def shouldInject(vd: ValDef): Boolean =
+      vd.hasAttachment[ildlAttachment] ||
+      vd.symbol.owner.isSetter && metadata.symbolDescriptionObjects.isDefinedAt(vd.symbol.owner.accessed)
+
     def shouldInject(dd: DefDef): Boolean =
       dd.hasAttachment[ildlAttachment] ||
-      dd.symbol.isAccessor && metadata.synbolDescriptionObjects.isDefinedAt(dd.symbol.accessed)
+      dd.symbol.isGetter && metadata.symbolDescriptionObjects.isDefinedAt(dd.symbol.accessed)
   }
 }
 
