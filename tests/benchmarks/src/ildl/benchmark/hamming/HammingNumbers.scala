@@ -4,16 +4,22 @@ package hamming
 
 object HammingNumbers {
 
+  import scala.collection.mutable.Queue
+
+  // we want to be able to enqueue a single element at once
+  implicit class QueueWithEnqueue1[T](val q: Queue[T]) extends AnyVal {
+    def enqueue1(t: T) = q.enqueue(t)
+  }
+
   // taken from http://rosettacode.org/wiki/Hamming_numbers#Scala
-  class HammingDirect extends Iterator[BigInt] {
-    import scala.collection.mutable.Queue
-    val q2 = new Queue[BigInt]
-    val q3 = new Queue[BigInt]
-    val q5 = new Queue[BigInt]
-    def enqueue(n: BigInt) = {
-      q2 enqueue n * 2
-      q3 enqueue n * 3
-      q5 enqueue n * 5
+  class HammingDirect extends Iterator[Long] {
+    val q2 = new Queue[Long]
+    val q3 = new Queue[Long]
+    val q5 = new Queue[Long]
+    def enqueue(n: Long) = {
+      q2 enqueue1 n * 2
+      q3 enqueue1 n * 3
+      q5 enqueue1 n * 5
     }
     def next = {
       val n = q2.head min q3.head min q5.head
@@ -29,16 +35,15 @@ object HammingNumbers {
     q5 enqueue 1
   }
 
-  adrt(QueueOfBigIngAsFunnyQueue) {
-    class HammingADRT extends Iterator[BigInt] {
-      import scala.collection.mutable.Queue
-      val q2 = new Queue[BigInt]
-      val q3 = new Queue[BigInt]
-      val q5 = new Queue[BigInt]
-      def enqueue(n: BigInt) = {
-        q2 enqueue n * 2
-        q3 enqueue n * 3
-        q5 enqueue n * 5
+  adrt(QueueOfLongAsFunnyQueue) {
+    class HammingADRT extends Iterator[Long] {
+      val q2 = new Queue[Long]
+      val q3 = new Queue[Long]
+      val q5 = new Queue[Long]
+      def enqueue(n: Long) = {
+        q2 enqueue1 n * 2
+        q3 enqueue1 n * 3
+        q5 enqueue1 n * 5
       }
       def next = {
         val n = q2.head min q3.head min q5.head
