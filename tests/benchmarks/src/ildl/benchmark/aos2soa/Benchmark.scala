@@ -17,10 +17,10 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
   val bench = Gen.enumeration("bench")("direct", "adrt__")
   val sizes = Gen.range("size")(1000000, 5000000, 1000000)
 
-  measure method "leastSquares" in {
+  measure method "readingsAverage" in {
     using(Gen.tupled(sizes, bench)) config (
-        exec.independentSamples -> 2,
-        exec.benchRuns -> 2
+        exec.independentSamples -> 5,
+        exec.benchRuns -> 5
     ) setUp {
        case (size, "direct") => aosData = ArrayOfStruct.createData(size)
       case (size, "adrt__") => soaData = StructOfArray.createData(size)

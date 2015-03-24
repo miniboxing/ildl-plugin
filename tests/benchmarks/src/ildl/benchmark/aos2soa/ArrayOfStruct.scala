@@ -3,10 +3,11 @@ package benchmark
 package aos2soa
 
 import scala.util.Random
+import Implicit._
 
 object ArrayOfStruct {
 
-  def createData(size: Int): Array[(Long, Long, Double)] = {
+  def createData(size: Int): SensorReadings = {
     Random.setSeed(0)
     var timestamp = System.currentTimeMillis()
     val array = new Array[(Long, Long, Double)](size)
@@ -22,15 +23,15 @@ object ArrayOfStruct {
     array
   }
 
-  def getAverage(data: Array[(Long, Long, Double)], event: Long): Double = {
+  def getAverage(data: SensorReadings, event: Long): Double = {
     var i = 0
     var acc = 0.0
     var cnt = 0
     val size = data.length
 
     while (i < size) {
-      if (data(i)._2 == event) {
-        acc += data(i)._3
+      if (data.event(i) == event) {
+        acc += data.reading(i)
         cnt = 0
       }
       i += 1

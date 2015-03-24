@@ -4,29 +4,32 @@ package aos2soa
 
 import scala.reflect.ClassTag
 
-object ArrayOfStructToStructOfArray extends FreestyleTransformationDescription {
+object ArrayOfStructToStructOfArray extends RigidTransformationDescription {
 
-  case class StructOfArray[T, U, V](arrayOfT: Array[AnyRef],
-                                    arrayOfU: Array[AnyRef],
-                                    arrayOfV: Array[AnyRef])
+  case class StructOfArray(arrayOfTimestamps: Array[Long],
+                           arrayOfEvents:     Array[Long],
+                           arrayOfReadings:   Array[Double])
+
+  type High = SensorReadings
+  type Repr = StructOfArray
 
   // conversions:
-  def toRepr[T, U, V](arrayOfStruct: Array[(T, U, V)]): StructOfArray[T, U, V] @high =
+  def toRepr(arrayOfStruct: SensorReadings): StructOfArray @high =
     if (arrayOfStruct == null)
       null
     else {
       val length = arrayOfStruct.length
-      val arrayOfT = new Array[AnyRef](length)
-      val arrayOfU = new Array[AnyRef](length)
-      val arrayOfV = new Array[AnyRef](length)
+      val arrayOfT = new Array[Long](length)
+      val arrayOfU = new Array[Long](length)
+      val arrayOfV = new Array[Double](length)
 
       var i = 0
       while (i < length) {
         val tup = arrayOfStruct(i)
         if (tup != null) {
-          arrayOfT(i) = tup._1.asInstanceOf[AnyRef]
-          arrayOfU(i) = tup._2.asInstanceOf[AnyRef]
-          arrayOfV(i) = tup._3.asInstanceOf[AnyRef]
+          arrayOfT(i) = tup._1
+          arrayOfU(i) = tup._2
+          arrayOfV(i) = tup._3
         }
         i += 1
       }
@@ -34,23 +37,30 @@ object ArrayOfStructToStructOfArray extends FreestyleTransformationDescription {
       StructOfArray(arrayOfT, arrayOfU, arrayOfV)
     }
 
-  def fromRepr[T, U, V](structOfArray: StructOfArray[T, U, V] @high): Array[(T, U, V)] =
+  def fromRepr(structOfArray: StructOfArray @high): SensorReadings =
     if (structOfArray == null)
       null
     else
-      sys.error("There's no going back!"): Array[(T, U, V)]
+      sys.error("There's no going back!")
 
   // Operations
-  def extension_length[T, U, V](soa: StructOfArray[T, U, V] @high): Int = soa.arrayOfT.length
+  def extension_length(soa: StructOfArray @high): Int = soa.arrayOfTimestamps.length
 
-  def extension_apply[T, U, V](soa: StructOfArray[T, U, V] @high, idx: Int): (T, U, V) =
-    (soa.arrayOfT(idx).asInstanceOf[T],
-     soa.arrayOfU(idx).asInstanceOf[U],
-     soa.arrayOfV(idx).asInstanceOf[V])
+  def extension_apply(soa: StructOfArray @high, idx: Int): (Long, Long, Double) =
+    (soa.arrayOfTimestamps(idx), soa.arrayOfEvents(idx), soa.arrayOfReadings(idx))
 
-  def extension_update[T, U, V](soa: StructOfArray[T, U, V] @high, idx: Int, value: (T, U, V)): Unit = {
-    soa.arrayOfT(idx) = value._1.asInstanceOf[AnyRef]
-    soa.arrayOfU(idx) = value._2.asInstanceOf[AnyRef]
-    soa.arrayOfV(idx) = value._3.asInstanceOf[AnyRef]
+  def extension_update(soa: StructOfArray @high, idx: Int, value: (Long, Long, Double)): Unit = {
+    soa.arrayOfTimestamps(idx) = value._1
+    soa.arrayOfEvents(idx)     = value._2
+    soa.arrayOfReadings(idx)   = value._3
   }
+
+  def implicit_ArrayOfLongLongDoubleTplAsReadings_timestamp(soa: StructOfArray @high, idx: Int): Long =
+    soa.arrayOfTimestamps(idx)
+
+  def implicit_ArrayOfLongLongDoubleTplAsReadings_event(soa: StructOfArray @high, idx: Int): Long =
+    soa.arrayOfEvents(idx)
+
+  def implicit_ArrayOfLongLongDoubleTplAsReadings_reading(soa: StructOfArray @high, idx: Int): Double =
+    soa.arrayOfReadings(idx)
 }
