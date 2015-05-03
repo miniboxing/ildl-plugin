@@ -8,13 +8,13 @@ package tests {
       Test.super.<init>();
       ()
     };
-    object ListAsArray extends Object with ildl.FreestyleTransformationDescription {
+    object ListAsArray extends Object with ildl.TransformationDescription {
       def <init>(): tests.Test.ListAsArray.type = {
         ListAsArray.super.<init>();
         ()
       };
       def toRepr[T](list: List[T]): Array[T] = scala.this.Predef.???();
-      def fromRepr[T](arr: Array[T] @ildl.high): List[T] = scala.this.Predef.???();
+      def toHigh[T](arr: Array[T] @ildl.high): List[T] = scala.this.Predef.???();
       def extension_apply[T](recv: Array[T] @ildl.high, index: Int): T = scala.this.Predef.???();
       def extension_toString[T](recv: Array[T] @ildl.high): Long = scala.this.Predef.???()
     };
@@ -22,7 +22,7 @@ package tests {
     <stable> <accessor> def a(): Array[Int] = Test.this.a;
     private[this] val b: Int = Test.this.ListAsArray.extension_apply[Int](Test.this.a(), 2);
     <stable> <accessor> def b(): Int = Test.this.b;
-    private[this] val c: String = Test.this.ListAsArray.fromRepr[Int](Test.this.a()).toString();
+    private[this] val c: String = Test.this.ListAsArray.toHigh[Int](Test.this.a()).toString();
     <stable> <accessor> def c(): String = Test.this.c
   }
 }

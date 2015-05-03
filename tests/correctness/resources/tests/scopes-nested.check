@@ -13,7 +13,7 @@ package test {
       type High = (Int, Int);
       type Repr = Long;
       def toRepr(pair: (Int, Int)): Long = scala.this.Predef.???();
-      def fromRepr(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???()
+      def toHigh(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???()
     };
     object IntAsLong extends Object with ildl.RigidTransformationDescription {
       def <init>(): test.GCDTest.IntAsLong.type = {
@@ -23,7 +23,7 @@ package test {
       type High = Int;
       type Repr = Long;
       def toRepr(pair: Int): Long = scala.this.Predef.???();
-      def fromRepr(l: Long @ildl.high): Int = scala.this.Predef.???()
+      def toHigh(l: Long @ildl.high): Int = scala.this.Predef.???()
     };
     private[this] var n1: Long = GCDTest.this.IntPairAsLong.toRepr(new (Int, Int)(1, 0));
     <accessor> def n1(): Long = GCDTest.this.n1;

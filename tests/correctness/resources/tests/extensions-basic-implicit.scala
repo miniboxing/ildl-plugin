@@ -15,9 +15,9 @@ object Test {
   
   }
 
-  object ZZZAsLong extends FreestyleTransformationDescription {
+  object ZZZAsLong extends TransformationDescription {
     def toRepr(zzz: ZZZ): Long @high = zzz.v
-    def fromRepr(v: Long @high): ZZZ = ZZZ(v)
+    def toHigh(v: Long @high): ZZZ = ZZZ(v)
     def implicit_ZZZOps_+(recv: Long @high, other: ZZZ): Long @high = ???        // okay, coercing
     def implicit_ZZZOps_-(recv: Long @high, other: Any): Long @high = ???        // okay, coercing
     def implicit_ZZZOps_*(recv: Long @high, other: Long @high): Long @high = ??? // okay, non-coercing

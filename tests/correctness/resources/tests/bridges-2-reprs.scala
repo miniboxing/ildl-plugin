@@ -8,14 +8,14 @@ object GCDTest {
     type High = (Int, Int)
     type Repr = Long
     def toRepr(pair: (Int, Int)): Long @high = ???
-    def fromRepr(l: Long @high): (Int, Int) = ???
+    def toHigh(l: Long @high): (Int, Int) = ???
   }
 
   object IntPairAsFloat extends RigidTransformationDescription {
     type High = (Int, Int)
     type Repr = Float
     def toRepr(pair: (Int, Int)): Float @high = ???
-    def fromRepr(l: Float @high): (Int, Int) = ???
+    def toHigh(l: Float @high): (Int, Int) = ???
   }
 
   trait T {

@@ -13,7 +13,7 @@ package test {
       type High = (Int, Int);
       type Repr = Long;
       def toRepr(pair: (Int, Int)): Long = scala.this.Predef.???();
-      def fromRepr(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???()
+      def toHigh(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???()
     };
     abstract trait T extends Object {
       def /*T*/$init$(): Unit = {
@@ -26,7 +26,7 @@ package test {
         ()
       };
       override def foo(cp: Long): Long = GCDTest.this.IntPairAsLong.toRepr(scala.this.Predef.???());
-      @scala.annotation.bridge override def foo(cp: (Int, Int)): (Int, Int) = GCDTest.this.IntPairAsLong.fromRepr(U.this.foo(GCDTest.this.IntPairAsLong.toRepr(cp)))
+      @scala.annotation.bridge override def foo(cp: (Int, Int)): (Int, Int) = GCDTest.this.IntPairAsLong.toHigh(U.this.foo(GCDTest.this.IntPairAsLong.toRepr(cp)))
     }
   }
 }

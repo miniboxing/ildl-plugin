@@ -72,13 +72,13 @@ package tests {
       def bar(i: Int): T = MyListOps.this.myl.arr().apply(i)
     };
     implicit <synthetic> def MyListOps[T](myl: tests.Test.MyList[T]): tests.Test.MyListOps[T] = new tests.Test.MyListOps[T](myl);
-    object ListAsArray extends Object with ildl.FreestyleTransformationDescription {
+    object ListAsArray extends Object with ildl.TransformationDescription {
       def <init>(): tests.Test.ListAsArray.type = {
         ListAsArray.super.<init>();
         ()
       };
       def toRepr[T](list: tests.Test.MyList[T]): Array[T] = scala.this.Predef.???();
-      def fromRepr[T](arr: Array[T] @ildl.high): tests.Test.MyList[T] = scala.this.Predef.???();
+      def toHigh[T](arr: Array[T] @ildl.high): tests.Test.MyList[T] = scala.this.Predef.???();
       def implicit_MyListOps_foo[T](arr: Array[T] @ildl.high, i: Int): Nothing = scala.this.Predef.???();
       def implicit_MyListOps_foo[T](arr: Array[T] @ildl.high, i: String): Nothing = scala.this.Predef.???()
     };
@@ -86,7 +86,7 @@ package tests {
     <stable> <accessor> def a(): Array[Int] = Test.this.a;
     private[this] val b: Int = Test.this.ListAsArray.implicit_MyListOps_foo[Int](Test.this.a(), 2);
     <stable> <accessor> def b(): Int = Test.this.b;
-    private[this] val c: Int = Test.this.MyListOps[Int](Test.this.ListAsArray.fromRepr[Int](Test.this.a())).bar(3);
+    private[this] val c: Int = Test.this.MyListOps[Int](Test.this.ListAsArray.toHigh[Int](Test.this.a())).bar(3);
     <stable> <accessor> def c(): Int = Test.this.c
   }
 }

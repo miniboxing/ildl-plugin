@@ -53,18 +53,16 @@ trait ildlAddons {
     def isTransfDescriptionObject: Boolean =
       sym.isModuleOrModuleClass && (sym.tpe <:< ildlTransformationDescrSym.tpe) ||
       sym == ildlTransformationDescrSym ||
-      sym == ildlRigidTransformationDescrSym ||
-      sym == ildlFreestyleTransformationDescrSym
+      sym == ildlRigidTransformationDescrSym
 
     def getTransfType: TransformationType = {
       assert(isTransfDescriptionObject, sym)
       if (sym.tpe <:< ildlRigidTransformationDescrSym.tpe)
         Rigid
-      else if (sym.tpe <:< ildlFreestyleTransformationDescrSym.tpe)
-        Freestyle
       else
-        ???
+        Freestyle
     }
+
     def getDescrHighToRepr: Symbol =
       sym.tpe.member(highToReprName).filter(!_.isDeferred)
     def getDescrReprToHigh: Symbol =
@@ -96,7 +94,7 @@ trait ildlAddons {
 
   def nomalizeDescriptorSymbol(sym: Symbol) = {
     assert(sym != NoSymbol)
-    if ((sym == ildlTransformationDescrSym) || (sym == ildlRigidTransformationDescrSym) || (sym == ildlFreestyleTransformationDescrSym))
+    if ((sym == ildlTransformationDescrSym) || (sym == ildlRigidTransformationDescrSym))
       sym
     else if (sym.isModule)
       sym

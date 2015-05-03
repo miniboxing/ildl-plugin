@@ -11,9 +11,9 @@ object Test {
     def bar(i: Int) = myl.arr(i)
   }
 
-  object ListAsArray extends FreestyleTransformationDescription {
+  object ListAsArray extends TransformationDescription {
     def toRepr[T](list: MyList[T]): Array[T] @high = ???
-    def fromRepr[T](arr: Array[T] @high): MyList[T] = ???
+    def toHigh[T](arr: Array[T] @high): MyList[T] = ???
     def implicit_MyListOps_foo[T](arr: Array[T] @high, i: Int) = ???     // okay
     def implicit_MyListOps_foo[T](arr: Array[T] @high, i: String) = ???  // not okay, i: String
   }

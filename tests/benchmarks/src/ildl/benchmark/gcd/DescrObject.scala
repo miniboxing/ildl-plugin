@@ -11,7 +11,7 @@ object IntPairAsGaussianInteger extends RigidTransformationDescription {
   private def pack(re: Int, im: Int) = (re.toLong << 32l) | (im.toLong & 0xFFFFFFFFl)
 
   def toRepr(pair: (Int, Int)): Long @high = pack(pair._1, pair._2)
-  def fromRepr(l: Long @high): (Int, Int) = (re(l), im(l))
+  def toHigh(l: Long @high): (Int, Int) = (re(l), im(l))
 
   // interface: (no need to expose everything)
   def implicit_IntPairAsGaussianIntegerImplicit_%(n1: Long @high, n2: Long @high): Long @high = %(n1, n2)

@@ -37,7 +37,7 @@ object ArrayOfStructToStructOfArray extends RigidTransformationDescription {
       StructOfArray(arrayOfT, arrayOfU, arrayOfV)
     }
 
-  def fromRepr(structOfArray: StructOfArray @high): SensorReadings =
+  def toHigh(structOfArray: StructOfArray @high): SensorReadings =
     if (structOfArray == null)
       null
     else

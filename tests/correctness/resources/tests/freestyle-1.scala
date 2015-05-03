@@ -4,9 +4,9 @@ import ildl._
 
 object Test {
   
-  object ListAsVector extends FreestyleTransformationDescription {
+  object ListAsVector extends TransformationDescription {
     def toRepr[T](list: List[T]): Vector[T] @high = list.toVector
-    def fromRepr[T](vec: Vector[T] @high): List[T] = vec.toList
+    def toHigh[T](vec: Vector[T] @high): List[T] = vec.toList
   }
 
   def main(args: Array[String]): Unit = {

@@ -6,7 +6,7 @@ object Transf extends RigidTransformationDescription {
   type High = Int
   type Repr = Long
   def toRepr(high: Int): Long @high = high
-  def fromRepr(lo: Long @high): Int = lo.toInt
+  def toHigh(lo: Long @high): Int = lo.toInt
 
   // @high used to annotate something that 
   // is not the high type:

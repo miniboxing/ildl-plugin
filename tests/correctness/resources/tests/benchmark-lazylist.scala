@@ -18,11 +18,11 @@ abstract sealed trait LazyList[T] {
   def force: List[T]
 }
 
-object ListAsLazyList extends FreestyleTransformationDescription {
+object ListAsLazyList extends TransformationDescription {
 
   // conversions:
   def toRepr[T](list: List[T]): LazyList[T] @high = new LazyListWrapper(list)
-  def fromRepr[T](lazylist: LazyList[T] @high): List[T] = lazylist.force
+  def toHigh[T](lazylist: LazyList[T] @high): List[T] = lazylist.force
 
   // optimizing the length:
   def extension_length[T](lazylist: LazyList[T] @high) =

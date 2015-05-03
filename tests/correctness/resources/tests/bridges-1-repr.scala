@@ -8,7 +8,7 @@ object GCDTest {
     type High = (Int, Int)
     type Repr = Long
     def toRepr(pair: (Int, Int)): Long @high = ???
-    def fromRepr(l: Long @high): (Int, Int) = ???
+    def toHigh(l: Long @high): (Int, Int) = ???
   }
 
   trait T {

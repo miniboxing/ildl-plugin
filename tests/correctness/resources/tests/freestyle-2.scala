@@ -4,10 +4,10 @@ import ildl._
 
 object Test {
   
-  object ListAsVector extends FreestyleTransformationDescription {
+  object ListAsVector extends TransformationDescription {
     def toRepr[T](list: List[T]): Vector[T] @high = list.toVector
-    // notice: `fromRepr` only accepts `Vector[Long]`:
-    def fromRepr(vec: Vector[Long] @high): List[Long] = vec.toList
+    // notice: `toHigh` only accepts `Vector[Long]`:
+    def toHigh(vec: Vector[Long] @high): List[Long] = vec.toList
   }
 
   def main(args: Array[String]): Unit = {

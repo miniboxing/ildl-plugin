@@ -4,9 +4,9 @@ import ildl._
 
 object Test {
 
-  object IntAsLong extends FreestyleTransformationDescription {
+  object IntAsLong extends TransformationDescription {
     def toRepr(i: Int): Long @high = i.toLong
-    def fromRepr(l: Long @high): Int = l.toInt
+    def toHigh(l: Long @high): Int = l.toInt
     def extension_+(recv: Long @high, other: Int): Long @high = ???        // okay, coercing
     def extension_-(recv: Long @high, other: Any): Long @high = ???        // okay, coercing
     def extension_*(recv: Long @high, other: Long @high): Long @high = ??? // okay, non-coercing

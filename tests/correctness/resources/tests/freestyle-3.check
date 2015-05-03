@@ -1,6 +1,6 @@
-newSource1.scala:10: error: There is no corresponding representation type for high-level type List[T] set in the `toRepr` method. The `toRepr` and `fromRepr`methods should define a bijection between the high and repr types! The concerned transformation description object is: tests.Test.ListAsVector.
-    def fromRepr[T](vec: Vector[T] @high): List[T] = vec.toList
+newSource1.scala:10: error: There is no corresponding representation type for high-level type List[T] set in the `toRepr` method. The `toRepr` and `toHigh`methods should define a bijection between the high and repr types! The concerned transformation description object is: tests.Test.ListAsVector.
+    def toHigh[T](vec: Vector[T] @high): List[T] = vec.toList
         ^
-newSource1.scala:10: error: There is no corresponding representation type for high-level type List[T] set in the `toRepr` method. The `toRepr` and `fromRepr`methods should define a bijection between the high and repr types! The concerned transformation description object is: tests.Test.ListAsVector.
-    def fromRepr[T](vec: Vector[T] @high): List[T] = vec.toList
+newSource1.scala:10: error: There is no corresponding representation type for high-level type List[T] set in the `toRepr` method. The `toRepr` and `toHigh`methods should define a bijection between the high and repr types! The concerned transformation description object is: tests.Test.ListAsVector.
+    def toHigh[T](vec: Vector[T] @high): List[T] = vec.toList
                     ^

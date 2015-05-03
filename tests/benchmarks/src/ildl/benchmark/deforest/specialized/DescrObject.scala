@@ -6,11 +6,11 @@ package specialized
 import scala.collection.generic.CanBuildFrom
 
 
-object ListAsLazySpecializedList extends FreestyleTransformationDescription {
+object ListAsLazySpecializedList extends TransformationDescription {
 
   // conversions:
   def toRepr[@specialized T](list: List[T]): LazySpecializedList[T] @high = new LazySpecializedListWrapper(list)
-  def fromRepr[@specialized T](lazylist: LazySpecializedList[T] @high): List[T] = lazylist.force
+  def toHigh[@specialized T](lazylist: LazySpecializedList[T] @high): List[T] = lazylist.force
 
   // optimizing the length:
   def extension_length[@specialized T](lazylist: LazySpecializedList[T] @high) =

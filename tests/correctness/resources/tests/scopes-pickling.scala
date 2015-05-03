@@ -18,7 +18,7 @@ object ScopePicklingTest {
     type High = (Int, Int)
     type Repr = Long
     def toRepr(pair: (Int, Int)): Long @high = (pair._1.toLong << 32l) | (pair._2.toLong & 0xFFFFFFFFl)
-    def fromRepr(l: Long @high): (Int, Int) = ((l >>> 32).toInt, (l & 0xFFFFFFFF).toInt)
+    def toHigh(l: Long @high): (Int, Int) = ((l >>> 32).toInt, (l & 0xFFFFFFFF).toInt)
 
     // pickling/unpickling
     def implicit_IntPairPickle_pickle(value: Long @high): Long = value
@@ -29,7 +29,7 @@ object ScopePicklingTest {
     type High = (Float, Float)
     type Repr = Long
     def toRepr(pair: (Float, Float)): Long @high = (java.lang.Float.floatToIntBits(pair._1).toLong << 32l) | (java.lang.Float.floatToIntBits(pair._2).toLong & 0xFFFFFFFFl)
-    def fromRepr(l: Long @high): (Float, Float) = (java.lang.Float.intBitsToFloat((l >>> 32).toInt), java.lang.Float.intBitsToFloat((l & 0xFFFFFFFF).toInt))
+    def toHigh(l: Long @high): (Float, Float) = (java.lang.Float.intBitsToFloat((l >>> 32).toInt), java.lang.Float.intBitsToFloat((l & 0xFFFFFFFF).toInt))
 
     // pickling/unpickling
     def implicit_FloatPairPickle_pickle(value: Long @high): Long = ((java.lang.Float.intBitsToFloat((value >>> 32).toInt)).toInt.toLong << 32l) | ((java.lang.Float.intBitsToFloat((value & 0xFFFFFFFF).toInt)).toInt.toLong & 0xFFFFFFFFl)

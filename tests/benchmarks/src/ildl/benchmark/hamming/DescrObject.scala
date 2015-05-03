@@ -14,7 +14,7 @@ object QueueOfLongAsFunnyQueue extends RigidTransformationDescription {
     new FunnyQueue
   }
 
-  def fromRepr(q: FunnyQueue @high): Queue[Long] = {
+  def toHigh(q: FunnyQueue @high): Queue[Long] = {
     assert(false, "We shouldn't need this!")
     ???
   }

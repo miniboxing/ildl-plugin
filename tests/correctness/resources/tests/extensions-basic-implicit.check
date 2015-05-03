@@ -86,13 +86,13 @@ package tests {
       def %(other: tests.Test.ZZZ): tests.Test.ZZZ = new tests.Test.ZZZ(ZZZOps.this.zzz.v().%(other.v()))
     };
     implicit <synthetic> def ZZZOps(zzz: tests.Test.ZZZ): tests.Test.ZZZOps = new tests.Test.ZZZOps(zzz);
-    object ZZZAsLong extends Object with ildl.FreestyleTransformationDescription {
+    object ZZZAsLong extends Object with ildl.TransformationDescription {
       def <init>(): tests.Test.ZZZAsLong.type = {
         ZZZAsLong.super.<init>();
         ()
       };
       def toRepr(zzz: tests.Test.ZZZ): Long = zzz.v();
-      def fromRepr(v: Long @ildl.high): tests.Test.ZZZ = new tests.Test.ZZZ(v);
+      def toHigh(v: Long @ildl.high): tests.Test.ZZZ = new tests.Test.ZZZ(v);
       def implicit_ZZZOps_+(recv: Long @ildl.high, other: tests.Test.ZZZ): Long = scala.this.Predef.???();
       def implicit_ZZZOps_-(recv: Long @ildl.high, other: Any): Long = scala.this.Predef.???();
       def implicit_ZZZOps_*(recv: Long @ildl.high, other: Long @ildl.high): Long = scala.this.Predef.???();
@@ -103,17 +103,17 @@ package tests {
     };
     private[this] val a: Long = Test.this.ZZZAsLong.toRepr(new tests.Test.ZZZ(1L));
     <stable> <accessor> def a(): Long = Test.this.a;
-    private[this] val b: Long = Test.this.ZZZAsLong.implicit_ZZZOps_+(Test.this.a(), Test.this.ZZZAsLong.fromRepr(Test.this.a()));
+    private[this] val b: Long = Test.this.ZZZAsLong.implicit_ZZZOps_+(Test.this.a(), Test.this.ZZZAsLong.toHigh(Test.this.a()));
     <stable> <accessor> def b(): Long = Test.this.b;
-    private[this] val c: Long = Test.this.ZZZAsLong.implicit_ZZZOps_-(Test.this.a(), Test.this.ZZZAsLong.fromRepr(Test.this.a()));
+    private[this] val c: Long = Test.this.ZZZAsLong.implicit_ZZZOps_-(Test.this.a(), Test.this.ZZZAsLong.toHigh(Test.this.a()));
     <stable> <accessor> def c(): Long = Test.this.c;
     private[this] val d: Long = Test.this.ZZZAsLong.implicit_ZZZOps_*(Test.this.a(), Test.this.a());
     <stable> <accessor> def d(): Long = Test.this.d;
-    private[this] val e: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.fromRepr(Test.this.a()))./(Test.this.ZZZAsLong.fromRepr(Test.this.a())));
+    private[this] val e: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.toHigh(Test.this.a()))./(Test.this.ZZZAsLong.toHigh(Test.this.a())));
     <stable> <accessor> def e(): Long = Test.this.e;
-    private[this] val f: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.fromRepr(Test.this.a())).%(Test.this.ZZZAsLong.fromRepr(Test.this.a())));
+    private[this] val f: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.toHigh(Test.this.a())).%(Test.this.ZZZAsLong.toHigh(Test.this.a())));
     <stable> <accessor> def f(): Long = Test.this.f;
-    Test.this.ZZZAsLong.fromRepr(Test.this.f()).toString()
+    Test.this.ZZZAsLong.toHigh(Test.this.f()).toString()
   }
 }
 

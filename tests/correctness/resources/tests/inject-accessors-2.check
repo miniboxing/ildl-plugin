@@ -14,7 +14,7 @@ package test {
       type High = (Int, Int);
       type Repr = Long;
       def toRepr(pair: (Int, Int)): Long @ildl.high = scala.this.Predef.???;
-      def fromRepr(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???
+      def toHigh(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???
     };
     private[this] var n1: (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = scala.Tuple2.apply[Int, Int](1, 2);
     <accessor> def n1: (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.n1;

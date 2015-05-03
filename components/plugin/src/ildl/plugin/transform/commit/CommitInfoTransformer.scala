@@ -68,7 +68,7 @@ trait CommitInfoTransformer extends InfoTransform {
         val tpe2 = getDescrReprType(descr, tpe.withoutReprAnnot)
         if (tpe2 == ErrorType)
           global.reporter.error(getPosition, "There is no corresponding representation type for high-level type " +
-                                             tpe.withoutReprAnnot + " set in the `toRepr` method. The `toRepr` and `fromRepr`" +
+                                             tpe.withoutReprAnnot + " set in the `toRepr` method. The `toRepr` and `toHigh`" +
                                              "methods should define a bijection between the high and repr types! " +
                                              "The concerned transformation description " +
                                              "object is: " + descr.fullName + ".")

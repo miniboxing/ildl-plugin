@@ -4,9 +4,9 @@ import ildl._
 
 object Test {
 
-  object ListAsArray extends FreestyleTransformationDescription {
+  object ListAsArray extends TransformationDescription {
     def toRepr[T](list: List[T]): Array[T] @high = ???
-    def fromRepr[T](arr: Array[T] @high): List[T] = ???
+    def toHigh[T](arr: Array[T] @high): List[T] = ???
     def extension_apply[T](recv: Array[T] @high, index: Int): T = ??? // okay
     def extension_toString[T](recv: Array[T] @high): Long = ???       // bad
     // TODO: This shouldn't work, but it does:
