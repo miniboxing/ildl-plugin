@@ -24,16 +24,17 @@ trait BridgeInfoTransformer extends InfoTransform {
 
     if (tpe.finalResultType.hasHighAnnot) {
       // Match exterior description object
+      val includedDescr = tpe.finalResultType.getAnnotation(ildlHighClass).get.args.headOption
       val enclosingDescr = sym.ownerChain.find(s => s.isTransfDescriptionObject)
 
-      enclosingDescr match {
-        case None =>
+      (includedDescr, enclosingDescr) match {
+        case (_, None) =>
           global.reporter.error(sym.pos, s"The ${sym} contains the @high annotation despite not being enclosed in a " +
                                          s"transformation description object. This is an invalid use of the @high " +
                                          s"annotation.")
           tpe.withoutHighAnnot
-        case Some(descr) =>
-          transformHighAnnotation(sym, tpe, gen.mkAttributedRef(descr))
+        case (Some(descr), _) => transformHighAnnotation(sym, tpe, gen.mkAttributedRef(descr.symbol))
+        case (_, Some(descr)) => transformHighAnnotation(sym, tpe, gen.mkAttributedRef(descr))
       }
     } else
       tpe

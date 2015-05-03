@@ -1,0 +1,55 @@
+[[syntax trees at end of               ildl-commit]] // newSource1.scala
+package test {
+  object ScopesCollaboratingTest extends Object {
+    def <init>(): test.ScopesCollaboratingTest.type = {
+      ScopesCollaboratingTest.super.<init>();
+      ()
+    };
+    object BigIntAsLong extends Object with ildl.TransformationDescription {
+      def <init>(): test.ScopesCollaboratingTest.BigIntAsLong.type = {
+        BigIntAsLong.super.<init>();
+        ()
+      };
+      def toRepr(high: scala.math.BigInt): Long = {
+        scala.this.Predef.assert(high.isValidLong());
+        high.longValue()
+      };
+      def toHigh(repr: Long @ildl.high): scala.math.BigInt = scala.`package`.BigInt().apply(repr)
+    };
+    object BigIntQueueAsLongQueue extends Object with ildl.TransformationDescription {
+      def <init>(): test.ScopesCollaboratingTest.BigIntQueueAsLongQueue.type = {
+        BigIntQueueAsLongQueue.super.<init>();
+        ()
+      };
+      def toRepr(high: scala.collection.mutable.Queue[scala.math.BigInt]): scala.collection.mutable.Queue[Long] = high.map[Long, scala.collection.mutable.Queue[Long]]({
+        @SerialVersionUID(value = 0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[scala.math.BigInt,Long] with Serializable {
+          def <init>(): <$anon: scala.math.BigInt => Long> = {
+            $anonfun.super.<init>();
+            ()
+          };
+          final def apply(x: scala.math.BigInt): Long = {
+            scala.this.Predef.assert(x.isValidLong());
+            x.longValue()
+          }
+        };
+        (new <$anon: scala.math.BigInt => Long>(): scala.math.BigInt => Long)
+      }, mutable.this.Queue.canBuildFrom[Long]());
+      def toHigh(repr: scala.collection.mutable.Queue[Long] @ildl.high): scala.collection.mutable.Queue[scala.math.BigInt] = repr.map[scala.math.BigInt, scala.collection.mutable.Queue[scala.math.BigInt]]({
+        @SerialVersionUID(value = 0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[Long,scala.math.BigInt] with Serializable {
+          def <init>(): <$anon: Long => scala.math.BigInt> = {
+            $anonfun.super.<init>();
+            ()
+          };
+          final def apply(x: Long): scala.math.BigInt = scala.`package`.BigInt().apply(x)
+        };
+        (new <$anon: Long => scala.math.BigInt>(): Long => scala.math.BigInt)
+      }, mutable.this.Queue.canBuildFrom[scala.math.BigInt]());
+      def extension_apply(queue: scala.collection.mutable.Queue[Long] @ildl.high, idx: Int): Long = queue.apply(idx)
+    };
+    private[this] val q: scala.collection.mutable.Queue[Long] = ScopesCollaboratingTest.this.BigIntQueueAsLongQueue.toRepr(scala.collection.mutable.Queue.apply[scala.math.BigInt](scala.this.Predef.wrapRefArray[scala.math.BigInt](Array[scala.math.BigInt]{scala.`package`.BigInt().apply(1), scala.`package`.BigInt().apply(2)})));
+    <stable> <accessor> def q(): scala.collection.mutable.Queue[Long] = ScopesCollaboratingTest.this.q;
+    private[this] val d: Long = ScopesCollaboratingTest.this.BigIntQueueAsLongQueue.extension_apply(ScopesCollaboratingTest.this.q(), 0);
+    <stable> <accessor> def d(): Long = ScopesCollaboratingTest.this.d
+  }
+}
+
