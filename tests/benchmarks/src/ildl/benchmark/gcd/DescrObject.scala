@@ -10,8 +10,12 @@ object IntPairAsGaussianInteger extends RigidTransformationDescription {
 
   private def pack(re: Int, im: Int) = (re.toLong << 32l) | (im.toLong & 0xFFFFFFFFl)
 
+  // coercions:
   def toRepr(pair: (Int, Int)): Long @high = pack(pair._1, pair._2)
   def toHigh(l: Long @high): (Int, Int) = (re(l), im(l))
+
+  // constructor:
+  def ctor_Tuple2(_1: Int, _2: Int): Long @high = pack(_1, _2)
 
   // interface: (no need to expose everything)
   def implicit_IntPairAsGaussianIntegerImplicit_%(n1: Long @high, n2: Long @high): Long @high = %(n1, n2)
