@@ -13,6 +13,7 @@ import inject._
 import bridge._
 import coerce._
 import commit._
+import tweakerasure._
 
 /** Metadata and definitions */
 trait ildlHelperComponent extends
@@ -89,6 +90,20 @@ trait CommitComponent extends
   def beforeCommit[T](op: => T): T = global.enteringPhase(commitPhase)(op)
 }
 
+/** Tree preparer before retyping the tree */
+trait TweakErasureComponent extends
+    PluginComponent
+    with TweakErasureTreeTransformer {
+
+  val helper: ildlHelperComponent { val global: TweakErasureComponent.this.global.type }
+
+  def tweakErasurePhase: Phase
+
+  def afterTweakErasure[T](op: => T): T = global.exitingPhase(tweakErasurePhase)(op)
+  def beforeTweakErasure[T](op: => T): T = global.enteringPhase(tweakErasurePhase)(op)
+}
+
+
 class ildl(val global: Global) extends Plugin {
   import global._
 
@@ -97,7 +112,13 @@ class ildl(val global: Global) extends Plugin {
 
   var flag_passive = false
 
-  lazy val components = List[PluginComponent](PostParserPhase, InjectPhase, BridgePhase, CoercePhase, CommitPhase)
+  lazy val components =
+    List[PluginComponent](PostParserPhase,
+                          InjectPhase,
+                          BridgePhase,
+                          CoercePhase,
+                          CommitPhase,
+                          TweakErasurePhase)
 
   // LDL ftw!
   global.addAnnotationChecker(CoercePhase.ReprAnnotationChecker)
@@ -189,6 +210,22 @@ class ildl(val global: Global) extends Plugin {
     override def newPhase(prev: scala.tools.nsc.Phase): StdPhase = {
       commitPhase = new Phase(prev)
       commitPhase
+    }
+  }
+
+  private object TweakErasurePhase extends {
+    val helper = helperComponent
+  } with TweakErasureComponent {
+    val global: ildl.this.global.type = ildl.this.global
+    val runsAfter = Nil
+    override val runsRightAfter = Some("posterasure")
+    val phaseName = "ildl-tweakerasure"
+
+    var tweakErasurePhase: Phase = _
+
+    def newPhase(_prev: Phase) = {
+      tweakErasurePhase = new TweakErasurePhase(_prev)
+      tweakErasurePhase
     }
   }
 }

@@ -54,8 +54,19 @@ trait BridgeTreeTransformer extends TreeRewriters {
     import definitions.BridgeClass
 
     protected def rewrite(tree: Tree): Result = {
+
+      def setNoErasureBridge(sym: Symbol) =
+        // Erasure generates the last iteration of bridges, the ones that take Object.
+        // Yet, in some cases, there is no need to generate these bridges, since they
+        // interfere with the JVM bytecode invariants. Instead of preventing erasure
+        // from creating them in the first place (which can't be done in a plugin)
+        // we remove them later, in the `mb-tweakerasure` phase
+        sym.addAnnotation(AnnotationInfo(nobridgeTpe, Nil, Nil))
+
       tree match {
         case defdef: DefDef =>
+
+          def hasMbFunction(sym: Symbol) = sym.paramss.flatten.exists(_.tpe.hasReprAnnot) || sym.tpe.finalResultType.hasReprAnnot
 
           val sameResultEncoding = (reference: Symbol) => (s: Symbol) => {
             val res1 = s.tpe.finalResultType.hasReprAnnot == reference.info.finalResultType.hasReprAnnot
@@ -116,10 +127,17 @@ trait BridgeTreeTransformer extends TreeRewriters {
               val bridgeDef = newDefDef(bridge, bridgeRhs1)() setType NoType
               mmap(bridgeDef.vparamss)(_ setType NoType)
 
+              if (hasMbFunction(bridge))
+                setNoErasureBridge(bridge)
+
               // transform RHS of the defdef + typecheck
               val bridgeDef2 = localTyper.typed(bridgeDef)
               bridgeDef2
             }
+
+          if (hasMbFunction(defdef.symbol))
+            setNoErasureBridge(defdef.symbol)
+
           val defdef2 = localTyper.typed(deriveDefDef(defdef){rhs => super.atOwner(defdef.symbol)(super.transform(rhs))})
 
           Multi(defdef2 :: bridges)

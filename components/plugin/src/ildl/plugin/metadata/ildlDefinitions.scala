@@ -35,4 +35,7 @@ trait ildlDefinitions {
   lazy val highToReprName = TermName("toRepr")
   lazy val highTpeName = TypeName("High")
   lazy val reprTpeName = TypeName("Repr")
+
+  lazy val nobridgeClass = global.rootMirror.getRequiredClass("ildl.internal.nobridge")
+  lazy val nobridgeTpe = nobridgeClass.tpe
 }
