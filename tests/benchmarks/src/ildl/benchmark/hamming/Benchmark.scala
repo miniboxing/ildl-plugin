@@ -37,9 +37,9 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
         case (bench, _) =>
           bench match {
             case "direct" =>
-              (new HammingDirect().drop(10000)).next()
+              (new HammingDirect().drop(100000)).next()
             case "adrt__" =>
-              (new HammingADRT().drop(10000)).next()
+              (new HammingADRT().drop(100000)).next()
           }
       }
     }

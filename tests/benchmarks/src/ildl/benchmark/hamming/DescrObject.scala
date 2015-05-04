@@ -21,7 +21,12 @@ object BigIntAsLong extends TransformationDescription {
     // java.lang.Math.addExact(recv, other)
     recv + other
 
-  def extension_min(recv: Long @high, other: Long @high): Long @high =
+  def extension_==(recv: Long @high, other: Long @high): Boolean =
+    // note: Math.multiplyExact requires Java 8
+    // java.lang.Math.addExact(recv, other)
+    recv == other
+
+    def extension_min(recv: Long @high, other: Long @high): Long @high =
     if (recv < other)
       recv
     else
@@ -29,17 +34,14 @@ object BigIntAsLong extends TransformationDescription {
 }
 
 
-object QueueOfLongAsFunnyQueue extends RigidTransformationDescription {
+object QueueOfLongAsFunnyQueue extends TransformationDescription {
 
-  type High = Queue[Long]
-  type Repr = FunnyQueue
-
-  def toRepr(in: Queue[Long]): FunnyQueue @high = {
+  def toRepr(in: Queue[BigInt]): FunnyQueue @high = {
     assert(in.isEmpty, "Cannot start from a non-empty queue!")
     new FunnyQueue
   }
 
-  def toHigh(q: FunnyQueue @high): Queue[Long] = {
+  def toHigh(q: FunnyQueue @high): Queue[BigInt] = {
     assert(false, "We shouldn't need this!")
     ???
   }
@@ -48,12 +50,15 @@ object QueueOfLongAsFunnyQueue extends RigidTransformationDescription {
     q.enqueue(bi)
   }
 
-  def extension_enqueue(q: FunnyQueue @high)(bi: Long @high(BigIntAsLong)*): Unit = {
+  def extension_enqueue(q: FunnyQueue @high, bis: BigInt*): Unit = {
     // we don't support more than one element :)
-    assert(bi.size == 1)
-    q.enqueue(bi.apply(0))
+    assert(bis.size == 1)
+    val bi = bis.apply(0)
+    assert(bi.isValidLong)
+    q.enqueue(bi.longValue())
   }
 
   def extension_dequeue(q: FunnyQueue @high): Long @high(BigIntAsLong) = q.dequeue()
+
   def extension_head(q: FunnyQueue @high): Long @high(BigIntAsLong) = q.head()
 }
