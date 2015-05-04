@@ -16,6 +16,6 @@ package test {
       def toHigh(l: Long @ildl.high): (Int, Int) = scala.this.Predef.???()
     };
     private[this] val n1: (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.IntPairAsLong.toRepr(new (Int, Int)(1, 0));
-    <stable> <accessor> def n1(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.n1
+    @ildl.internal.nobridge <stable> <accessor> def n1(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.n1
   }
 }

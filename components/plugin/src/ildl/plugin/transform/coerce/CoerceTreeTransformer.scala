@@ -220,7 +220,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
                 case List(candidate) =>
                   val newQual = gen.mkAttributedRef(descObject)
                   val extMeth = gen.mkAttributedSelect(newQual, candidate)
-                  super.typed(FullApply(extMeth, Nil, qual2 :: args))
+                  super.typed(FullApply(extMeth, Nil, qual2 :: args), mode, pt)
                 case _ =>
                   CoerceTreeTransformer.this.global.reporter.warning(tree.pos,
                     "The " + sel.symbol + " can be optimized if you define a public, non-overloaded " +

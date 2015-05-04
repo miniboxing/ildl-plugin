@@ -22,7 +22,7 @@ package test {
         ()
       };
       def toRepr(high: scala.collection.mutable.Queue[scala.math.BigInt]): scala.collection.mutable.Queue[Long] = high.map[Long, scala.collection.mutable.Queue[Long]]({
-        @SerialVersionUID(value = 0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[scala.math.BigInt,Long] with Serializable {
+        @SerialVersionUID(0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[scala.math.BigInt,Long] with Serializable {
           def <init>(): <$anon: scala.math.BigInt => Long> = {
             $anonfun.super.<init>();
             ()
@@ -35,7 +35,7 @@ package test {
         (new <$anon: scala.math.BigInt => Long>(): scala.math.BigInt => Long)
       }, mutable.this.Queue.canBuildFrom[Long]());
       def toHigh(repr: scala.collection.mutable.Queue[Long] @ildl.high): scala.collection.mutable.Queue[scala.math.BigInt] = repr.map[scala.math.BigInt, scala.collection.mutable.Queue[scala.math.BigInt]]({
-        @SerialVersionUID(value = 0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[Long,scala.math.BigInt] with Serializable {
+        @SerialVersionUID(0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[Long,scala.math.BigInt] with Serializable {
           def <init>(): <$anon: Long => scala.math.BigInt> = {
             $anonfun.super.<init>();
             ()
@@ -47,9 +47,8 @@ package test {
       def extension_apply(queue: scala.collection.mutable.Queue[Long] @ildl.high, idx: Int): Long = queue.apply(idx)
     };
     private[this] val q: scala.collection.mutable.Queue[Long] = ScopesCollaboratingTest.this.BigIntQueueAsLongQueue.toRepr(scala.collection.mutable.Queue.apply[scala.math.BigInt](scala.this.Predef.wrapRefArray[scala.math.BigInt](Array[scala.math.BigInt]{scala.`package`.BigInt().apply(1), scala.`package`.BigInt().apply(2)})));
-    <stable> <accessor> def q(): scala.collection.mutable.Queue[Long] = ScopesCollaboratingTest.this.q;
+    @ildl.internal.nobridge <stable> <accessor> def q(): scala.collection.mutable.Queue[Long] = ScopesCollaboratingTest.this.q;
     private[this] val d: Long = ScopesCollaboratingTest.this.BigIntQueueAsLongQueue.extension_apply(ScopesCollaboratingTest.this.q(), 0);
-    <stable> <accessor> def d(): Long = ScopesCollaboratingTest.this.d
+    @ildl.internal.nobridge <stable> <accessor> def d(): Long = ScopesCollaboratingTest.this.d
   }
 }
-

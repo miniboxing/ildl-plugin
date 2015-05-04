@@ -19,12 +19,11 @@ package tests {
       def extension_toString[T](recv: Array[T] @ildl.high): Long = scala.this.Predef.???()
     };
     private[this] val a: Array[Int] = Test.this.ListAsArray.toRepr[Int](immutable.this.List.apply[Int](scala.this.Predef.wrapIntArray(Array[Int]{1, 2, 3})));
-    <stable> <accessor> def a(): Array[Int] = Test.this.a;
+    @ildl.internal.nobridge <stable> <accessor> def a(): Array[Int] = Test.this.a;
     private[this] val b: Int = Test.this.ListAsArray.extension_apply[Int](Test.this.a(), 2);
     <stable> <accessor> def b(): Int = Test.this.b;
     private[this] val c: String = Test.this.ListAsArray.toHigh[Int](Test.this.a()).toString();
     <stable> <accessor> def c(): String = Test.this.c
   }
 }
-
 [Now checking: ildl-commit]

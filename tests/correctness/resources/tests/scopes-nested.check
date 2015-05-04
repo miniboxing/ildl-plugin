@@ -26,11 +26,11 @@ package test {
       def toHigh(l: Long @ildl.high): Int = scala.this.Predef.???()
     };
     private[this] var n1: Long = GCDTest.this.IntPairAsLong.toRepr(new (Int, Int)(1, 0));
-    <accessor> def n1(): Long = GCDTest.this.n1;
-    <accessor> def n1_=(x$1: Long): Unit = GCDTest.this.n1 = x$1;
+    @ildl.internal.nobridge <accessor> def n1(): Long = GCDTest.this.n1;
+    @ildl.internal.nobridge <accessor> def n1_=(x$1: Long): Unit = GCDTest.this.n1 = x$1;
     private[this] var n2: Long = GCDTest.this.IntAsLong.toRepr(1);
-    <accessor> def n2(): Long = GCDTest.this.n2;
-    <accessor> def n2_=(x$1: Long): Unit = GCDTest.this.n2 = x$1;
-    def foo(n1: Long, n2: Long): Long = GCDTest.this.IntAsLong.toRepr(scala.this.Predef.???())
+    @ildl.internal.nobridge <accessor> def n2(): Long = GCDTest.this.n2;
+    @ildl.internal.nobridge <accessor> def n2_=(x$1: Long): Unit = GCDTest.this.n2 = x$1;
+    @ildl.internal.nobridge def foo(n1: Long, n2: Long): Long = GCDTest.this.IntAsLong.toRepr(scala.this.Predef.???())
   }
 }

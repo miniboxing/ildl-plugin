@@ -35,13 +35,13 @@ package test {
       def toHigh(l: Float @ildl.high): (Int, Int) = scala.this.Predef.???()
     };
     private[this] val n1: (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsFloat) = GCDTest.this.IntPairAsFloat.toRepr(new (Int, Int)(1, 0));
-    <stable> <accessor> def n1(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsFloat) = GCDTest.this.n1;
+    @ildl.internal.nobridge <stable> <accessor> def n1(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsFloat) = GCDTest.this.n1;
     private[this] val s1: String = GCDTest.this.IntPairAsFloat.toHigh(GCDTest.this.n1()).toString();
     <stable> <accessor> def s1(): String = GCDTest.this.s1;
     private[this] val a1: Any = GCDTest.this.IntPairAsFloat.toHigh(GCDTest.this.n1());
     <stable> <accessor> def a1(): Any = GCDTest.this.a1;
     private[this] val n2: (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.IntPairAsLong.toRepr(GCDTest.this.IntPairAsFloat.toHigh(GCDTest.this.n1()));
-    <stable> <accessor> def n2(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.n2;
+    @ildl.internal.nobridge <stable> <accessor> def n2(): (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong) = GCDTest.this.n2;
     private[this] val s2: String = GCDTest.this.IntPairAsLong.toHigh(GCDTest.this.n2()).toString();
     <stable> <accessor> def s2(): String = GCDTest.this.s2;
     private[this] val a2: Any = GCDTest.this.IntPairAsFloat.toHigh(GCDTest.this.n1());

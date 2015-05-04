@@ -25,9 +25,8 @@ package test {
       def /*U*/$init$(): Unit = {
         ()
       };
-      override def foo(cp: Long): Long = GCDTest.this.IntPairAsLong.toRepr(scala.this.Predef.???());
+      @ildl.internal.nobridge override def foo(cp: Long): Long = GCDTest.this.IntPairAsLong.toRepr(scala.this.Predef.???());
       @scala.annotation.bridge override def foo(cp: (Int, Int)): (Int, Int) = GCDTest.this.IntPairAsLong.toHigh(U.this.foo(GCDTest.this.IntPairAsLong.toRepr(cp)))
     }
   }
 }
-

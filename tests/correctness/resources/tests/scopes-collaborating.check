@@ -26,8 +26,8 @@ package test {
       def toHigh(l: Float @ildl.high): (Int, Int) = scala.this.Predef.???()
     };
     private[this] val n1: Long = GCDTest.this.IntPairAsLong.toRepr(new (Int, Int)(1, 0));
-    <stable> <accessor> def n1(): Long = GCDTest.this.n1;
+    @ildl.internal.nobridge <stable> <accessor> def n1(): Long = GCDTest.this.n1;
     private[this] val n2: Float = GCDTest.this.IntPairAsFloat.toRepr(GCDTest.this.IntPairAsLong.toHigh(GCDTest.this.n1()));
-    <stable> <accessor> def n2(): Float = GCDTest.this.n2
+    @ildl.internal.nobridge <stable> <accessor> def n2(): Float = GCDTest.this.n2
   }
 }

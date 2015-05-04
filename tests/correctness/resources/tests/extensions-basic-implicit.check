@@ -2,7 +2,6 @@ newSource1.scala:35: warning: The method / can be optimized if you define a publ
     val e = a / a // no
               ^
 newSource1.scala:36: warning: The method % can be optimized if you define a public, non-overloaded and matching exension method for it in object ZZZAsLong, with the name implicit_ZZZOps_% (the method is overloaded).
-
     val f = a % a // no
               ^
 newSource1.scala:37: warning: The method toString can be optimized if you define a public, non-overloaded and matching exension method for it in object ZZZAsLong, with the name extension_toString.
@@ -102,20 +101,18 @@ package tests {
       def extension_toString(): String = scala.this.Predef.???()
     };
     private[this] val a: Long = Test.this.ZZZAsLong.toRepr(new tests.Test.ZZZ(1L));
-    <stable> <accessor> def a(): Long = Test.this.a;
+    @ildl.internal.nobridge <stable> <accessor> def a(): Long = Test.this.a;
     private[this] val b: Long = Test.this.ZZZAsLong.implicit_ZZZOps_+(Test.this.a(), Test.this.ZZZAsLong.toHigh(Test.this.a()));
-    <stable> <accessor> def b(): Long = Test.this.b;
+    @ildl.internal.nobridge <stable> <accessor> def b(): Long = Test.this.b;
     private[this] val c: Long = Test.this.ZZZAsLong.implicit_ZZZOps_-(Test.this.a(), Test.this.ZZZAsLong.toHigh(Test.this.a()));
-    <stable> <accessor> def c(): Long = Test.this.c;
+    @ildl.internal.nobridge <stable> <accessor> def c(): Long = Test.this.c;
     private[this] val d: Long = Test.this.ZZZAsLong.implicit_ZZZOps_*(Test.this.a(), Test.this.a());
-    <stable> <accessor> def d(): Long = Test.this.d;
+    @ildl.internal.nobridge <stable> <accessor> def d(): Long = Test.this.d;
     private[this] val e: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.toHigh(Test.this.a()))./(Test.this.ZZZAsLong.toHigh(Test.this.a())));
-    <stable> <accessor> def e(): Long = Test.this.e;
+    @ildl.internal.nobridge <stable> <accessor> def e(): Long = Test.this.e;
     private[this] val f: Long = Test.this.ZZZAsLong.toRepr(Test.this.ZZZOps(Test.this.ZZZAsLong.toHigh(Test.this.a())).%(Test.this.ZZZAsLong.toHigh(Test.this.a())));
-    <stable> <accessor> def f(): Long = Test.this.f;
+    @ildl.internal.nobridge <stable> <accessor> def f(): Long = Test.this.f;
     Test.this.ZZZAsLong.toHigh(Test.this.f()).toString()
   }
 }
-
 [Now checking: ildl-commit]
-

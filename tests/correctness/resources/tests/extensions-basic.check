@@ -30,17 +30,17 @@ package tests {
       def extension_toString(): String = scala.this.Predef.???()
     };
     private[this] val a: Long = Test.this.IntAsLong.toRepr(1);
-    <stable> <accessor> def a(): Long = Test.this.a;
+    @ildl.internal.nobridge <stable> <accessor> def a(): Long = Test.this.a;
     private[this] val b: Long = Test.this.IntAsLong.extension_+(Test.this.a(), Test.this.IntAsLong.toHigh(Test.this.a()));
-    <stable> <accessor> def b(): Long = Test.this.b;
+    @ildl.internal.nobridge <stable> <accessor> def b(): Long = Test.this.b;
     private[this] val c: Long = Test.this.IntAsLong.extension_-(Test.this.a(), Test.this.IntAsLong.toHigh(Test.this.a()));
-    <stable> <accessor> def c(): Long = Test.this.c;
+    @ildl.internal.nobridge <stable> <accessor> def c(): Long = Test.this.c;
     private[this] val d: Long = Test.this.IntAsLong.extension_*(Test.this.a(), Test.this.a());
-    <stable> <accessor> def d(): Long = Test.this.d;
+    @ildl.internal.nobridge <stable> <accessor> def d(): Long = Test.this.d;
     private[this] val e: Long = Test.this.IntAsLong.toRepr(Test.this.IntAsLong.toHigh(Test.this.a())./(Test.this.IntAsLong.toHigh(Test.this.a())));
-    <stable> <accessor> def e(): Long = Test.this.e;
+    @ildl.internal.nobridge <stable> <accessor> def e(): Long = Test.this.e;
     private[this] val f: Long = Test.this.IntAsLong.toRepr(Test.this.IntAsLong.toHigh(Test.this.a()).%(Test.this.IntAsLong.toHigh(Test.this.a())));
-    <stable> <accessor> def f(): Long = Test.this.f;
+    @ildl.internal.nobridge <stable> <accessor> def f(): Long = Test.this.f;
     Test.this.IntAsLong.toHigh(Test.this.f()).toString()
   }
 }
