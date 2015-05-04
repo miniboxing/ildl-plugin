@@ -21,4 +21,6 @@ package test {
     <accessor> def n1_=(x$1: (Int, Int) @ildl.internal.repr(GCDTest.this.IntPairAsLong)): Unit = GCDTest.this.n1 = x$1
   }
 }
-
+newSource1.scala:16: warning: The new operator can be optimized if you define a public, non-overloaded and matching constructor method for it in object IntPairAsLong, with the name ctor_Tuple2.
+    var n1 = (1, 2)
+             ^

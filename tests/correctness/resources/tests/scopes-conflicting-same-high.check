@@ -36,3 +36,9 @@ package test {
     }
   }
 }
+newSource1.scala:24: warning: The new operator can be optimized if you define a public, non-overloaded and matching constructor method for it in object IntPairAsFloat, with the name ctor_Tuple2.
+        val n1 = (1, 0)
+                 ^
+newSource1.scala:26: warning: The new operator can be optimized if you define a public, non-overloaded and matching constructor method for it in object IntPairAsLong, with the name ctor_Tuple2.
+      val n2 = (2, 3)
+               ^

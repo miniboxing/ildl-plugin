@@ -1,2 +1,8 @@
+newSource1.scala:42: warning: The new operator can be optimized if you define a public, non-overloaded and matching constructor method for it in object IntPairAsLong, with the name ctor_Tuple2.
+        val n1 = (1, 0)
+                 ^
+newSource1.scala:43: warning: The new operator can be optimized if you define a public, non-overloaded and matching constructor method for it in object FloatPairAsLong, with the name ctor_Tuple2.
+        val n2 = (3f, 4f)
+                 ^
 (1,0) and (1.0,0.0)
 (3.0,4.0) and (3,4)

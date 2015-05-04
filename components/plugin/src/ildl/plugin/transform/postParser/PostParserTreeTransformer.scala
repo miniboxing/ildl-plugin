@@ -20,7 +20,7 @@ trait PostParserTreeTransformer {
       new PostParserTransformer(unit).transformUnit(unit)
   }
 
-  class PostParserTransformer(unit: CompilationUnit) extends TreeRewriter(unit) {
+  class PostParserTransformer(unit: CompilationUnit) extends TreeRewriter(unit, afterTyper = false) {
 
     import global._
     import helper._

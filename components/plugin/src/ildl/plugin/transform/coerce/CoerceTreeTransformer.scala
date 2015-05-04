@@ -153,10 +153,14 @@ trait CoerceTreeTransformer extends TypingTransformers {
         }
       }
 
-      def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, qual2: Tree, targs: List[Tree], args: List[Tree], mode: Mode, pt: Type): Boolean = {
+      def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, qual2: Tree, targs: List[Tree], args: List[Tree], mode: Mode, pt: Type): Boolean =
+        typechecks(candidate, descObject, tree, targs, qual2 :: args, mode, pt)
+
+
+      def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, targs: List[Tree], args: List[Tree], mode: Mode, pt: Type): Boolean = {
         val newQual = gen.mkAttributedRef(descObject)
         val extMeth = gen.mkAttributedSelect(newQual, candidate)
-        val candTree = FullApply(extMeth, Nil, qual2.duplicate :: args.map(_.duplicate))
+        val candTree = FullApply(extMeth, Nil, args.map(_.duplicate))
 
         // cleaned up typer
         val unit = global.currentUnit
@@ -176,6 +180,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
       }
 
       case object AlreadyTyped
+      case object ConstructorRedirectFailed
       implicit class WithAlreadyTyped(val tree: Tree) {
         def withTypedAnnot: Tree = tree.updateAttachment[AlreadyTyped.type](AlreadyTyped)
       }
@@ -201,6 +206,32 @@ trait CoerceTreeTransformer extends TypingTransformers {
               tpl.setType(null)
               super.typed(tpl, mode, pt)
             }
+
+          case Apply(Select(New(tpt), nme.CONSTRUCTOR), args) if (pt.hasReprAnnot) && !tree.hasAttachment[ConstructorRedirectFailed.type] =>
+            val descObject = pt.getAnnotDescrObject
+            val tpe = tpt.tpe
+            if (matchesDescrHighType(descObject, tpe)) {
+              // try to find a constructor
+              val ctorName = TermName("ctor_" + tpt.tpe.typeSymbol.nameString)
+              val publicCandidates = descObject.info.member(ctorName).alternatives.filter(mb => mb.isPublic && !mb.isDeferred)
+              val matchingCandidates = publicCandidates.filter(typechecks(_, descObject, tree, Nil, args, mode, pt))
+              matchingCandidates match {
+                case List(candidate) =>
+                  val newQual = gen.mkAttributedRef(descObject)
+                  val extMeth = gen.mkAttributedSelect(newQual, candidate)
+                  super.typed(FullApply(extMeth, Nil, args), mode, pt)
+                case _ =>
+                  CoerceTreeTransformer.this.global.reporter.warning(tree.pos,
+                    "The new operator can be optimized if you define a public, non-overloaded " +
+                    "and matching constructor method for it in " + descObject + ", with the name " + ctorName.decoded +
+                    (if (matchingCandidates.isEmpty) "." else " (the method is overloaded).\n"))
+
+                  // bail out to conversions:
+                  typed(tree.updateAttachment(ConstructorRedirectFailed), mode, pt)
+              }
+            } else
+              // bail out to conversions:
+              typed(tree.updateAttachment(ConstructorRedirectFailed), mode, pt)
 
           case FullApply(sel@Select(MaybeImplicit(qual, implData, prefix), meth), targs, args) if qual.isTerm && tree.symbol.isMethod =>
             val qual2 = super.typedQualifier(qual.setType(null), mode, WildcardType).withTypedAnnot

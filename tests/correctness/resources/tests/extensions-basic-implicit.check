@@ -1,3 +1,6 @@
+newSource1.scala:31: warning: The new operator can be optimized if you define a public, non-overloaded and matching constructor method for it in object ZZZAsLong, with the name ctor_ZZZ.
+    val a = ZZZ(1)
+               ^
 newSource1.scala:35: warning: The method / can be optimized if you define a public, non-overloaded and matching exension method for it in object ZZZAsLong, with the name implicit_ZZZOps_/.
     val e = a / a // no
               ^

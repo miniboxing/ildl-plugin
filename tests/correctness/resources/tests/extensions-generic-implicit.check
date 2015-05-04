@@ -1,3 +1,6 @@
+newSource1.scala:22: warning: The new operator can be optimized if you define a public, non-overloaded and matching constructor method for it in object ListAsArray, with the name ctor_MyList.
+    val a = MyList(Array(1,2,3))
+                  ^
 newSource1.scala:24: warning: The method bar can be optimized if you define a public, non-overloaded and matching exension method for it in object ListAsArray, with the name implicit_MyListOps_bar.
     val c = a.bar(3)  // not working
                  ^

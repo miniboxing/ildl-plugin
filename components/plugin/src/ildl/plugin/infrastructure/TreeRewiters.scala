@@ -22,7 +22,7 @@ trait TreeRewriters extends TypingTransformers {
 
   import global._
 
-  abstract class TreeRewriter(unit: CompilationUnit) extends TypingTransformer(unit) {
+  abstract class TreeRewriter(unit: CompilationUnit, afterTyper: Boolean = true) extends TypingTransformer(unit) {
     sealed trait Result
     case object Descend extends Result { override def toString = "<no rule>" }
     case class Single(tree: Tree) extends Result { override def toString = tree.toString }
@@ -34,7 +34,12 @@ trait TreeRewriters extends TypingTransformers {
       rewrite(tree) match {
         case Descend => super.transform(tree)
         case Single(tree1) => tree1
-        case Multi(trees) => localTyper.typed(Block(trees: _*))
+        case Multi(trees) =>
+          val result = Block(trees: _*)
+          if (afterTyper)
+            localTyper.typed(result)
+          else
+            result
       }
     }
 
