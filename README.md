@@ -1,7 +1,7 @@
-<img src="http://scala-miniboxing.org/images/ildl-logo.png" alt="ildl logo" width="100" align="right">
 #ildl-plugin
+<img src="http://scala-miniboxing.org/images/ildl-logo.png" alt="ildl logo" width="150" align="right">
 
-[![Build Status](https://travis-ci.org/VladUreche/ildl-plugin.svg)](https://travis-ci.org/VladUreche/ildl-plugin)
+[![Build Status](https://travis-ci.org/miniboxing/ildl-plugin.svg)](https://travis-ci.org/miniboxing/ildl-plugin?branch=master)
 
 This plugin enables data-centric metaprogramming, allowing library developers to implement domain-specific optimizations for their libraries. 
 We used it in four sample transformations:

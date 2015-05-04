@@ -1,0 +1,10 @@
+language: scala
+script:
+- sbt clean package test
+scala:
+- 2.11.6
+jdk:
+- oraclejdk7
+branches:
+  only:
+  - master
