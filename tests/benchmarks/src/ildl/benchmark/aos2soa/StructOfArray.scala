@@ -7,7 +7,8 @@ import Implicit._
 
 object StructOfArray {
 
-   adrt(ArrayOfStructToStructOfArray) {
+  adrt(ArrayOfStructToStructOfArray) {
+
     def createData(size: Int): SensorReadings = {
       Random.setSeed(0)
       var timestamp = System.currentTimeMillis()
