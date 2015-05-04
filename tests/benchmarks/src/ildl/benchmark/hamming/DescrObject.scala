@@ -5,12 +5,16 @@ package hamming
 import collection.mutable.Queue
 
 object BigIntAsLong extends TransformationDescription {
+
+  // coercions:
   def toRepr(high: BigInt): Long @high = {
     assert(high.isValidLong)
     high.longValue()
   }
   def toHigh(repr: Long @high): BigInt = BigInt(repr)
 
+
+  // extension methods:
   def extension_*(recv: Long @high, other: Long @high): Long @high =
     // note: Math.multiplyExact requires Java 8
     // java.lang.Math.multiplyExact(recv, other)
@@ -36,16 +40,18 @@ object BigIntAsLong extends TransformationDescription {
 
 object QueueOfLongAsFunnyQueue extends TransformationDescription {
 
-  def toRepr(in: Queue[BigInt]): FunnyQueue @high = {
-    assert(in.isEmpty, "Cannot start from a non-empty queue!")
-    new FunnyQueue
-  }
+  // coercions:
+  def toRepr(in: Queue[BigInt]): FunnyQueue @high =
+    throw new Exception("We shouldn't need this!")
+  def toHigh(q: FunnyQueue @high): Queue[BigInt] =
+    throw new Exception("We shouldn't need this!")
 
-  def toHigh(q: FunnyQueue @high): Queue[BigInt] = {
-    assert(false, "We shouldn't need this!")
-    ???
-  }
+  // constructor:
+  def ctor_Queue(): FunnyQueue @high =
+    new FunnyQueue()
 
+
+  // extension methods and implicits:
   def implicit_QueueWithEnqueue1_enqueue1(q: FunnyQueue @high)(bi: Long @high(BigIntAsLong)): Unit = {
     q.enqueue(bi)
   }
