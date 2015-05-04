@@ -22,7 +22,7 @@ package test {
         ()
       };
       def toRepr(high: scala.collection.mutable.Queue[scala.math.BigInt]): scala.collection.mutable.Queue[Long] = high.map[Long, scala.collection.mutable.Queue[Long]]({
-        @SerialVersionUID(0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[scala.math.BigInt,Long] with Serializable {
+        @SerialVersionUID(value = 0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[scala.math.BigInt,Long] with Serializable {
           def <init>(): <$anon: scala.math.BigInt => Long> = {
             $anonfun.super.<init>();
             ()
@@ -35,7 +35,7 @@ package test {
         (new <$anon: scala.math.BigInt => Long>(): scala.math.BigInt => Long)
       }, mutable.this.Queue.canBuildFrom[Long]());
       def toHigh(repr: scala.collection.mutable.Queue[Long] @ildl.high): scala.collection.mutable.Queue[scala.math.BigInt] = repr.map[scala.math.BigInt, scala.collection.mutable.Queue[scala.math.BigInt]]({
-        @SerialVersionUID(0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[Long,scala.math.BigInt] with Serializable {
+        @SerialVersionUID(value = 0) final <synthetic> class $anonfun extends scala.runtime.AbstractFunction1[Long,scala.math.BigInt] with Serializable {
           def <init>(): <$anon: Long => scala.math.BigInt> = {
             $anonfun.super.<init>();
             ()
