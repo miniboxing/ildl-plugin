@@ -5,10 +5,10 @@
 
 This plugin enables data-centric metaprogramming, allowing library developers to implement domain-specific optimizations for their libraries. 
 We used it in four sample transformations:
- * transforming the data representation
- * transforming collections of data
- * deforestation and retrofitting specialization
- * array of struct to struct of array transformations
+ * [transforming the data representation](https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7C-Data-Representation)
+ * [transforming collections of data](https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7C-Container-Replacement)
+ * [deforestation and retrofitting specialization](https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7C-Deforestation)
+ * [array of struct to struct of array transformations](https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7C-Array-of-Struct)
 
 If you're interested in:
  * trying it out, check out [the `Introduction` page of the wiki](https://github.com/miniboxing/ildl-plugin/wiki/Tutorial-|-Introduction);
