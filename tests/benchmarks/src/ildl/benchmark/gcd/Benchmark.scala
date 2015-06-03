@@ -11,7 +11,7 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
 
   import GreatestCommonDivisor._
 
-  val bench   = Gen.enumeration("bench")("direct", "adrt__")
+  val bench   = Gen.enumeration("bench")("direct", "adrt_1", "adrt_2", "adrt_3")
 
   var data: List[(Double, Double)] = _
   var slope: Double = _
@@ -28,9 +28,13 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
         _ =>
           val r1 = (10, 3)
           val r2 = gcd_direct((544,185), (131,181))
-          val r3 = gcd_adrt((544,185), (131,181))
+          val r3 = gcd_adrt_1((544,185), (131,181))
+          val r4 = gcd_adrt_2((544,185), (131,181))
+          val r5 = gcd_adrt_3((544,185), (131,181))
           assert(r2 == r1, r2.toString)
           assert(r3 == r1, r3.toString)
+          assert(r4 == r1, r4.toString)
+          assert(r5 == r1, r5.toString)
       } in {
         case (bench, _) =>
           bench match {
@@ -40,10 +44,22 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
                 gcd_direct((544,185), (131,181))
                 i -= 1
               }
-            case "adrt__" =>
+            case "adrt_1" =>
               var i = 10000
               while (i > 0) {
-                gcd_adrt((544,185), (131,181))
+                gcd_adrt_1((544,185), (131,181))
+                i -= 1
+              }
+            case "adrt_2" =>
+              var i = 10000
+              while (i > 0) {
+                gcd_adrt_2((544,185), (131,181))
+                i -= 1
+              }
+            case "adrt_3" =>
+              var i = 10000
+              while (i > 0) {
+                gcd_adrt_3((544,185), (131,181))
                 i -= 1
               }
           }
