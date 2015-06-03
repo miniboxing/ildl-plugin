@@ -2,8 +2,13 @@ package ildl
 package benchmark
 
 package object gcd {
-
-  // http://mathforum.org/library/drmath/view/67068.html
+  /**
+   * The implicit class which adds the gaussian integer operations to
+   * pairs of integers.
+   *
+   * For more details on the operation implementation, plase see
+   * [[http://mathforum.org/library/drmath/view/67068.html]]
+   */
   implicit class IntPairAsGaussianIntegerImplicit(n1: (Int, Int)) {
     def c = (n1.re, -n1.im)
     def re = n1._1
