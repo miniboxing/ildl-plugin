@@ -4,22 +4,26 @@ package deforest
 package specialized
 
 import scala.collection.generic.CanBuildFrom
+import miniboxing.runtime.math.MiniboxedNumeric
 
-
-object ListAsLazySpecializedList extends TransformationDescription {
+/**
+ * Transform the List[T] into LazyList[T] with specialized versions.
+ * @see See the [[ildl.benchmark.deforest.LeastSquares]] for transformation details.
+ */
+object ListAsLazyList extends TransformationDescription {
 
   // conversions:
-  def toRepr[@specialized T](list: List[T]): LazySpecializedList[T] @high = new LazySpecializedListWrapper(list)
-  def toHigh[@specialized T](lazylist: LazySpecializedList[T] @high): List[T] = lazylist.force
+  def toRepr[@miniboxed T](list: List[T]): LazyList[T] @high = new LazyListWrapper(list)
+  def toHigh[@miniboxed T](lazylist: LazyList[T] @high): List[T] = lazylist.force
 
   // optimizing the length:
-  def extension_length[@specialized T](lazylist: LazySpecializedList[T] @high) =
+  def extension_length[@miniboxed T](lazylist: LazyList[T] @high) =
     lazylist.length
 
   // optimizing the map method:
-  def extension_map[@specialized T, @specialized U, That]
-                               (lazylist: LazySpecializedList[T] @high)
-                               (f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]): LazySpecializedList[U] @high = {
+  def extension_map[@miniboxed T, @miniboxed U, @miniboxed That]
+                               (lazylist: LazyList[T] @high)
+                               (f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]): LazyList[U] @high = {
 
     // sanity check => we could accept random canBulildFrom objects,
     // but that makes the transformation slightly more complex
@@ -30,18 +34,21 @@ object ListAsLazySpecializedList extends TransformationDescription {
   }
 
   // optimizing the foldLeft method:
-  def extension_foldLeft[@specialized T, @specialized U]
-                              (lazylist: LazySpecializedList[T] @high)
+  def extension_foldLeft[@miniboxed T, @miniboxed U]
+                              (lazylist: LazyList[T] @high)
                               (z: U)(f: (U, T) => U): U =
     lazylist.foldLeft(z)(f)
 
   // optimizing the sum method:
-  def extension_sum[@specialized T, @specialized U >: T]
-                              (lazylist: LazySpecializedList[T] @high)
-                              (implicit num: Numeric[U]): U =
-    lazylist.foldLeft(num.zero)(num.plus)
+  def extension_sum[@miniboxed T, @miniboxed U >: T]
+                              (lazylist: LazyList[T] @high)
+                              (implicit num: Numeric[U]): U = {
+    // while we wait for https://github.com/miniboxing/miniboxing-plugin/issues/227:
+    val mnum = MiniboxedNumeric.DoubleAsIfMbIntegral.asInstanceOf[MiniboxedNumeric[U]]
+    lazylist.foldLeft(mnum.zero)(mnum.plus)
+  }
 
   // optimizing the implicit force method:
-  def implicitly_listForce_force[@specialized T](lazylist: LazySpecializedList[T] @high) =
+  def implicitly_listForce_force[@miniboxed T](lazylist: LazyList[T] @high) =
     lazylist.force
 }

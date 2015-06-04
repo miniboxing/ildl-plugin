@@ -12,12 +12,12 @@ package specialized
  *   * it accumulated maps, so it's a List[T] with a function that
  *     composes the accumulated maps
  */
-abstract sealed trait LazySpecializedList[@specialized T] {
+abstract sealed trait LazyList[@miniboxed T] {
   /** Map */
-  def map[@specialized U, That](f: T => U): LazySpecializedList[U]
+  def map[@miniboxed U, That](f: T => U): LazyList[U]
 
   /** Fold */
-  def foldLeft[@specialized U](z: U)(f: (U, T) => U): U
+  def foldLeft[@miniboxed U](z: U)(f: (U, T) => U): U
 
   /** Length */
   def length: Int
@@ -27,15 +27,15 @@ abstract sealed trait LazySpecializedList[@specialized T] {
 }
 
 
-class LazySpecializedListWrapper[@specialized T](list: List[T]) extends LazySpecializedList[T] {
+class LazyListWrapper[@miniboxed T](list: List[T]) extends LazyList[T] {
 
-  def map[@specialized U, That](f: T => U) =
-    new LazySpecializedListMapper(list, f)
+  def map[@miniboxed U, That](f: T => U): LazyList[U] =
+    new LazyListMapper(list, f)
 
-  def foldLeft[@specialized U](z: U)(f: (U, T) => U): U = {
+  def foldLeft[@miniboxed U](z: U)(f: (U, T) => U): U = {
     var lst = list
     var acc  = z
-    while(lst != Nil) {
+    while(!lst.isEmpty) {
       acc = f(acc, lst.head)
       lst = lst.tail
     }
@@ -48,15 +48,15 @@ class LazySpecializedListWrapper[@specialized T](list: List[T]) extends LazySpec
 }
 
 
-class LazySpecializedListMapper[@specialized T, @specialized To](list: List[To], fs: To => T) extends LazySpecializedList[T] {
+class LazyListMapper[@miniboxed T, @miniboxed To](list: List[To], fs: To => T) extends LazyList[T] {
 
-  def map[@specialized U, That](f: T => U) =
-    new LazySpecializedListMapper(list, fs andThen f)
+  def map[@miniboxed U, That](f: T => U): LazyList[U] =
+    new LazyListMapper(list, fs andThen f)
 
-  def foldLeft[@specialized U](z: U)(f: (U, T) => U): U = {
+  def foldLeft[@miniboxed U](z: U)(f: (U, T) => U): U = {
     var lst = list
     var acc  = z
-    while(lst != Nil) {
+    while(!lst.isEmpty) {
       acc = f(acc, fs(lst.head))
       lst = lst.tail
     }

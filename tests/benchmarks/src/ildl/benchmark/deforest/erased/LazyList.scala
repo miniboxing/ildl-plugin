@@ -1,6 +1,8 @@
 package ildl
 package benchmark
 package deforest
+package erased
+
 
 /**
  *  This is the lazy list we're planning to use instead of
@@ -28,13 +30,13 @@ abstract sealed trait LazyList[T] {
 
 class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
 
-  def map[U, That](f: T => U) =
+  def map[U, That](f: T => U): LazyList[U] =
     new LazyListMapper(list, f)
 
   def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var lst = list
     var acc  = z
-    while(lst != Nil) {
+    while(!lst.isEmpty) {
       acc = f(acc, lst.head)
       lst = lst.tail
     }
@@ -49,13 +51,13 @@ class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
 
 class LazyListMapper[T, To](list: List[To], fs: To => T) extends LazyList[T] {
 
-  def map[U, That](f: T => U) =
+  def map[U, That](f: T => U): LazyList[U] =
     new LazyListMapper(list, fs andThen f)
 
   def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var lst = list
     var acc  = z
-    while(lst != Nil) {
+    while(!lst.isEmpty) {
       acc = f(acc, fs(lst.head))
       lst = lst.tail
     }

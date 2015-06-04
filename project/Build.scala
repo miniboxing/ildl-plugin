@@ -97,9 +97,16 @@ object ILDLBuild extends Build {
     )
   )
 
+  val miniboxingDeps: Seq[Setting[_]] = Seq(
+    resolvers += Resolver.sonatypeRepo("snapshots"),
+    libraryDependencies += "org.scala-miniboxing.plugins" %% "miniboxing-runtime" % "0.4-M4",
+    addCompilerPlugin("org.scala-miniboxing.plugins" %% "miniboxing-plugin" % "0.4-M4"),
+    scalacOptions += "-P:minibox:warn-off"
+  )
+
   lazy val _ildl       = Project(id = "ildl",             base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests, benchmarks)
   lazy val runtime     = Project(id = "ildl-runtime",     base = file("components/runtime"),     settings = defaults)
   lazy val plugin      = Project(id = "ildl-plugin",      base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
   lazy val tests       = Project(id = "ildl-tests",       base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ testsDeps) dependsOn(plugin, runtime)
-  lazy val benchmarks  = Project(id = "ildl-benchmarks",  base = file("tests/benchmarks"),       settings = defaults ++ runtimeDeps ++ scalaMeter ++ pluginCompilationDeps) dependsOn(plugin, runtime)
+  lazy val benchmarks  = Project(id = "ildl-benchmarks",  base = file("tests/benchmarks"),       settings = defaults ++ runtimeDeps ++ scalaMeter ++ miniboxingDeps ++ pluginCompilationDeps) dependsOn(plugin, runtime)
 }

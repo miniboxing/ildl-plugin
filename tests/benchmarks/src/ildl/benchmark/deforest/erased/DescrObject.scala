@@ -1,10 +1,15 @@
 package ildl
 package benchmark
 package deforest
+package erased
 
 import scala.collection.generic.CanBuildFrom
+import ildl.TransformationDescription
 
-
+/**
+ * Transform the List[T] into LazyList[T] with erased generics.
+ * @see See the [[ildl.benchmark.deforest.LeastSquares]] for transformation details.
+ */
 object ListAsLazyList extends TransformationDescription {
 
   // conversions:
