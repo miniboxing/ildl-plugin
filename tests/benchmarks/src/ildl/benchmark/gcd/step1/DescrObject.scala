@@ -9,8 +9,8 @@ package step1
  */
 object IntPairAsGaussianInteger extends TransformationDescription {
 
-  // Here we're un-importing scala.Long and importing java.lang.Long
-  // so we can keep the same code
+  // Here we're un-importing scala.Long and switching to Complex
+  // but it's ultimately the same code
   import scala.{ Long => _ }
 
   case class Complex(_1: Int, _2: Int)
@@ -25,8 +25,10 @@ object IntPairAsGaussianInteger extends TransformationDescription {
   // interface: (no need to expose everything)
   def implicit_IntPairAsGaussianIntegerImplicit_%(n1: Complex @high, n2: Complex @high): Complex @high = %(n1, n2)
   def implicit_IntPairAsGaussianIntegerImplicit_norm(n: Complex @high): Int = norm(n)
-  // TODO: Add the interface methods here, to avoid converting
-  // `Complex` back into `(Int, Int)` to execute operatiors...
+
+  // extension methods:
+  def extension_==(receiver: Complex @high, other: Complex @high): Boolean = receiver == other
+  def extension_toString(receiver: Complex @high): String = toHigh(receiver).toString
 
   // implementation:
   private def pack(re: Int, im: Int): Complex @high = Complex(re, im)

@@ -25,8 +25,10 @@ object IntPairAsGaussianInteger extends TransformationDescription {
   // interface: (no need to expose everything)
   def implicit_IntPairAsGaussianIntegerImplicit_%(n1: Long @high, n2: Long @high): Long @high = %(n1, n2)
   def implicit_IntPairAsGaussianIntegerImplicit_norm(n: Long @high): Int = norm(n)
-  // TODO: Add the interface methods here, to avoid converting
-  // `Long` back into `(Int, Int)` to execute operatiors...
+
+  // extension methods:
+  def extension_==(receiver: Long @high, other: Long @high): Boolean = receiver == other
+  def extension_toString(receiver: Long @high): String = toHigh(receiver).toString
 
   // implementation:
   private def pack(re: Int, im: Int): Long = Long.valueOf((re << 32l) | (im & 0xFFFFFFFFl))
