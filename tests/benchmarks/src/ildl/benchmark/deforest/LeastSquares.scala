@@ -5,8 +5,10 @@ package deforest
 import scala.collection.optimizer._
 
 /**
- * The benchmark object. The current benchmark is the least squares method,
- * explained on [[http://en.wikipedia.org/wiki/Linear_regression]].
+ * The benchmark object. The current benchmark is the linear regression
+ * a method for determining the slope and offset of a straight line that
+ * best described a given set of points. This technique is further
+ * explained at [[http://en.wikipedia.org/wiki/Linear_regression]].
  *
  * The transformation performs several optimizations at once:
  *  - introducing a specialized tuple
@@ -14,37 +16,71 @@ import scala.collection.optimizer._
  *  - stack-allocating the long integer
  *
  *  {{{
- *
- *         +--- class specialization: the tuple class is already specialized in the Scala backend,
- *         |                          so the two integers are stored in the unboxed format. However,
- *         |                          a limitation in the Scala specialization (fixed by the
- *         |                          miniboxing transformation) dictates that even the specialized
- *         |                          class has a pair of generic fields. By adding our
- *         |                          hand-specialized alternative to tuples, we eliminate those
- *         |                          fields, saving on the heap memory footprint and thus on the
- *         |                          GC cycles.
- *         |
- *         |                  +--> encoding: instead of having a class with two fields we have the
- *         |                  |              java.lang.Long which encodes the two fields in one. We
- *         |                  |              expect to get a small performance hit, as the real and
- *         |                  |              imaginary components have to be encoded.
- *         |                  |
- *         |                  |                   +--> unboxing: we need to convert j.l.Long to
- *         |                  |                   |              scala.Long and the backend unboxes it
- *         |                  |                   |              without our intervention.
- *         |                  |                   |
- * (3, 4) ===> Complex(3, 4) ===> java.lang.Long ===> scala.Long (compiled to Java's unboxed long)
- *    \             ^                    ^                ^
- *     \___step1___/                    /                /
- *      \ adrt(IntPairTupleSpec)       /                /
- *       \                            /                /
- *        \                          /                /
- *         \___step2________________/                /
- *          \ adrt(IntPairAsBoxedLong)              /
- *           \                                     /
- *            \                                   /
- *             \___step3_________________________/
- *               adrt(IntPairAsGaussianInteger)
+ *          +--> this is the deforestation optimization: it takes the basic code that uses lists and
+ *          |    optimizes it to use LazyList instead of List, thus delaying the execution of the map
+ *          |    functions. Furthermore, since all results are delivered via sum, there is no need to
+ *          |    create an actual list -- the results produced are just individual values. Avoiding the
+ *          |    intermediate list creation produces significant speedups, mostly in terms of saving
+ *          |    garbage collection cycles.
+ *          |
+ *          |                +--> this is the most we can optimize in this example in an automated fashion.
+ *          |                |    Not only that we perform fusion, but we also specialize the generic
+ *          |                |    computation using the miniboxing plugin. This shows three LDL-based passes
+ *          |                |    over the code collaborating:
+ *          |                |     - the ildl-plugin (with one LDL phase)
+ *          |                |     - the miniboxing plugin (with one LDL phase for specialization and one
+ *          |                |                              one for transforming FunctionX to MbFunctionX)
+ *          |                |    As a curiosity, the Scala compiler has 25 phases, but when both the
+ *          |                |    plugins are active, they add 21 extra phases, 15 for the miniboxing
+ *          |                |    transformation and 6 for the ildl-plugin. Of course, including these
+ *          |                |    plugins into the Scala compiler would reduce the phases a lot. :)
+ *          |                |
+ *          |                |                           +--> this is the manual counterpart of the
+ *          |                |                           |    automated deforestation that we have seen
+ *          |                |                           |    in the previous example. It reduces the
+ *          |                |                           |    running time to some extent, as there is
+ *          |                |                           |    still some abstraction in applying the
+ *          |                |                           |    functions instead of doing the element
+ *          |                |                           |    manipulation by hand. This example serves
+ *          |                |                           |    to show the additional benefit coming from
+ *          |                |                           |    inlining the functions
+ *          |                |                           |
+ *          |                |                           |                     +--> the most effective
+ *          |                |                           |                     |    transformation is
+ *          |                |                           |                     |    performing both
+ *          |                |                           |                     |    horizontal and
+ *          |                |                           |                     |    vertical fusion,
+ *          |                |                           |                     |    which is what this
+ *          |                |                           |                     |    example does. In this
+ *          |                |                           |                     |    example the list is
+ *          |                |                           |                     |    only traversed once
+ *          |                |                           |                     |    instead of four times,
+ *          |                |                           |                     |    as a result of
+ *          |                |                           |                     |    horizontal fusion.
+ *          |                |                           |                     |    However,
+ *          |                |                           |                     |    the conditions for
+ *          |                |                           |                     |    which this techinque
+ *          |                |                           |                     |    is applicable are
+ *          |                |                           |                     |    very restrictive
+ *          |                |                           |                     |    (such as the closed
+ *          |                |                           |                     |    world restriction)
+ *          |                |                           |                     |    This example is meant
+ *          |                |                           |                     |    to give a lower bound
+ *          |                |                           |                     |    on the running time,
+ *          |                |                           |                     |    assuming unlimited
+ *          |                |                           |                     |    power to transform
+ *          |                |                           |                     |    the program
+ *          |                |                           |                     |
+ * List[T] ===> LazyList[T] ===> LazyList[@miniboxed T] ===> manual traversal ===> manual fusion
+ *    \             ^                    ^               ^                     ^
+ *     \___step1___/                    /               /                     /
+ *      \ erased.ListAsLazyList        /               /                     /
+ *       \                            /               /                     /
+ *        \                          /               /                     /
+ *         \___step2________________/               /                     /
+ *           miniboxed.ListAsLazyList              /                     /
+ *                                              manual                manual
+ *                                         transformation         transformation
  * }}}
  *
  */
@@ -80,8 +116,8 @@ object LeastSquares {
     }
   }
 
-  adrt(specialized.ListAsLazyList){
-    def leastSquaresADRTSpecialized(data: List[(Double, Double)]): (Double, Double) = {
+  adrt(miniboxed.ListAsLazyList){
+    def leastSquaresADRTMiniboxed(data: List[(Double, Double)]): (Double, Double) = {
       println("started")
       val size = data.length
       val sumx = data.map(_._1).sum

@@ -1,7 +1,7 @@
 package ildl
 package benchmark
 package deforest
-package specialized
+package miniboxed
 
 import scala.collection.generic.CanBuildFrom
 import miniboxing.runtime.math.MiniboxedNumeric
@@ -11,6 +11,14 @@ import miniboxing.runtime.math.MiniboxedNumeric
  * @see See the [[ildl.benchmark.deforest.LeastSquares]] for transformation details.
  */
 object ListAsLazyList extends TransformationDescription {
+
+  //
+  // Along with optimizing generics, the miniboxing plugin
+  // also transforms the function representation and performs
+  // other code transformations. We won't go into the list
+  // here, but we're preparing a paper on this:
+  // https://infoscience.epfl.ch/record/208797
+  //
 
   // conversions:
   def toRepr[@miniboxed T](list: List[T]): LazyList[T] @high = new LazyListWrapper(list)

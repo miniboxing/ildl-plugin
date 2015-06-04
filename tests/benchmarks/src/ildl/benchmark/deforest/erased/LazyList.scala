@@ -14,11 +14,18 @@ package erased
  *     composes the accumulated maps
  */
 abstract sealed trait LazyList[T] {
+
+  //
+  // NOTE: We add the @api annotation to functions to notify the miniboxing plugin
+  // is should keep the Scala function representation. This prevents the miniboxing
+  // from artificially improving the performance of the erased benchmark.
+  //
+
   /** Map */
-  def map[U, That](f: T => U): LazyList[U]
+  def map[U, That](f: (T => U) @api): LazyList[U]
 
   /** Fold */
-  def foldLeft[U](z: U)(f: (U, T) => U): U
+  def foldLeft[U](z: U)(f: ((U, T) => U) @api): U
 
   /** Length */
   def length: Int
@@ -27,13 +34,16 @@ abstract sealed trait LazyList[T] {
   def force: List[T]
 }
 
-
+/**
+ * This class corresponds to a wrapped list, with no functions
+ * collected so far. It is one of the two cases of [[LazyList]].
+ */
 class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
 
-  def map[U, That](f: T => U): LazyList[U] =
+  def map[U, That](f: (T => U) @api): LazyList[U] =
     new LazyListMapper(list, f)
 
-  def foldLeft[U](z: U)(f: (U, T) => U): U = {
+  def foldLeft[U](z: U)(f: ((U, T) => U) @api): U = {
     var lst = list
     var acc  = z
     while(!lst.isEmpty) {
@@ -48,13 +58,16 @@ class LazyListWrapper[T](list: List[T]) extends LazyList[T] {
   def force: List[T] = list
 }
 
+/**
+ * This class corresponds to a wrapped list, with one or more
+ * functions delayed. It is one of the two cases of [[LazyList]].
+ */
+class LazyListMapper[T, To](list: List[To], fs: (To => T) @api) extends LazyList[T] {
 
-class LazyListMapper[T, To](list: List[To], fs: To => T) extends LazyList[T] {
-
-  def map[U, That](f: T => U): LazyList[U] =
+  def map[U, That](f: (T => U) @api): LazyList[U] =
     new LazyListMapper(list, fs andThen f)
 
-  def foldLeft[U](z: U)(f: (U, T) => U): U = {
+  def foldLeft[U](z: U)(f: ((U, T) => U) @api): U = {
     var lst = list
     var acc  = z
     while(!lst.isEmpty) {

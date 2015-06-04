@@ -23,7 +23,7 @@ object ListAsLazyList extends TransformationDescription {
   // optimizing the map method:
   def extension_map[T, U, That]
                                (lazylist: LazyList[T] @high)
-                               (f: T => U)(implicit bf: CanBuildFrom[List[T], U, That]): LazyList[U] @high = {
+                               (f: (T => U) @api)(implicit bf: CanBuildFrom[List[T], U, That]): LazyList[U] @high = {
 
     // sanity check => we could accept random canBulildFrom objects,
     // but that makes the transformation slightly more complex
@@ -36,7 +36,7 @@ object ListAsLazyList extends TransformationDescription {
   // optimizing the foldLeft method:
   def extension_foldLeft[T, U]
                               (lazylist: LazyList[T] @high)
-                              (z: U)(f: (U, T) => U): U =
+                              (z: U)(f: ((U, T) => U) @api): U =
     lazylist.foldLeft(z)(f)
 
   // optimizing the sum method:

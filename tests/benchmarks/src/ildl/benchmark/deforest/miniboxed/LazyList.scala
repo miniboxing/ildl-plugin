@@ -1,7 +1,7 @@
 package ildl
 package benchmark
 package deforest
-package specialized
+package miniboxed
 
 /**
  *  This is the lazy list we're planning to use instead of
@@ -26,7 +26,10 @@ abstract sealed trait LazyList[@miniboxed T] {
   def force: List[T]
 }
 
-
+/**
+ * This class corresponds to a wrapped list, with no functions
+ * collected so far. It is one of the two cases of [[LazyList]].
+ */
 class LazyListWrapper[@miniboxed T](list: List[T]) extends LazyList[T] {
 
   def map[@miniboxed U, That](f: T => U): LazyList[U] =
@@ -47,7 +50,10 @@ class LazyListWrapper[@miniboxed T](list: List[T]) extends LazyList[T] {
   def force: List[T] = list
 }
 
-
+/**
+ * This class corresponds to a wrapped list, with one or more
+ * functions delayed. It is one of the two cases of [[LazyList]].
+ */
 class LazyListMapper[@miniboxed T, @miniboxed To](list: List[To], fs: To => T) extends LazyList[T] {
 
   def map[@miniboxed U, That](f: T => U): LazyList[U] =
