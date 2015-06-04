@@ -17,6 +17,7 @@ project/plugins/project/
 .classpath
 .project
 .settings
+.cache-main
 bin/
 
 # sandbox and graphs
