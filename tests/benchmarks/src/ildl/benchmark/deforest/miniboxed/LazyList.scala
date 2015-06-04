@@ -13,6 +13,15 @@ package miniboxed
  *     composes the accumulated maps
  */
 abstract sealed trait LazyList[@miniboxed T] {
+  
+  //
+  // Along with optimizing generics, the miniboxing plugin
+  // also transforms the function representation and performs
+  // other code transformations. We won't go into the list
+  // here, but we're preparing a paper on this:
+  // https://infoscience.epfl.ch/record/208797 
+  //
+  
   /** Map */
   def map[@miniboxed U, That](f: T => U): LazyList[U]
 

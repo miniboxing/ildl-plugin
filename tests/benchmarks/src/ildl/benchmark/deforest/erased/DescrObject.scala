@@ -12,6 +12,12 @@ import ildl.TransformationDescription
  */
 object ListAsLazyList extends TransformationDescription {
 
+  //
+  // NOTE: We add the @api annotation to functions to force the miniboxing plugin
+  // to avoid it affecting the function representation and thus artificially
+  // improving the performance of the erased benchmark
+  //
+  
   // conversions:
   def toRepr[T](list: List[T]): LazyList[T] @high = new LazyListWrapper(list)
   def toHigh[T](lazylist: LazyList[T] @high): List[T] = lazylist.force

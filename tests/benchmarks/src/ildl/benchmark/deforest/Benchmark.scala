@@ -9,6 +9,11 @@ import org.scalameter.DSL._
 
 /** The benchmark object */
 object BenchmarkRunner extends PerformanceTest.Microbenchmark {
+
+  // Disallow environment setup
+  assert(!sys.env.isDefinedAt("_JAVA_OPTIONS"), "You should disable _JAVA_OPTIONS before running the benchmarks!")
+  assert(!sys.env.isDefinedAt("JAVA_OPTS"),     "You should disable JAVA_OPTS before running the benchmarks!")
+
   //
   // The benchmark object. This object is the entry point into the current
   // benchmark and customizes the ScalaMeter configuration.
@@ -24,11 +29,11 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
   import LeastSquares._
 
   val sizes =
-    // Gen.single("size")(5000000)
+//    Gen.single("size")(5000000)
     Gen.range("size")(1000000, 5000000, 1000000)
 
   val bench =
-    // Gen.enumeration("benchmark")("direct_____")
+//    Gen.enumeration("benchmark")("adrt_erased")
     Gen.enumeration("benchmark")("direct_____", "adrt_erased", "adrt_spec'd", "blitz______", "manual_trav", "manual_fuse")
 
   override def aggregator = Aggregator.average
@@ -43,11 +48,8 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
   measure method "leastSquares" in {
     using(Gen.tupled(sizes, bench)) config (
         exec.independentSamples -> 1,
-        exec.benchRuns -> 5,
-        // We tested the deforestation benchmark with up to 6G or RAM and the
-        // results remained largely unchanged (+/- 5%). This is why we're not
-        // setting the heap size to a greater value:
-        exec.jvmflags -> ("-Xmx2g -Xms2g" + " " + flags(interp))
+        exec.benchRuns -> 10,
+        exec.jvmflags -> ("-Xmx3g -Xms3g" + " " + flags(interp))
     ) setUp {
       case (size, bench) =>
         data = (1 to size).map(_.toDouble).zip((1 to size).map(_.toDouble)).toList
