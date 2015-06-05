@@ -8,10 +8,6 @@ import org.scalameter.DSL._
 /** The benchmark object */
 object BenchmarkRunner extends PerformanceTest.Microbenchmark {
 
-  // Disallow environment setup
-  assert(!sys.env.isDefinedAt("_JAVA_OPTIONS"), "You should disable _JAVA_OPTIONS before running the benchmarks!")
-  assert(!sys.env.isDefinedAt("JAVA_OPTS"),     "You should disable JAVA_OPTS before running the benchmarks!")
-
   //
   // The benchmark object. This object is the entry point into the current
   // benchmark and customizes the ScalaMeter configuration.
@@ -23,6 +19,9 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
   // ildl-plugin to transform the program before the typer phase (in the
   //`post-parser` phase). Nevertheless, compiling and running occurs correctly.
   //
+
+  // make sure we're running on the correct setup:
+  Platform.checkCompatibility()
 
   import GreatestCommonDivisor._
 

@@ -5,15 +5,12 @@ package deforest
 import scala.collection.optimizer._
 
 /**
- * The benchmark object. The current benchmark is the linear regression
+ * The actual benchmark. The current benchmark is the linear regression
  * a method for determining the slope and offset of a straight line that
  * best described a given set of points. This technique is further
  * explained at [[http://en.wikipedia.org/wiki/Linear_regression]].
  *
- * The transformation performs several optimizations at once:
- *  - introducing a specialized tuple
- *  - encoding the tuple in a long integer
- *  - stack-allocating the long integer
+ * The following diagram shows the transformations that occur:
  *
  *  {{{
  *          +--> this is the deforestation optimization: it takes the basic code that uses lists and
@@ -83,6 +80,30 @@ import scala.collection.optimizer._
  *                                         transformation         transformation
  * }}}
  *
+ * These are the numbers we obtain for 5M elements:
+ *
+ *    +--------------------------------------------+--------------+---------+
+ *    | Benchmark                                  | Running Time | Speedup |
+ *    +--------------------------------------------+--------------+---------|
+ *    | Least Squares Regression, original         |      8264 ms |    none |
+ *    | Least Squares Regression, adrt generic     |       429 ms |   19.3x |
+ *    | Least Squares Regression, adrt miniboxed   |       280 ms |   29.5x |
+ *    | Least Squares Regression, scala-blitz      |      3464 ms |    2.4x |
+ *    | Least Squares Regression, manual traversal |       195 ms |   42.4x |
+ *    | Least Squares Regression, manual fusion    |        79 ms |  105.0x |
+ *    +--------------------------------------------+--------------+---------+
+ *
+ * The numbers we obtained this time are significantly better than the ones reported in the paper.
+ * We realized the difference when we implemented the manual traversal, which took only 195 ms. By
+ * tracing back the difference, we realized we were triggering an unwarranted garbage collection run
+ * exactly before executing the adrt scope, also counting that towards the execution time. Now, running
+ * a garbage collection cycle in the setup phase, we do not incur any GC cycle for the miniboxed adrt
+ * version (and the manual versions) and we only incur one GC cycle in the generic case.
+ *
+ * Note that, given an large enough heap (in this case, 8GB), the original benchmark runs in 700 ms,
+ * instead of 8000ms. This corresponds only to the cost of traversing the arrays and allocating the
+ * heap objects involved in the processing. However, on the HotSpot virtual machine, allocation is
+ * highly optimized, so most of the overhead in the original benchmark comes from the garbage collection.
  */
 object LeastSquares {
 
