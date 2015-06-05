@@ -4,7 +4,7 @@ package hamming
 package step3
 
 /** An array-based ring buffer used as a queue.
- *  This is the version that stores Long. */
+ *  This is the version that stores scala.Long-s. */
 class FunnyQueue {
 
   private[this] final val MAX = 6000

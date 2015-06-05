@@ -5,6 +5,10 @@ package step3
 
 import collection.mutable.Queue
 
+/**
+ *  A transformation object that transforms [[BigInt]] values into [[scala.Long]]s.
+ *  @see the comment in [[ildl.benchmark.hamming.HammingNumbers]] for more information
+ */
 object BigIntAsLong extends TransformationDescription {
 
   // coercions:
@@ -39,6 +43,10 @@ object BigIntAsLong extends TransformationDescription {
 }
 
 
+/**
+ *  A transformation object that transforms the Queue[BigInt] to a [[FunnyQueue]].
+ *  @see the comment in [[ildl.benchmark.hamming.HammingNumbers]] for more information
+ */
 object QueueOfLongAsFunnyQueue extends TransformationDescription {
 
   // coercions:

@@ -4,14 +4,81 @@ package hamming
 
 import scala.collection.mutable.Queue
 
+/**
+ * The actual benchmark. The current benchmark is finding the 10001-th Hamming number,
+ * and the implementation is lifted directly from the Rosetta code website:
+ *
+ * [[http://rosettacode.org/wiki/Hamming_numbers#Scala]]
+ *
+ * and adapted to improve performance.
+ *
+ * To obtain the speedup, there are several transformations taking place in parallel.
+ * The following diagram shows what each transformation does and the exact transformation
+ * object used with `adrt`:
+ *
+ *  {{{
+ *                +--> this transformation is the one that brought the most benefit, since it achieved
+ *                |    two results at once: being implemented as a fixed-size circular buffer queue
+ *                |    and backed by a simple array, it improved locality and reduced access time.
+ *                |    Furthermore, the Queue.enque method takes a variable number of arguments, which
+ *                |    adds further overhead for packing and unpacking them. Using enqueue1, we used
+ *                |    the fact that we only introduce one element at a time to our advantage: this
+ *                |    way, we avoid the overhead associated to the variable number arguments.
+ *                |
+ *                |                +--> knowing the range is limited, we can reduce the size of the
+ *                |                |    data by switching from the scala.BigInt object (backed by
+ *                |                |    the java.math.BigInteger) to a smaller java.lang.Long. This
+ *                |                |    saves some memory and some cycles when operating on the data,
+ *                |                |    although there's not a lot of saving since both BigInt and
+ *                |                |    java.lang.Long are heap-allocated objects.
+ *                |                |
+ *                |                |                     +--> unboxing: we switch from j.l.Long to
+ *                |                |                     |              scala.Long and the backend
+ *                |                |                     |              automatically unboxes it in
+ *                |                |                     |              method signatures and the
+ *                |                |                     |              underlying array used by the
+ *                |                |                     |              FunnyQueue data structure.
+ *                |                |                     |
+ * BigInt +      ===> BigInt +    ===> java.lang.Long + ===> scala.Long  (compiled to Java's unboxed long)
+ * Queue[BigInt]      FunnyQueue*      FunnyQueue*           FunnyQueue*  (* FunnyQueue-s are specialized
+ *    \             ^                    ^                ^                  by hand for the element type)
+ *     \___step1___/                    /                /
+ *      \ adrt(IntPairTupleSpec)       /                /
+ *       \                            /                /
+ *        \                          /                /
+ *         \___step2________________/                /
+ *          \ adrt(IntPairAsBoxedLong)              /
+ *           \                                     /
+ *            \                                   /
+ *             \___step3_________________________/
+ *               adrt(IntPairAsGaussianInteger)
+ * }}}
+ *
+ * These are the numbers we obtained:
+ *
+ *    +------------------------------------+--------------+---------+
+ *    | Benchmark                          | Running Time | Speedup |
+ *    +------------------------------------+--------------+---------|
+ *    | 10001-th Hamming number, original  |      6.56 ms |    none |
+ *    | 10001-th Hamming number, step1     |      2.70 ms |    2.4x |
+ *    | 10001-th Hamming number, step2     |      2.16 ms |    3.0x |
+ *    | 10001-th Hamming number, step3     |      1.64 ms |    4.0x |
+ *    +------------------------------------+--------------+---------+
+ *
+ * We apologize for the fact that the numbers in the paper were more optimistic, indicating a speedup
+ * of 8x -- this was a flaw in the benchmark that misled us. However, we have double-checked the
+ * benchmark now and do not expect any further discrepancies.
+ */
 object HammingNumbers {
 
-  // we want to be able to enqueue a single element at once
+  // we want to be able to enqueue a single element at once -- please see the
+  // comment above for the explanation of enqueue1 vs enqueue. Note that we
+  // have made QueueWithEnqueue1 a value class, thus preventing the creation
+  // of an object in order to perform the enqueue1 operation:
   implicit class QueueWithEnqueue1[T](val q: Queue[T]) extends AnyVal {
     def enqueue1(t: T) = q.enqueue(t)
   }
 
-  // taken from http://rosettacode.org/wiki/Hamming_numbers#Scala
   class HammingDirect extends Iterator[BigInt] {
     val q2 = new Queue[BigInt]
     val q3 = new Queue[BigInt]

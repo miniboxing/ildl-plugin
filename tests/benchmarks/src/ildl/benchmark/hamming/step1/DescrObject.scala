@@ -5,6 +5,10 @@ package step1
 
 import collection.mutable.Queue
 
+/**
+ *  A transformation object that transforms the Queue[BigInt] to a [[FunnyQueue]].
+ *  @see the comment in [[ildl.benchmark.hamming.HammingNumbers]] for more information
+ */
 object QueueOfLongAsFunnyQueue extends TransformationDescription {
 
   // coercions:

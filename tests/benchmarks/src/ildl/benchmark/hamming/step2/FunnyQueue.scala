@@ -8,7 +8,7 @@ import scala.{Long => _}
 import java.lang.Long
 
 /** An array-based ring buffer used as a queue.
- *  This is the version that stores Long. */
+ *  This is the version that stores java.lang.Long-s. */
 class FunnyQueue {
 
   private[this] final val MAX = 6000
