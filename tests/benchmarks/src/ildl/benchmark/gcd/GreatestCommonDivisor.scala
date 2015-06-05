@@ -3,16 +3,18 @@ package benchmark
 package gcd
 
 /**
- * The actual benchmark. The current benchmark is the Gaussian
- * integer greatest common divisor, which is explained on
+ * The actual benchmark. The current benchmark is the Gaussian integer greatest common
+ * divisor, which is explained on
  * [[http://math.stackexchange.com/questions/82350/gcd-of-gaussian-integers]].
  *
- * The transformation performs several optimizations at once:
- *  * introducing a specialized tuple
- *  * encoding the tuple in a long integer
- *  * stack-allocating the long integer
+ * Several factors influence the overall speedup. In the following diagram, we added
+ * intermediate steps to the transformation, in order to isolate the individual factors
+ * influencing the overall speedup.
  *
- * Let's break down the transformation:
+ * The diagram follows the transformation of the main data type in the program: the pair
+ * of integers. The top part explains the transformation, the middle shows the updated
+ * types and the bottom part shows the exact transformation description objects used for
+ * the `adrt` scopes:
  *
  *  {{{
  *

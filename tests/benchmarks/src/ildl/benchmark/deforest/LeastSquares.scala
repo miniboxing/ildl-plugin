@@ -5,12 +5,18 @@ package deforest
 import scala.collection.optimizer._
 
 /**
- * The actual benchmark. The current benchmark is the linear regression
- * a method for determining the slope and offset of a straight line that
- * best described a given set of points. This technique is further
- * explained at [[http://en.wikipedia.org/wiki/Linear_regression]].
+ * The actual benchmark. The current benchmark is the linear regression,  a method for determining
+ * the slope and offset of a straight line that best described a given set of points. This technique
+ * is further explained at [[http://en.wikipedia.org/wiki/Linear_regression]].
  *
- * The following diagram shows the transformations that occur:
+ * Several factors influence the overall speedup. In the following diagram, we added
+ * intermediate steps to the transformation, in order to isolate the individual factors
+ * influencing the overall speedup.
+ *
+ * The diagram follows the transformation of the main data type in the program: the generic
+ * List[T] container. The top part explains the transformation, the middle shows the updated
+ * types and the bottom part shows the exact transformation description objects used for
+ * the `adrt` scopes:
  *
  *  {{{
  *          +--> this is the deforestation optimization: it takes the basic code that uses lists and
