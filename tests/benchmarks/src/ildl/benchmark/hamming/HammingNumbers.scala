@@ -41,17 +41,18 @@ import scala.collection.mutable.Queue
  *                |                |                     |
  * BigInt +      ===> BigInt +    ===> java.lang.Long + ===> scala.Long  (compiled to Java's unboxed long)
  * Queue[BigInt]      FunnyQueue*      FunnyQueue*           FunnyQueue*  (* FunnyQueue-s are specialized
- *    \             ^                    ^                ^                  by hand for the element type)
- *     \___step1___/                    /                /
- *      \ adrt(IntPairTupleSpec)       /                /
- *       \                            /                /
- *        \                          /                /
- *         \___step2________________/                /
- *          \ adrt(IntPairAsBoxedLong)              /
- *           \                                     /
- *            \                                   /
- *             \___step3_________________________/
- *               adrt(IntPairAsGaussianInteger)
+ *    \                  ^                  ^                    ^                  by hand for the element type)
+ *     \________________/                  /                    /
+ *      \ step1.QueueOfLongAsFunnyQueue   /                    /
+ *       \                               /                    /
+ *        \                             /                    /
+ *         \___________________________/                    /
+ *          \ step2.BigIntAsLong +                         /
+ *           \ step2.QueueOfLongAsFunnyQueue              /
+ *            \                                          /
+ *             \________________________________________/
+ *               step3.BigIntAsLong +
+ *                step3.QueueOfLongAsFunnyQueue
  * }}}
  *
  * These are the numbers we obtained:
