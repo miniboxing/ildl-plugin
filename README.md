@@ -3,8 +3,8 @@
 
 [![Build Status](https://travis-ci.org/miniboxing/ildl-plugin.svg)](https://travis-ci.org/miniboxing/ildl-plugin?branch=master)
 
-This plugin enables data-centric metaprogramming, allowing library developers to implement domain-specific optimizations for their libraries. 
-We used it in four sample transformations:
+The ildl-plugin is a meta-programming technique aimed at allowing safe, custom transformations across library boundaries. Using ildl-based transformations, we were able to obtain speedups in excess of 20x and have optimized code across a wide range of use-cases:
+
  * [avoiding heap allocation](https://github.com/miniboxing/ildl-plugin/wiki/Sample-~-Data-Encoding)
  * [transforming collections of data](https://github.com/miniboxing/ildl-plugin/wiki/Sample-~-Efficient-Collections)
  * [deforestation and retrofitting specialization](https://github.com/miniboxing/ildl-plugin/wiki/Sample-~-Deforestation)
