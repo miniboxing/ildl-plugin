@@ -16,7 +16,11 @@ import scala.collection.optimizer._
  * The diagram follows the transformation of the main data type in the program: the generic
  * List[T] container. The top part explains the transformation, the middle shows the updated
  * types and the bottom part shows the exact transformation description objects used for
- * the `adrt` scopes:
+ * the `adrt` scopes.
+ *
+ * We also added two manual transformations, which correspond to the programmer manually
+ * rewriting the code in order to improve performance. While these can't be automated, they
+ * provide important feedback for the other transformations and their expected performance:
  *
  *  {{{
  *          +--> this is the deforestation optimization: it takes the basic code that uses lists and
@@ -74,16 +78,16 @@ import scala.collection.optimizer._
  *          |                |                           |                     |    power to transform
  *          |                |                           |                     |    the program
  *          |                |                           |                     |
- * List[T] ===> LazyList[T] ===> LazyList[@miniboxed T] ===> manual traversal ===> manual fusion
- *    \             ^                    ^               ^                     ^
- *     \___step1___/                    /               /                     /
- *      \ erased.ListAsLazyList        /               /                     /
- *       \                            /               /                     /
- *        \                          /               /                     /
- *         \___step2________________/               /                     /
- *           miniboxed.ListAsLazyList              /                     /
- *                                              manual                manual
- *                                         transformation         transformation
+ * List[T] ===> LazyList[T] ===> LazyList[@miniboxed T] -+-> manual traversal -+-> manual fusion
+ *    \             ^                    ^              /                     /
+ *     \___step1___/                    /              /                     /
+ *      \ erased.ListAsLazyList        /              /                     /
+ *       \                            /              /                     /
+ *        \                          /              /                     /
+ *         \___step2________________/              /                     /
+ *           miniboxed.ListAsLazyList             /                     /
+ *                                             manual                manual
+ *                                        transformation         transformation
  * }}}
  *
  * These are the numbers we obtain for 5M elements:
@@ -145,7 +149,6 @@ object LeastSquares {
 
   adrt(miniboxed.ListAsLazyList){
     def leastSquaresADRTMiniboxed(data: List[(Double, Double)]): (Double, Double) = {
-      println("started")
       val size = data.length
       val sumx = data.map(_._1).sum
       val sumy = data.map(_._2).sum
@@ -154,7 +157,6 @@ object LeastSquares {
 
       val slope  = (size * sumxy - sumx * sumy) / (size * sumxx - sumx * sumx)
       val offset = (sumy * sumxx - sumx * sumxy) / (size * sumxx - sumx * sumx)
-      println("done")
 
       (slope, offset)
     }
