@@ -5,6 +5,11 @@ package gcd
 import org.scalameter.api._
 import org.scalameter.DSL._
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Data-Encoding
+//
+
 /** The benchmark object */
 object BenchmarkRunner extends PerformanceTest.Microbenchmark {
 

@@ -6,6 +6,11 @@ package miniboxed
 import scala.collection.generic.CanBuildFrom
 import miniboxing.runtime.math.MiniboxedNumeric
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Deforestation
+//
+
 /**
  * Transform the List[T] into LazyList[T] with specialized versions.
  * @see See the [[ildl.benchmark.deforest.LeastSquares]] for transformation details.

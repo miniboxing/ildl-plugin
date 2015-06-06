@@ -4,6 +4,11 @@ package deforest
 
 import scala.collection.optimizer._
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Deforestation
+//
+
 /**
  * The actual benchmark. The current benchmark is the linear regression,  a method for determining
  * the slope and offset of a straight line that best described a given set of points. This technique
@@ -111,9 +116,10 @@ import scala.collection.optimizer._
  * version (and the manual versions) and we only incur one GC cycle in the generic case.
  *
  * Note that, given an large enough heap (in this case, 8GB), the original benchmark runs in 700 ms,
- * instead of 8000ms. This corresponds only to the cost of traversing the arrays and allocating the
- * heap objects involved in the processing. However, on the HotSpot virtual machine, allocation is
- * highly optimized, so most of the overhead in the original benchmark comes from the garbage collection.
+ * instead of 8000ms. This corresponds only to the cost of traversing the list and allocating the
+ * intermediate heap objects involved in the processing. However, on the HotSpot virtual machine,
+ * allocation is highly optimized, but if we give it 8GB of heap we don't consider the garbage cost
+ * of creating an intermediate list after the map.
  */
 object LeastSquares {
 

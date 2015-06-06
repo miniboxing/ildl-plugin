@@ -2,6 +2,11 @@ package ildl
 package benchmark
 package gcd
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Data-Encoding
+//
+
 /**
  * The actual benchmark. The current benchmark is the Gaussian integer greatest common
  * divisor, which is explained on

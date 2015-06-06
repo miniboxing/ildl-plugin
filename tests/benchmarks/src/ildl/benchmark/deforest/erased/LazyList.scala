@@ -3,6 +3,11 @@ package benchmark
 package deforest
 package erased
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Deforestation
+//
+
 
 /**
  *  This is the lazy list we're planning to use instead of

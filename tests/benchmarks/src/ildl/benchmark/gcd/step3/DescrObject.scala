@@ -3,6 +3,11 @@ package benchmark
 package gcd
 package step3
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Data-Encoding
+//
+
 /**
  *  The final transformation, which uses unboxed long integers.
  *  @see the comment in [[ildl.benchmark.gcd.GreatestCommonDivisor]] for more information

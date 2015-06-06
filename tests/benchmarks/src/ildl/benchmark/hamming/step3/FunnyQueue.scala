@@ -3,6 +3,11 @@ package benchmark
 package hamming
 package step3
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Efficient-Collections
+//
+
 /** An array-based ring buffer used as a queue.
  *  This is the version that stores scala.Long-s. */
 class FunnyQueue {

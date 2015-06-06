@@ -6,6 +6,11 @@ package erased
 import scala.collection.generic.CanBuildFrom
 import ildl.TransformationDescription
 
+// 
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Deforestation
+//
+
 /**
  * Transform the List[T] into LazyList[T] with erased generics.
  * @see See the [[ildl.benchmark.deforest.LeastSquares]] for transformation details.

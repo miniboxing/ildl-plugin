@@ -1,6 +1,11 @@
 package ildl
 package benchmark
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Data-Encoding
+//
+
 package object gcd {
   /**
    * The implicit class which adds the gaussian integer operations to

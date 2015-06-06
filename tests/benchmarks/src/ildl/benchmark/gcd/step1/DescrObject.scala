@@ -3,6 +3,11 @@ package benchmark
 package gcd
 package step1
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Data-Encoding
+//
+
 /**
  *  A simpler transformation, which uses a manually specialized tuple class.
  *  @see the comment in [[ildl.benchmark.gcd.GreatestCommonDivisor]] for more information

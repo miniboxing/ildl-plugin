@@ -3,6 +3,11 @@ package benchmark
 package gcd
 package step2
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Data-Encoding
+//
+
 /**
  *  A simpler transformation, which uses java.lang.Long instead of scala.Long
  *  as the transformation target.

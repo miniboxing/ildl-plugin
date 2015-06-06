@@ -7,6 +7,11 @@ import org.scalameter.api._
 import org.scalameter.Key
 import org.scalameter.DSL._
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Efficient-Collections
+//
+
 object BenchmarkRunner extends PerformanceTest.Microbenchmark {
 
   //

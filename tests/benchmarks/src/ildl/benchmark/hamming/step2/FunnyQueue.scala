@@ -3,6 +3,11 @@ package benchmark
 package hamming
 package step2
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Efficient-Collections
+//
+
 // use java.lang.Long, so it doesn't get unboxed
 import scala.{Long => _}
 import java.lang.Long

@@ -9,6 +9,11 @@ import collection.mutable.Queue
 import scala.{Long => _}
 import java.lang.Long
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Efficient-Collections
+//
+
 /**
  *  A transformation object that transforms [[BigInt]] values into [[java.lang.Long]]s.
  *  @see the comment in [[ildl.benchmark.hamming.HammingNumbers]] for more information

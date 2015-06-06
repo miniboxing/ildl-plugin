@@ -4,6 +4,11 @@ package hamming
 
 import scala.collection.mutable.Queue
 
+//
+// You can read about this benchmark on the following wiki page:
+// https://github.com/miniboxing/ildl-plugin/wiki/Sample-%7E-Efficient-Collections
+//
+
 /**
  * The actual benchmark. The current benchmark is finding the 10001-th Hamming number,
  * and the implementation is lifted directly from the Rosetta code website:
