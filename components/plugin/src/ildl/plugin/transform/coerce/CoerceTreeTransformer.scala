@@ -90,6 +90,80 @@ trait CoerceTreeTransformer extends TypingTransformers {
 
     class TreeAdapter(context0: Context) extends Typer(context0) {
 
+      case object AlreadyTyped
+      case object ConstructorRedirectFailed
+      case object SingleApply
+      implicit class TreePimpin(val tree: Tree) {
+        def withTypedAnnot: Tree = tree.updateAttachment[AlreadyTyped.type](AlreadyTyped)
+        def withSingleApply: Tree = tree.updateAttachment[SingleApply.type](SingleApply)
+        def withConstructorRedirectFailed: Tree = tree.updateAttachment[ConstructorRedirectFailed.type](ConstructorRedirectFailed)
+        def hasTypedAnnot: Boolean = tree.hasAttachment[AlreadyTyped.type]
+        def hasSingleApply: Boolean = tree.hasAttachment[SingleApply.type]
+        def hasConstructorFailed: Boolean = tree.hasAttachment[ConstructorRedirectFailed.type]
+      }
+
+      case class Application(targs: List[Tree], args: List[Tree])
+      case class MethodInfo(symbol: Symbol)
+      sealed abstract class PosTree {
+        def value: Tree
+      }
+      case class Inside(value: Tree) extends PosTree
+      case class Outside(value: Tree) extends PosTree
+
+      object MultiApply {
+        def unapply(tree: Tree): Option[(Tree, List[(MethodInfo, Application)])] =
+          unapply(Outside(tree))
+
+        def unapply(posTree: PosTree): Option[(Tree, List[(MethodInfo, Application)])] = {
+
+          val outside = posTree.isInstanceOf[Outside]
+          posTree.value match {
+            case Apply(sel@Select(qual, method), args) if posTree.value.hasSingleApply =>
+              Some((qual, (MethodInfo(sel.symbol), Application(Nil, args)) :: Nil))
+            case Apply(TypeApply(sel@Select(qual, method), targs), args) if posTree.value.hasSingleApply =>
+              Some((qual, (MethodInfo(sel.symbol), Application(Nil, args)) :: Nil))
+            case Apply(sel@Select(MultiApplyInside(qual, apps), method), args) =>
+              Some((qual, (MethodInfo(sel.symbol), Application(Nil, args)) :: apps))
+            case Apply(TypeApply(sel@Select(MultiApplyInside(qual, apps), method), targs), args) =>
+              Some((qual, (MethodInfo(sel.symbol), Application(Nil, args)) :: apps))
+            case _ if outside =>
+              None
+            case _ =>
+              Some((posTree.value, Nil))
+          }
+        }
+
+        def apply(qual: Tree, apps: List[(MethodInfo, Application)]): Tree =
+          apps match {
+            case Nil => qual
+            case (method, appInfo) :: apps =>
+              appInfo match {
+                case Application(Nil, args) =>
+                  gen.mkMethodCall(gen.mkAttributedSelect(MultiApply(qual, apps), method.symbol), args.map(_.duplicate))
+                case Application(targs, args) =>
+                  gen.mkMethodCall(gen.mkAttributedSelect(MultiApply(qual, apps), method.symbol), targs.map(_.tpe), args.map(_.duplicate))
+              }
+          }
+
+        def apply(method: Tree, qual: Tree, apps: List[(MethodInfo, Application)]): Tree = {
+          val args = qual :: apps.map(_._2.args).reverse.flatten
+          gen.mkMethodCall(method, args)
+        }
+
+        def flatName(apps: List[(MethodInfo, Application)]): String = apps match {
+          case Nil => assert(false, "Empty applications not allowed in flatName!"); ???
+          case (method, _) :: Nil if (method.symbol.isImplicit)  => "implicit_" + method.symbol.name.decode
+          case (method, _) :: Nil                                => "extension_" + method.symbol.name.decode
+          case (method, _) :: apps if (method.symbol.isImplicit) => flatName(apps) + "_implicit_" + method.symbol.name.decode
+          case (method, _) :: apps                               => flatName(apps) + "_" + method.symbol.name.decode
+        }
+      }
+
+      object MultiApplyInside {
+        def unapply(tree: Tree): Option[(Tree, List[(MethodInfo, Application)])] =
+          MultiApply.unapply(Inside(tree))
+      }
+
       override val infer = new Inferencer {
         def context = TreeAdapter.this.context
         // As explained in #132, the inferencer can refer to private
@@ -156,12 +230,21 @@ trait CoerceTreeTransformer extends TypingTransformers {
       def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, qual2: Tree, targs: List[Tree], args: List[Tree], mode: Mode, pt: Type): Boolean =
         typechecks(candidate, descObject, tree, targs, qual2 :: args, mode, pt)
 
+      def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, qual2: Tree, apps: List[(MethodInfo, Application)], mode: Mode, pt: Type): Boolean = {
+        val newQual = gen.mkAttributedRef(descObject)
+        val extMeth = gen.mkAttributedSelect(newQual, candidate)
+        val candTree = MultiApply(extMeth, qual2.duplicate, apps)
+        typechecks(candTree, mode, pt)
+      }
 
       def typechecks(candidate: Symbol, descObject: Symbol, tree: Tree, targs: List[Tree], args: List[Tree], mode: Mode, pt: Type): Boolean = {
         val newQual = gen.mkAttributedRef(descObject)
         val extMeth = gen.mkAttributedSelect(newQual, candidate)
         val candTree = FullApply(extMeth, Nil, args.map(_.duplicate))
+        typechecks(candTree, mode, pt)
+      }
 
+      def typechecks(candTree: Tree, mode: Mode, pt: Type): Boolean = {
         // cleaned up typer
         val unit = global.currentUnit
         val contextZ = rootContext(unit, throwing = false, checking = false)
@@ -179,18 +262,12 @@ trait CoerceTreeTransformer extends TypingTransformers {
         result
       }
 
-      case object AlreadyTyped
-      case object ConstructorRedirectFailed
-      implicit class WithAlreadyTyped(val tree: Tree) {
-        def withTypedAnnot: Tree = tree.updateAttachment[AlreadyTyped.type](AlreadyTyped)
-      }
-
       override def typed(tree: Tree, mode: Mode, pt: Type): Tree = {
         val ind = indent
         indent += 1
         adaptdbg(ind, " <== " + tree + " now: " + tree.tpe + "  expected: " + pt)
 
-        if (tree.hasAttachment[AlreadyTyped.type] && (pt == WildcardType) && (tree.tpe != null))
+        if (tree.hasTypedAnnot && (pt == WildcardType) && (tree.tpe != null))
           return tree
 
         val res = tree match {
@@ -207,7 +284,7 @@ trait CoerceTreeTransformer extends TypingTransformers {
               super.typed(tpl, mode, pt)
             }
 
-          case Apply(Select(New(tpt), nme.CONSTRUCTOR), args) if (pt.hasReprAnnot) && !tree.hasAttachment[ConstructorRedirectFailed.type] =>
+          case Apply(Select(New(tpt), nme.CONSTRUCTOR), args) if (pt.hasReprAnnot) && !tree.hasConstructorFailed =>
             val descObject = pt.getAnnotDescrObject
             val tpe = tpt.tpe
             if (matchesDescrHighType(descObject, tpe)) {
@@ -233,7 +310,8 @@ trait CoerceTreeTransformer extends TypingTransformers {
               // bail out to conversions:
               typed(tree.updateAttachment(ConstructorRedirectFailed), mode, pt)
 
-          case FullApply(sel@Select(MaybeImplicit(qual, implData, prefix), meth), targs, args) if qual.isTerm && tree.symbol.isMethod =>
+
+          case MultiApply(qual, apps) if qual.isTerm =>
             val qual2 = super.typedQualifier(qual.setType(null), mode, WildcardType).withTypedAnnot
 
             import helper._
@@ -243,24 +321,29 @@ trait CoerceTreeTransformer extends TypingTransformers {
               val tpe3 = tpe2.removeAnnotation(reprClass)
               val descObject = qual2.tpe.getAnnotDescrObject
 
-              val extName = TermName(prefix + "_" + meth)
+              val extName = newTermName(MultiApply.flatName(apps))
               val publicCandidates = descObject.info.member(extName).alternatives.filter(mb => mb.isPublic && !mb.isDeferred)
-              val matchingCandidates = publicCandidates.filter(typechecks(_, descObject, tree, qual2, Nil, args, mode, pt))
+              val matchingCandidates = publicCandidates.filter(typechecks(_, descObject, tree, qual2, apps, mode, pt))
 
               matchingCandidates match {
                 case List(candidate) =>
                   val newQual = gen.mkAttributedRef(descObject)
                   val extMeth = gen.mkAttributedSelect(newQual, candidate)
-                  super.typed(FullApply(extMeth, Nil, qual2 :: args), mode, pt)
+                  super.typed(MultiApply(extMeth, qual2.duplicate, apps), mode, pt)
                 case _ =>
-                  CoerceTreeTransformer.this.global.reporter.warning(tree.pos,
-                    "The " + sel.symbol + " can be optimized if you define a public, non-overloaded " +
-                    "and matching exension method for it in " + descObject + ", with the name " + extName.decoded +
-                    (if (matchingCandidates.isEmpty) "." else " (the method is overloaded).\n"))
-                  val conversion = qual2.tpe.getAnnotDescrReprToHigh
-                  val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
-                  val qual3 =  gen.mkMethodCall(convCall, List(qual2))
-                  super.typed(FullApply(Select(MaybeImplicit(qual3, implData), meth) setSymbol tree.symbol, targs, args).withTypedAnnot, mode, pt)
+                  apps match {
+                    case List((method, app)) =>
+                      CoerceTreeTransformer.this.global.reporter.warning(tree.pos,
+                        "This call can be optimized if you define a public, " +
+                        "matching exension method for it in " + descObject + ", with the name " + extName.decoded +
+                        (if (matchingCandidates.isEmpty) "." else " (the method is overloaded).\n"))
+                      val conversion = qual2.tpe.getAnnotDescrReprToHigh
+                      val convCall = gen.mkAttributedSelect(gen.mkAttributedRef(descObject), conversion)
+                      val qual3 =  gen.mkMethodCall(convCall, List(qual2))
+                      super.typed(MultiApply(qual3, apps).withTypedAnnot, mode, pt)
+                    case _ =>
+                      typed(tree.withSingleApply, mode, pt)
+                  }
               }
             } else {
               tree.setType(null)
