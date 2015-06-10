@@ -1,4 +1,6 @@
 #ildl-plugin
+
+[![Join the chat at https://gitter.im/miniboxing/ildl-plugin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/miniboxing/ildl-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 <img src="http://scala-miniboxing.org/images/ildl-logo.png" alt="ildl logo" width="150" align="right">
 
 [![Build Status](https://travis-ci.org/miniboxing/ildl-plugin.svg)](https://travis-ci.org/miniboxing/ildl-plugin?branch=master)
