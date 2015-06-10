@@ -92,14 +92,20 @@ trait ildlAddons {
       nomalizeDescriptorSymbol(tree.symbol)
   }
 
-  def nomalizeDescriptorSymbol(sym: Symbol) = {
+  def nomalizeDescriptorSymbol(sym: Symbol): Symbol = {
     assert(sym != NoSymbol)
     if ((sym == ildlTransformationDescrSym) || (sym == ildlRigidTransformationDescrSym))
       sym
     else if (sym.isModule)
       sym
-    else
+    else if (sym.isModuleClass)
       sym.sourceModule
+    else if (sym.isClass)
+      sym.companionModule
+    else if (sym.isTerm) {
+      nomalizeDescriptorSymbol(sym.owner.info.member(sym.name).filter(_.isModule))
+    } else
+      ???
   }
 
   def matchesDescrHighType(descr: Symbol, high: Type) =
