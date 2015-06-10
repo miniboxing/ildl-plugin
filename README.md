@@ -1,6 +1,7 @@
 #ildl-plugin
 <img src="http://scala-miniboxing.org/images/ildl-logo.png" alt="ildl logo" width="150" align="right">
 
+[![Gitter Badge](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/miniboxing/ildl-plugin)
 [![Build Status](https://travis-ci.org/miniboxing/ildl-plugin.svg)](https://travis-ci.org/miniboxing/ildl-plugin?branch=master)
 
 The ildl-plugin is a meta-programming technique aimed at allowing safe, custom transformations across library boundaries. Using ildl-based transformations, we were able to obtain speedups in excess of 20x and have optimized code across a wide range of use-cases:
