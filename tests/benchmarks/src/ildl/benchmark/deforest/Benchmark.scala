@@ -53,7 +53,7 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
     using(Gen.tupled(sizes, bench)) config (
         exec.independentSamples -> 1,
         exec.benchRuns -> 10,
-        exec.jvmflags -> ("-Xmx3g -Xms3g" + " " + flags(interp))
+        exec.jvmflags -> ("-Xmx3g -Xms3g " /* + "-verbose:gc " */ + flags(interp))
     ) setUp {
       case (size, bench) =>
         data = (1 to size).map(_.toDouble).zip((1 to size).map(_.toDouble)).toList
@@ -67,6 +67,8 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
         System.gc()
     } in {
       case (size, benchmark) =>
+//        print("starting ")
+//        println(benchmark)
         val (slope0, offset0) =
           benchmark match {
             // benchmarks:
@@ -78,9 +80,11 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
             case "manual_trav" => leastSquaresManual1(data)
             case "manual_fuse" => leastSquaresManual2(data)
           }
-      // sanity checks:
-      assert(math.abs(slope0 - slope) < eps, slope0)
-      assert(math.abs(offset0 - offset) < eps, offset0)
+        // sanity checks:
+        assert(math.abs(slope0 - slope) < eps, slope0)
+        assert(math.abs(offset0 - offset) < eps, offset0)
+//        print("stopping ")
+//        println(benchmark)
     }
   }
 

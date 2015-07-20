@@ -46,7 +46,7 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
     using(Gen.tupled(sizes, pred, bench)) config (
         exec.independentSamples -> 1,
         exec.benchRuns -> 20,
-        exec.jvmflags -> "-Xmx2g -Xms2g"
+        exec.jvmflags -> ("-Xmx2g -Xms2g " /* + "-verbose:gc " */)
     ) setUp {
         // Note: It is expected that "soaData" appears as "not found" in the IDE:
         case (size, pred, "direct") => aosData = createDataDirect(size, pred); soaData = null
@@ -61,11 +61,19 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
         System.gc()
     } in {
       case (size, pred, bench) =>
+//        print("starting ")
+//        print(bench)
+//        print("  ")
+//        println(pred)
         bench match {
           // Note: It is expected that "getAverageSoA" and "soaData" appear as "not found" in the IDE:
           case "direct" => getAverageDirect(aosData, 0)
           case "adrt__" => getAverageSoA(soaData, 0)
         }
+//        print("stopping ")
+//        print(bench)
+//        print("  ")
+//        println(pred)
     }
   }
 }

@@ -59,7 +59,7 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
           // This gives the non-transformed code an unfair advantage over the transformed
           // code and thus skews the benchmark.
           exec.benchRuns -> 20,
-          exec.jvmflags -> ("-Xmx100m -Xms100m " + flags(interp))
+          exec.jvmflags -> ("-Xmx100m -Xms100m " /* + "-verbose:gc " */ + flags(interp))
       ) setUp {
         _ =>
           // Result correctness checks:
@@ -76,6 +76,8 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
           System.gc()
       } in {
         case (bench, _) =>
+//          print("starting ")
+//          println(bench)
           bench match {
             case "direct" =>
               var i = 10000
@@ -105,6 +107,8 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
                 i -= 1
               }
           }
+//          print("stopped ")
+//          println(bench)
       }
     }
 

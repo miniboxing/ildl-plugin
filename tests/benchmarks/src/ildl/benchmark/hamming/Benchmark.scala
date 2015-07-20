@@ -44,7 +44,7 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
       using(Gen.tupled(bench, Gen.single("jvm_interpreter")(interp))) config (
           exec.independentSamples -> 1,
           exec.benchRuns -> 20,
-          exec.jvmflags -> ("-Xmx5m -Xms5m " + flags(interp))
+          exec.jvmflags -> ("-Xmx5m -Xms5m " /* + "-verbose:gc " */ + flags(interp))
       ) setUp {
         _ =>
           val r1 = (new HammingDirect().drop(10000)).next()
@@ -58,6 +58,8 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
           System.gc()
       } in {
         case (bench, _) =>
+//          print("starting ")
+//          println(bench)
           bench match {
             case "direct" => (new HammingDirect().drop(10000)).next()
             // Note: It is expected that the following types appear as "not found" in the IDE:
@@ -65,6 +67,8 @@ object BenchmarkRunner extends PerformanceTest.Microbenchmark {
             case "adrt_2" => (new HammingADRT_2().drop(10000)).next()
             case "adrt_3" => (new HammingADRT_3().drop(10000)).next()
           }
+//          print("stopped ")
+//          println(bench)
       }
     }
 
