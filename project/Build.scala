@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 import Process._
+import xerial.sbt.Sonatype._
+import SonatypeKeys._
 
 object ILDLBuild extends Build {
 
@@ -18,6 +20,15 @@ object ILDLBuild extends Build {
     javaSource in Test := baseDirectory.value / "test",
     resourceDirectory in Compile := baseDirectory.value / "resources",
     compileOrder := CompileOrder.Mixed,
+
+    // sonatype
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    },
 
     unmanagedSourceDirectories in Compile := Seq((scalaSource in Compile).value),
     unmanagedSourceDirectories in Test := Seq((scalaSource in Test).value),
@@ -46,8 +57,7 @@ object ILDLBuild extends Build {
       publishCredAvailable match {
         case true => 
           Seq(
-            // sonatype
-            //profileName := "vlad.ureche",
+            profileName := "vlad.ureche",
             publishMavenStyle := true,
             publishArtifact in Test := false,
             pomIncludeRepository := { _ => false },
@@ -76,7 +86,8 @@ object ILDLBuild extends Build {
       }
     else
       Seq(
-        publishArtifact := false
+        publishArtifact := false,
+        publish := ()
       )
 
   val runtimeDeps = Seq[Setting[_]]()
