@@ -32,6 +32,53 @@ object ILDLBuild extends Build {
     parallelExecution in Global := false
   )
 
+  val publishRealm =  "ILDL_MAVEN_REALM"
+  val publishDomain = "ILDL_MAVEN_DOMAIN"
+  val publishUser =   "ILDL_MAVEN_USER"
+  val publishPass =   "ILDL_MAVEN_PASS"
+  val publishCredAvailable = sys.env.isDefinedAt(publishRealm) && 
+                             sys.env.isDefinedAt(publishDomain) && 
+                             sys.env.isDefinedAt(publishUser) && 
+                             sys.env.isDefinedAt(publishPass)
+
+  def pubDeps(pub: Boolean): Seq[Setting[_]] = 
+    if (pub)
+      publishCredAvailable match {
+        case true => 
+          Seq(
+            // sonatype
+            //profileName := "vlad.ureche",
+            publishMavenStyle := true,
+            publishArtifact in Test := false,
+            pomIncludeRepository := { _ => false },
+            pomExtra := (
+              <scm>
+                <url>git@github.com:miniboxing/miniboxing-plugin.git</url>
+                <connection>scm:git:git@github.com:miniboxing/miniboxing-plugin.git</connection>
+              </scm>
+              <developers>
+                <developer>
+                  <id>VladUreche</id>
+                  <name>Vlad Ureche</name>
+                  <url>http://vladureche.ro</url>
+                </developer>
+              </developers>),
+            credentials += Credentials(sys.env(publishRealm),
+                                       sys.env(publishDomain),
+                                       sys.env(publishUser),
+                                       sys.env(publishPass)),
+            publishArtifact in packageDoc := !isSnapshot.value
+          )
+        case false => 
+          Seq(
+            publish <<= streams.map(_.log.info(s"""Publishing to Sonatype is disabled since "$publishRealm"/"$publishDomain"/"$publishUser"/"$publishPass" are not set."""))
+          )
+      }
+    else
+      Seq(
+        publishArtifact := false
+      )
+
   val runtimeDeps = Seq[Setting[_]]()
 
   val pluginDeps = Seq(
@@ -104,9 +151,9 @@ object ILDLBuild extends Build {
     scalacOptions += "-P:minibox:warn-off"
   )
 
-  lazy val _ildl       = Project(id = "ildl",             base = file("."),                      settings = defaults) aggregate (runtime, plugin, tests, benchmarks)
-  lazy val runtime     = Project(id = "ildl-runtime",     base = file("components/runtime"),     settings = defaults)
-  lazy val plugin      = Project(id = "ildl-plugin",      base = file("components/plugin"),      settings = defaults ++ pluginDeps) dependsOn(runtime)
-  lazy val tests       = Project(id = "ildl-tests",       base = file("tests/correctness"),      settings = defaults ++ pluginDeps ++ testsDeps) dependsOn(plugin, runtime)
-  lazy val benchmarks  = Project(id = "ildl-benchmarks",  base = file("tests/benchmarks"),       settings = defaults ++ runtimeDeps ++ scalaMeter ++ miniboxingDeps ++ pluginCompilationDeps) dependsOn(plugin, runtime)
+  lazy val _ildl       = Project(id = "ildl",             base = file("."),                      settings = defaults ++ pubDeps(false)) aggregate (runtime, plugin, tests, benchmarks)
+  lazy val runtime     = Project(id = "ildl-runtime",     base = file("components/runtime"),     settings = defaults ++ pubDeps(true))
+  lazy val plugin      = Project(id = "ildl-plugin",      base = file("components/plugin"),      settings = defaults ++ pubDeps(true) ++ pluginDeps) dependsOn(runtime)
+  lazy val tests       = Project(id = "ildl-tests",       base = file("tests/correctness"),      settings = defaults ++ pubDeps(false) ++ pluginDeps ++ testsDeps) dependsOn(plugin, runtime)
+  lazy val benchmarks  = Project(id = "ildl-benchmarks",  base = file("tests/benchmarks"),       settings = defaults ++ pubDeps(false) ++ runtimeDeps ++ scalaMeter ++ miniboxingDeps ++ pluginCompilationDeps) dependsOn(plugin, runtime)
 }
